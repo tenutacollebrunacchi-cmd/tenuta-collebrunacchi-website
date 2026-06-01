@@ -1,0 +1,3320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truffle Hunting San Miniato, Tuscany | Authentic Experience & Lunch</title>
+  <meta name="description" content="Truffle hunting in San Miniato's private forests with a local hunter, fresh truffle lunch, Tuscan wine. Small groups, max 10 guests. Free cancellation.">
+  <meta name="keywords" content="truffle hunting San Miniato, truffle experience Tuscany, white truffle Tuscany, small group truffle tour Florence, authentic truffle hunting Tuscany">
+  <meta property="og:title" content="Truffle Hunting San Miniato, Tuscany">
+  <meta property="og:description" content="Hunt, cook, and feast. An authentic truffle morning in the private forests of San Miniato.">
+  <meta property="og:type" content="website">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "name": "Truffle Hunting San Miniato — Authentic Tuscany Experience",
+    "description": "Authentic truffle hunting in San Miniato with trained Lagotto Romagnolo dogs, fresh truffle lunch and Tuscan wine. Small groups, max 10 guests.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "San Miniato",
+      "addressRegion": "PI",
+      "addressCountry": "IT"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": "1",
+      "bestRating": "5"
+    }
+  }
+  </script>
+
+  <!-- Preload hero image — prevents LCP delay on mobile -->
+  <link rel="preload" as="image" href="assets/img/10_DJI_0851-12.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Inter 300 removed (unused). Playfair 700 kept for step-number only. -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --terra:        #8B5E3C;
+      --terra-dark:   #6B4528;
+      --terra-light:  #C4956A;
+      --verde:        #1A2D15;
+      --verde-mid:    #2D4A22;
+      --verde-light:  #4A7040;
+      --cream:        #F2EDE3;
+      --ivory:        #FAFAF5;
+      --white:        #FFFFFF;
+      --charcoal:     #1C1C1A;
+      --warm-gray:    #6B6B64;
+      --gold:         #C4A456;
+      --gold-light:   #E8D5A0;
+      --border:       #E0D8CC;
+      --font-serif:   'Playfair Display', Georgia, serif;
+      --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+      --max-w:        1160px;
+      --radius:       4px;
+      --shadow:       0 4px 24px rgba(0,0,0,0.08);
+      --shadow-lg:    0 12px 48px rgba(0,0,0,0.14);
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--ivory);
+      color: var(--charcoal);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      touch-action: pan-y;
+      overscroll-behavior-y: none;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* =============================================
+       UTILITIES
+    ============================================= */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .section-label {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 14px;
+      display: block;
+    }
+    .section-label.light { color: var(--gold-light); }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(30px, 4.5vw, 50px);
+      font-weight: 500;
+      line-height: 1.15;
+      color: var(--charcoal);
+    }
+    .section-title.light { color: var(--white); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-radius: var(--radius);
+      transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--terra);
+      color: var(--white);
+      border: 2px solid var(--terra);
+    }
+    .btn-primary:hover {
+      background: var(--terra-dark);
+      border-color: var(--terra-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(139,94,60,0.35);
+    }
+
+    .btn-outline-light {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.55);
+    }
+    .btn-outline-light:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: var(--white);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--charcoal);
+      border: 2px solid var(--gold);
+    }
+    .btn-gold:hover {
+      background: #B8943E;
+      border-color: #B8943E;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(196,164,86,0.35);
+    }
+
+    .btn-verde {
+      background: var(--verde-mid);
+      color: var(--white);
+      border: 2px solid var(--verde-mid);
+    }
+    .btn-verde:hover {
+      background: var(--verde);
+      border-color: var(--verde);
+      transform: translateY(-1px);
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-in.delay-1 { transition-delay: 0.1s; }
+    .fade-in.delay-2 { transition-delay: 0.2s; }
+    .fade-in.delay-3 { transition-delay: 0.3s; }
+    .fade-in.delay-4 { transition-delay: 0.4s; }
+
+    /* =============================================
+       NAVIGATION
+    ============================================= */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 20px 0;
+      will-change: background-color;
+      transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    }
+    .nav.scrolled {
+      background: rgba(250,250,245,0.97);
+      backdrop-filter: blur(12px);
+      padding: 14px 0;
+      box-shadow: 0 1px 16px rgba(0,0,0,0.08);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--white);
+      letter-spacing: 0.3px;
+      transition: color 0.35s;
+      line-height: 1.2;
+    }
+    .nav-logo span {
+      display: block;
+      font-size: 10px;
+      font-family: var(--font-sans);
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-top: 1px;
+    }
+    .nav.scrolled .nav-logo { color: var(--charcoal); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav.scrolled .nav-links a { color: var(--warm-gray); }
+    .nav.scrolled .nav-links a:hover { color: var(--charcoal); }
+
+    .nav-cta {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 22px;
+      background: var(--terra);
+      color: var(--white);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--terra);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+    .nav-cta:hover {
+      background: var(--terra-dark);
+      border-color: var(--terra-dark);
+    }
+    .nav-account {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+    .nav-account:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.65);
+      color: var(--white);
+    }
+    .nav.scrolled .nav-account { color: var(--warm-gray); border-color: var(--border); }
+    .nav.scrolled .nav-account:hover { color: var(--charcoal); border-color: var(--terra); }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .nav.scrolled .hamburger span { background: var(--charcoal); }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--ivory);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      color: var(--charcoal);
+      font-weight: 500;
+    }
+    .mobile-menu .mobile-cta {
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    /* =============================================
+       HERO
+    ============================================= */
+    .hero {
+      position: relative;
+      height: 100svh;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/img/10_DJI_0851-12.jpg');
+      background-size: cover;
+      background-position: center 40%;
+      animation: kenBurns 22s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    @keyframes kenBurns {
+      from { transform: scale(1); }
+      to   { transform: scale(1.07); }
+    }
+
+    .hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      z-index: 1;
+    }
+
+    /* Once video fires 'playing', JS adds this class to stop Ken Burns */
+    .hero-bg.video-playing {
+      animation: none;
+      will-change: auto;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(15,20,12,0.35) 0%,
+        rgba(15,20,12,0.20) 40%,
+        rgba(15,20,12,0.65) 100%
+      );
+      z-index: 2;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      max-width: 720px;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 18px;
+      opacity: 0;
+      animation: heroFade 1s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(38px, 6vw, 72px);
+      font-weight: 500;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: heroFade 1s 0.5s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 17px);
+      color: rgba(255,255,255,0.82);
+      line-height: 1.65;
+      max-width: 520px;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: heroFade 1s 0.7s forwards;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: heroFade 1s 0.9s forwards;
+    }
+
+    .hero-trust {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: heroFade 1s 1.1s forwards;
+    }
+
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.78);
+      font-weight: 400;
+    }
+    .trust-badge .icon {
+      font-size: 14px;
+    }
+
+    @keyframes heroFade {
+      to { opacity: 1; }
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.55);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: rgba(255,255,255,0.35);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* =============================================
+       HOOK — 4 PILLARS
+    ============================================= */
+    .hook {
+      background: var(--ivory);
+      padding: 96px 0;
+    }
+
+    .hook-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .hook-header .section-title {
+      margin-bottom: 14px;
+    }
+
+    .hook-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+
+    .pillar {
+      background: var(--cream);
+      padding: 44px 32px;
+      transition: background 0.25s, transform 0.25s;
+    }
+    .pillar:hover {
+      background: var(--verde-mid);
+    }
+    .pillar:hover .pillar-title,
+    .pillar:hover .pillar-text { color: var(--white); }
+    .pillar:hover .pillar-icon { color: var(--gold); }
+
+    .pillar-icon {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: var(--terra);
+      transition: color 0.25s;
+      line-height: 1;
+    }
+
+    .pillar-num {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--terra-light);
+      margin-bottom: 10px;
+      display: block;
+      transition: color 0.25s;
+    }
+    .pillar:hover .pillar-num { color: var(--gold-light); }
+
+    .pillar-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+      transition: color 0.25s;
+    }
+
+    .pillar-text {
+      font-size: 14px;
+      color: var(--warm-gray);
+      line-height: 1.7;
+      transition: color 0.25s;
+    }
+
+    /* =============================================
+       EXPERIENCE — 5 STEPS
+    ============================================= */
+    .experience {
+      background: var(--ivory);
+      padding: 100px 0;
+    }
+
+    .experience-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .experience-header .section-title { margin-bottom: 14px; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-bottom: 2px;
+      min-height: 420px;
+    }
+
+    .step:last-child { margin-bottom: 0; }
+
+    .step-text {
+      background: var(--cream);
+      padding: 64px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .step.reverse .step-text { order: 2; }
+    .step.reverse .step-img  { order: 1; }
+
+    .step-number {
+      font-family: var(--font-serif);
+      font-size: 80px;
+      font-weight: 700;
+      color: rgba(139,94,60,0.10);
+      line-height: 1;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .step-time {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .step-title {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 16px;
+      line-height: 1.25;
+    }
+
+    .step-body {
+      font-size: 15px;
+      color: var(--warm-gray);
+      line-height: 1.75;
+    }
+
+    .step-img {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .step-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .step-img:hover img { transform: scale(1.04); }
+
+    /* =============================================
+       HOST — FRANCESCA
+    ============================================= */
+    .host {
+      background: var(--cream);
+      padding: 100px 0;
+    }
+
+    .host-inner {
+      display: grid;
+      grid-template-columns: 5fr 7fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .host-img-wrap {
+      position: relative;
+    }
+
+    .host-img-main {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      object-position: top;
+      border-radius: var(--radius);
+    }
+
+    .host-img-accent {
+      position: absolute;
+      bottom: -28px;
+      right: -28px;
+      width: 55%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-radius: var(--radius);
+      border: 5px solid var(--cream);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .host-content { max-width: 520px; }
+
+    .host-quote {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-style: italic;
+      color: var(--charcoal);
+      line-height: 1.55;
+      margin: 28px 0 32px;
+      padding-left: 24px;
+      border-left: 2px solid var(--terra-light);
+    }
+
+    .host-bio {
+      font-size: 15px;
+      color: var(--warm-gray);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .host-bio strong { color: var(--charcoal); }
+
+    .host-credentials {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .credential {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--warm-gray);
+    }
+    .credential .cred-icon { font-size: 16px; }
+
+    /* =============================================
+       DOG — CO-PROTAGONIST
+    ============================================= */
+    .dog {
+      background: var(--verde);
+      padding: 100px 0;
+      overflow: hidden;
+    }
+
+    .dog-inner {
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .dog-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      object-position: center 30%;
+      border-radius: var(--radius);
+    }
+
+    .dog-content { max-width: 460px; }
+
+    .dog-content .section-title { margin-bottom: 24px; }
+
+    .dog-body {
+      font-size: 15px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    .dog-body p + p { margin-top: 14px; }
+
+    /* =============================================
+       GALLERY
+    ============================================= */
+    .gallery {
+      background: var(--charcoal);
+      padding: 100px 0;
+    }
+
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .gallery-header .section-title { margin-bottom: 12px; }
+    .gallery-header p { color: rgba(255,255,255,0.5); font-size: 14px; }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(3, 220px);
+      gap: 3px;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .gallery-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.18);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .gallery-item:hover::after { opacity: 1; }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.05); }
+
+    /* Grid layout: 8 photos in specific positions */
+    .gallery-item:nth-child(1) { grid-column: 1 / 6;  grid-row: 1; }
+    .gallery-item:nth-child(2) { grid-column: 6 / 9;  grid-row: 1; }
+    .gallery-item:nth-child(3) { grid-column: 9 / 13; grid-row: 1; }
+    .gallery-item:nth-child(4) { grid-column: 1 / 4;  grid-row: 2; }
+    .gallery-item:nth-child(5) { grid-column: 4 / 8;  grid-row: 2; }
+    .gallery-item:nth-child(6) { grid-column: 8 / 13; grid-row: 2 / 4; }
+    .gallery-item:nth-child(7) { grid-column: 1 / 5;  grid-row: 3; }
+    .gallery-item:nth-child(8) { grid-column: 5 / 8;  grid-row: 3; }
+
+    .gallery-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 18px 14px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1;
+    }
+    .gallery-item:hover .gallery-caption { opacity: 1; }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+
+    .lightbox-img {
+      max-width: 88vw;
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: 2px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px; right: 24px;
+      color: rgba(255,255,255,0.7);
+      font-size: 32px;
+      line-height: 1;
+      cursor: pointer;
+      transition: color 0.2s;
+      z-index: 1;
+    }
+    .lightbox-close:hover { color: var(--white); }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.6);
+      font-size: 36px;
+      cursor: pointer;
+      padding: 16px;
+      transition: color 0.2s;
+      user-select: none;
+    }
+    .lightbox-nav:hover { color: var(--white); }
+    .lightbox-prev { left: 12px; }
+    .lightbox-next { right: 12px; }
+
+    /* =============================================
+       REVIEWS
+    ============================================= */
+    .reviews {
+      background: var(--verde-mid);
+      padding: 100px 0;
+    }
+
+    .reviews-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .reviews-header .section-title { margin-bottom: 8px; }
+
+    .reviews-aggregate {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px;
+    }
+    .reviews-aggregate strong { color: var(--gold); }
+
+    /* Single featured review */
+    .reviews-grid {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 64px;
+    }
+
+    .review-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: var(--radius);
+      padding: 48px 56px;
+      max-width: 720px;
+      width: 100%;
+      transition: background-color 0.25s ease;
+    }
+    .review-card:hover { background: rgba(255,255,255,0.11); }
+
+    .review-platform-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .review-platform-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .review-platform-icon.gyg {
+      background: #FF6C2F;
+      color: #fff;
+    }
+
+    .review-platform-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .review-stars {
+      color: var(--gold);
+      font-size: 18px;
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+    }
+
+    .review-quote {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-style: italic;
+      color: rgba(255,255,255,0.92);
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .review-author {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* Platform links */
+    .reviews-platforms {
+      text-align: center;
+    }
+
+    .reviews-platforms-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 24px;
+    }
+
+    .platform-pills {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .platform-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border: 1.5px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.7);
+      transition: border-color 0.25s ease, color 0.25s ease, background-color 0.25s ease;
+    }
+    .platform-pill:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .platform-pill .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .platform-airbnb .pill-dot { background: #FF5A5F; }
+    .platform-viator  .pill-dot { background: #1A8F5F; }
+    .platform-gyg     .pill-dot { background: #FF6C2F; }
+
+    .reviews-first-reviewer {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-style: italic;
+      color: rgba(255,255,255,0.45);
+      max-width: 440px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* =============================================
+       INCLUDED
+    ============================================= */
+    .included {
+      background: var(--ivory);
+      padding: 100px 0;
+    }
+
+    .included-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .included-content .section-title { margin-bottom: 36px; }
+
+    .checklist {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--charcoal);
+    }
+    .checklist li:first-child { border-top: 1px solid var(--border); }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      background: var(--verde-light);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .check-icon.no { background: #C5B8A8; }
+
+    .checklist-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+      margin: 28px 0 10px;
+    }
+
+    .logistics-box {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-top: 8px;
+    }
+
+    .logistics-box h4 {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: var(--charcoal);
+    }
+
+    .logistics-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      font-size: 13px;
+      color: var(--warm-gray);
+      border-bottom: 1px solid var(--border);
+    }
+    .logistics-row:last-child { border-bottom: none; }
+    .logistics-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .logistics-row strong { color: var(--charcoal); }
+
+    .included-visual {
+      position: sticky;
+      top: 100px;
+    }
+
+    .included-img-main {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+
+    .included-img-accent {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: var(--radius);
+    }
+
+    /* =============================================
+       PRICING
+    ============================================= */
+    .pricing {
+      background: var(--cream);
+      padding: 100px 0;
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .pricing-header .section-title { margin-bottom: 12px; }
+
+    .pricing-header p {
+      font-size: 15px;
+      color: var(--warm-gray);
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .direct-banner {
+      max-width: 860px;
+      margin: 0 auto 36px;
+      background: linear-gradient(135deg, #FDF7EC 0%, #FAF0DC 100%);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 20px 28px;
+    }
+
+    .direct-banner-inner {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .direct-banner-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .direct-banner-copy {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .direct-banner-copy strong {
+      display: block;
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--terra-dark);
+      margin-bottom: 4px;
+      line-height: 1.15;
+    }
+
+    .direct-banner-copy span {
+      font-size: 13px;
+      color: var(--warm-gray);
+      line-height: 1.5;
+    }
+
+    .direct-banner-badge {
+      background: var(--terra);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 40px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .direct-banner          { padding: 18px 20px; }
+      .direct-banner-inner    { flex-wrap: wrap; gap: 12px; }
+      .direct-banner-badge    { order: -1; }
+      .direct-banner-copy strong { font-size: 14px; }
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 860px;
+      margin: 0 auto 36px;
+    }
+
+    .price-card {
+      background: var(--ivory);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 44px 40px;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .price-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .price-card.featured {
+      background: var(--verde);
+      border-color: var(--verde);
+    }
+
+    .price-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .price-card.featured .price-tag { color: var(--gold-light); }
+
+    .price-name {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+    }
+    .price-card.featured .price-name { color: var(--white); }
+
+    .price-capacity {
+      font-size: 12px;
+      color: var(--warm-gray);
+      margin-bottom: 24px;
+    }
+    .price-card.featured .price-capacity { color: rgba(255,255,255,0.55); }
+
+    .price-amount {
+      font-family: var(--font-serif);
+      font-size: 44px;
+      font-weight: 500;
+      color: var(--charcoal);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .price-card.featured .price-amount { color: var(--gold); }
+
+    .price-unit {
+      font-size: 13px;
+      color: var(--warm-gray);
+      margin-bottom: 32px;
+    }
+    .price-card.featured .price-unit { color: rgba(255,255,255,0.5); }
+
+    .price-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 28px;
+    }
+    .price-card.featured .price-divider { background: rgba(255,255,255,0.12); }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 36px;
+    }
+
+    .price-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      font-size: 13px;
+      color: var(--charcoal);
+    }
+    .price-card.featured .price-features li { color: rgba(255,255,255,0.85); }
+
+    .price-features .feat-icon {
+      color: var(--verde-light);
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .price-card.featured .price-features .feat-icon { color: var(--gold); }
+
+    .price-features .bold-feat { font-weight: 600; }
+
+    .pricing-trust {
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 36px;
+      flex-wrap: wrap;
+    }
+
+    .pricing-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--warm-gray);
+    }
+    .pricing-trust-item .icon { font-size: 15px; }
+
+    /* =============================================
+       FAQ
+    ============================================= */
+    .faq {
+      background: var(--ivory);
+      padding: 100px 0;
+    }
+
+    .faq-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .faq-header .section-title { margin-bottom: 10px; }
+
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-item:first-child { border-top: 1px solid var(--border); }
+
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 0;
+      cursor: pointer;
+      gap: 16px;
+    }
+
+    .faq-q-text {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--charcoal);
+    }
+
+    .faq-icon {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      color: var(--warm-gray);
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    }
+
+    .faq-item.open .faq-icon {
+      background: var(--verde-mid);
+      border-color: var(--verde-mid);
+      color: var(--white);
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+
+    .faq-item.open .faq-answer { max-height: 300px; }
+
+    .faq-a-text {
+      padding: 0 0 24px;
+      font-size: 15px;
+      color: var(--warm-gray);
+      line-height: 1.75;
+    }
+
+    /* =============================================
+       BOOKING CTA
+    ============================================= */
+    .booking-cta {
+      position: relative;
+      padding: 120px 0;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/img/02_DJI_0840-7.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .cta-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,25,12,0.70);
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .cta-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 5vw, 54px);
+      font-weight: 500;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .cta-subtitle {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-style: italic;
+      color: var(--gold-light);
+      margin-bottom: 24px;
+    }
+
+    .cta-body {
+      font-size: 15px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 40px;
+      line-height: 1.65;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 24px;
+      transition: color 0.2s;
+    }
+    .cta-whatsapp:hover { color: var(--white); }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    .footer {
+      background: var(--charcoal);
+      padding: 56px 0 36px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 32px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+    .footer-logo span {
+      display: block;
+      font-size: 10px;
+      font-family: var(--font-sans);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.65;
+      max-width: 300px;
+    }
+
+    .footer-col h5 {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 18px;
+    }
+
+    .footer-col ul { list-style: none; }
+    .footer-col li + li { margin-top: 10px; }
+    .footer-col a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--white); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: rgba(255,255,255,0.28);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-platforms {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-platforms a {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      transition: color 0.2s;
+      letter-spacing: 1px;
+    }
+    .footer-platforms a:hover { color: rgba(255,255,255,0.7); }
+
+    /* =============================================
+       RESPONSIVE — TABLET
+    ============================================= */
+    @media (max-width: 960px) {
+      .hook-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .step {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .step.reverse .step-text,
+      .step.reverse .step-img { order: unset; }
+      .step-text { padding: 44px 36px; }
+      .step-img { height: 280px; }
+
+      .host-inner { grid-template-columns: 1fr; gap: 48px; }
+      .host-img-accent { display: none; }
+      .host-img-main { aspect-ratio: 16/9; object-position: center 20%; }
+
+      .dog-inner { grid-template-columns: 1fr; gap: 44px; }
+      .dog-img { aspect-ratio: 16/9; }
+
+      .gallery-grid {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(5, 180px);
+      }
+      .gallery-item:nth-child(1) { grid-column: 1 / 7; grid-row: 1; }
+      .gallery-item:nth-child(2) { grid-column: 1 / 4; grid-row: 2; }
+      .gallery-item:nth-child(3) { grid-column: 4 / 7; grid-row: 2; }
+      .gallery-item:nth-child(4) { grid-column: 1 / 4; grid-row: 3; }
+      .gallery-item:nth-child(5) { grid-column: 4 / 7; grid-row: 3; }
+      .gallery-item:nth-child(6) { grid-column: 1 / 7; grid-row: 4; }
+      .gallery-item:nth-child(7) { grid-column: 1 / 4; grid-row: 5; }
+      .gallery-item:nth-child(8) { grid-column: 4 / 7; grid-row: 5; }
+
+      .reviews-grid { padding: 0; }
+
+      .included-inner { grid-template-columns: 1fr; gap: 44px; }
+      .included-visual { position: static; }
+      .included-img-main { aspect-ratio: 16/9; }
+
+      .pricing-grid { grid-template-columns: 1fr; max-width: 440px; }
+
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .footer-top > *:first-child { grid-column: 1 / -1; }
+    }
+
+    /* =============================================
+       RESPONSIVE — MOBILE
+    ============================================= */
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      .hook { padding: 64px 0; }
+      .hook-grid { grid-template-columns: 1fr; gap: 2px; }
+      .pillar { padding: 36px 24px; }
+
+      .experience { padding: 64px 0; }
+      .step-text { padding: 36px 24px; }
+      .step-number { font-size: 56px; }
+
+      .host { padding: 64px 0; }
+      .dog  { padding: 64px 0; }
+
+      .gallery { padding: 64px 0; }
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: repeat(6, 160px);
+      }
+      .gallery-item:nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+      .gallery-item:nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
+      .gallery-item:nth-child(3) { grid-column: 2 / 3; grid-row: 2; }
+      .gallery-item:nth-child(4) { grid-column: 1 / 3; grid-row: 3; }
+      .gallery-item:nth-child(5) { grid-column: 1 / 2; grid-row: 4; }
+      .gallery-item:nth-child(6) { grid-column: 2 / 3; grid-row: 4; }
+      .gallery-item:nth-child(7) { grid-column: 1 / 2; grid-row: 5; }
+      .gallery-item:nth-child(8) { grid-column: 2 / 3; grid-row: 5; }
+
+      .reviews  { padding: 64px 0; }
+      .included { padding: 64px 0; }
+      .pricing  { padding: 64px 0; }
+      .faq      { padding: 64px 0; }
+      .booking-cta { padding: 80px 0; }
+
+      .hero-trust { gap: 16px; }
+      .hero-ctas { flex-direction: column; align-items: flex-start; }
+
+      .cta-buttons { flex-direction: column; align-items: center; }
+
+      .footer-top {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    /* =============================================
+       PERFORMANCE — MOBILE & ACCESSIBILITY
+    ============================================= */
+
+    /* Disable Ken Burns on mobile — saves GPU/battery */
+    @media (max-width: 640px) {
+      .hero-bg { animation: none; }
+    }
+
+    /* Respect reduced-motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      .hero-bg    { animation: none; }
+      .hero-scroll { animation: none; }
+      .fade-in    { transition: opacity 0.2s ease; transform: none; }
+      .fade-in.visible { transform: none; }
+      * { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    }
+
+    /* Touch devices: kill hover transforms — no phantom tap-hovers */
+    @media (hover: none) {
+      .gallery-item:hover img  { transform: none; }
+      .gallery-item:hover::after { opacity: 0; }
+      .step-img:hover img      { transform: none; }
+      .price-card:hover        { transform: none; box-shadow: none; }
+      .pillar:hover            { background: var(--cream); }
+      .pillar:hover .pillar-title { color: var(--charcoal); }
+      .pillar:hover .pillar-text  { color: var(--warm-gray); }
+      .pillar:hover .pillar-icon  { color: var(--terra); }
+      .pillar:hover .pillar-num   { color: var(--terra-light); }
+      .btn-primary:hover,
+      .btn-gold:hover,
+      .btn-verde:hover { transform: none; box-shadow: none; }
+    }
+
+    /* ── 375 px – 430 px (iPhone SE / 14 / 15 / Pro) ────────── */
+    @media (max-width: 430px) {
+      .container { padding: 0 16px; }
+
+      /* Hero */
+      .hero-title  { font-size: clamp(32px, 9.5vw, 40px); }
+      .hero-sub    { font-size: 14px; }
+      .hero-ctas   { gap: 10px; }
+      .btn         { padding: 13px 20px; font-size: 12px; letter-spacing: 1px; }
+      .hero-trust  { flex-direction: column; gap: 6px; }
+      .trust-badge { font-size: 11px; }
+      .hero-scroll { display: none; }
+
+      /* Hook */
+      .hook           { padding: 48px 0; }
+      .hook-header    { margin-bottom: 36px; }
+      .pillar         { padding: 26px 16px; }
+      .pillar-title   { font-size: 18px; }
+      .pillar-text    { font-size: 13px; }
+
+      /* Experience */
+      .experience         { padding: 48px 0; }
+      .experience-header  { margin-bottom: 40px; }
+      .step-text          { padding: 26px 16px; }
+      .step-number        { font-size: 40px; }
+      .step-title         { font-size: 20px; }
+      .step-body          { font-size: 14px; }
+      .step-img           { height: 200px; }
+
+      /* Host & Dog */
+      .host { padding: 48px 0; }
+      .dog  { padding: 48px 0; }
+      .host-quote { font-size: 17px; }
+      .host-bio   { font-size: 14px; }
+
+      /* Gallery */
+      .gallery { padding: 48px 0; }
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 160px 130px 160px 130px 130px;
+      }
+      .gallery-item:nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+      .gallery-item:nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
+      .gallery-item:nth-child(3) { grid-column: 2 / 3; grid-row: 2; }
+      .gallery-item:nth-child(4) { grid-column: 1 / 3; grid-row: 3; }
+      .gallery-item:nth-child(5) { grid-column: 1 / 2; grid-row: 4; }
+      .gallery-item:nth-child(6) { grid-column: 2 / 3; grid-row: 4; }
+      .gallery-item:nth-child(7) { grid-column: 1 / 2; grid-row: 5; }
+      .gallery-item:nth-child(8) { grid-column: 2 / 3; grid-row: 5; }
+
+      /* Reviews */
+      .reviews              { padding: 48px 0; }
+      .review-card          { padding: 32px 24px; }
+      .review-quote         { font-size: 16px; }
+      .reviews-grid         { margin-bottom: 44px; }
+      .platform-pills       { gap: 10px; }
+      .platform-pill        { padding: 10px 16px; font-size: 11px; }
+      .reviews-first-reviewer { font-size: 15px; }
+
+      /* Included */
+      .included { padding: 48px 0; }
+
+      /* Pricing */
+      .pricing        { padding: 48px 0; }
+      .price-card     { padding: 30px 20px; }
+      .price-amount   { font-size: 36px; }
+      .price-features li { font-size: 12px; }
+      .pricing-trust  { gap: 14px; }
+      .pricing-trust-item { font-size: 12px; }
+
+      /* FAQ */
+      .faq          { padding: 48px 0; }
+      .faq-q-text   { font-size: 15px; }
+      .faq-question { padding: 16px 0; }
+      .faq-a-text   { font-size: 14px; }
+
+      /* CTA */
+      .booking-cta  { padding: 64px 0; }
+      .cta-title    { font-size: clamp(26px, 8vw, 34px); }
+      .cta-subtitle { font-size: 16px; }
+      .cta-body     { font-size: 14px; }
+      .cta-buttons  { gap: 10px; }
+
+      /* Footer */
+      .footer           { padding: 40px 0 20px; }
+      .footer-platforms { flex-wrap: wrap; gap: 10px; }
+    }
+
+    /* Paint isolation — GPU layer hints for animated containers */
+    .hero     { isolation: isolate; }
+    .gallery  { isolation: isolate; }
+
+    /* Contain layout for sections without sticky children */
+    .hook, .dog, .reviews, .faq, .booking-cta {
+      contain: layout style;
+    }
+
+    /* =============================================
+       BOOKING SECTION
+    ============================================= */
+    .booking-section {
+      background: var(--ivory);
+      padding: 100px 0;
+    }
+
+    .booking-header {
+      text-align: center;
+      margin-bottom: 0;
+    }
+    .booking-header .section-title { margin-bottom: 10px; }
+
+    @media (max-width: 640px) {
+      .booking-section { padding: 64px 0; }
+    }
+    @media (max-width: 430px) {
+      .booking-section { padding: 48px 0; }
+    }
+
+    /* =============================================
+       CONTACT FORM SECTION
+    ============================================= */
+    .contact-section {
+      background: var(--ivory);
+      padding: 100px 0;
+    }
+
+    .contact-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .contact-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .contact-header .section-title { margin-bottom: 10px; }
+    .contact-header p {
+      font-size: 15px;
+      color: var(--warm-gray);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 13px 16px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--charcoal);
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s ease;
+      -webkit-appearance: none;
+    }
+    .form-control:focus {
+      border-color: var(--terra);
+    }
+    .form-control::placeholder {
+      color: #B8B0A4;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-submit {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .form-note {
+      font-size: 12px;
+      color: var(--warm-gray);
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .form-success-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+    .form-success-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+    }
+    .form-success-body {
+      font-size: 15px;
+      color: var(--warm-gray);
+    }
+
+    .form-error-msg {
+      display: none;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #C0392B;
+      text-align: center;
+    }
+
+    .btn-loading {
+      opacity: 0.65;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .contact-section { padding: 64px 0; }
+    }
+
+    /* =============================================
+       WHATSAPP FIXED WIDGET
+    ============================================= */
+    .wa-widget {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 8000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .wa-tooltip {
+      background: var(--charcoal);
+      color: var(--white);
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 10px 14px;
+      border-radius: 8px;
+      max-width: 220px;
+      text-align: right;
+      opacity: 0;
+      transform: translateY(6px) scale(0.95);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+    .wa-widget:hover .wa-tooltip,
+    .wa-widget:focus-within .wa-tooltip {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .wa-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #25D366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.45);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .wa-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 24px rgba(37,211,102,0.55);
+    }
+    .wa-btn svg {
+      width: 30px;
+      height: 30px;
+      fill: #fff;
+    }
+
+    .wa-pulse {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(37,211,102,0.35);
+      animation: waPulse 2.2s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes waPulse {
+      0%   { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    @media (max-width: 430px) {
+      .wa-widget { bottom: 18px; right: 16px; }
+      .wa-btn    { width: 50px; height: 50px; }
+      .wa-pulse  { width: 50px; height: 50px; }
+      .wa-btn svg { width: 26px; height: 26px; }
+    }
+
+    /* =============================================
+       COOKIE BANNER
+    ============================================= */
+    .cookie-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 9500;
+      background: var(--charcoal);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 20px 0;
+      transform: translateY(0);
+      transition: transform 0.4s ease;
+    }
+    .cookie-banner.hidden { transform: translateY(110%); }
+
+    .cookie-banner-inner {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .cookie-banner-text {
+      flex: 1;
+      font-size: 13px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.6;
+      min-width: 200px;
+    }
+    .cookie-banner-text a {
+      color: var(--gold-light);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .cookie-banner-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .cookie-btn {
+      padding: 9px 20px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      white-space: nowrap;
+    }
+    .cookie-btn-accept {
+      background: var(--verde-light);
+      color: var(--white);
+      border-color: var(--verde-light);
+    }
+    .cookie-btn-accept:hover { background: var(--verde-mid); border-color: var(--verde-mid); }
+    .cookie-btn-decline {
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+    }
+    .cookie-btn-decline:hover { color: var(--white); border-color: rgba(255,255,255,0.6); }
+
+    @media (max-width: 640px) {
+      .cookie-banner-inner  { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .cookie-banner-actions { width: 100%; justify-content: flex-end; }
+    }
+
+    /* =============================================
+       FOOTER LEGAL ROW
+    ============================================= */
+    .footer-legal {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 20px;
+      margin-top: 20px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.22);
+      line-height: 1.7;
+    }
+
+    .footer-legal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-legal-links {
+      display: flex;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .footer-legal-links a {
+      color: rgba(255,255,255,0.28);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-size: 11px;
+      transition: color 0.2s;
+    }
+    .footer-legal-links a:hover { color: rgba(255,255,255,0.6); }
+
+    @media (max-width: 640px) {
+      .footer-legal-row { flex-direction: column; gap: 10px; }
+    }
+  </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HQBJQC0L1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1HQBJQC0L1');
+  </script>
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "x0dxzpo3yg");
+  </script>
+</head>
+<body>
+
+  <!-- ============================================================
+       COOKIE BANNER — Garante Privacy (Linee guida 2021)
+  ============================================================ -->
+  <div class="cookie-banner hidden" id="cookieBanner" role="dialog" aria-label="Cookie consent">
+    <div class="container">
+      <div class="cookie-banner-inner">
+        <p class="cookie-banner-text">
+          We use technical cookies necessary for the site to function, and third-party services (Google Fonts) that may process your IP address.
+          Read our <a href="cookie-policy.html" id="cookiePolicyLink">Cookie Policy</a> and <a href="privacy-policy.html" id="privacyPolicyLink">Privacy Policy</a>.
+        </p>
+        <div class="cookie-banner-actions">
+          <button class="cookie-btn cookie-btn-decline" id="cookieDecline">Essential only</button>
+          <button class="cookie-btn cookie-btn-accept" id="cookieAccept">Accept all</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav class="nav" id="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          Tenuta Collebrunacchi
+          <span>Truffle Hunting · San Miniato · Tuscany</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#experience">The Experience</a></li>
+          <li><a href="#host">Your Host</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <a href="booking-account.html" class="nav-account">My Account</a>
+        <a href="#booking" class="nav-cta">Book Now</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#experience" class="mobile-link">The Experience</a>
+    <a href="#host" class="mobile-link">Your Host</a>
+    <a href="#gallery" class="mobile-link">Gallery</a>
+    <a href="#pricing" class="mobile-link">Pricing</a>
+    <a href="#faq" class="mobile-link">FAQ</a>
+    <a href="booking-account.html" class="mobile-link">My Account</a>
+    <a href="#booking" class="btn btn-primary mobile-cta">Book Your Morning →</a>
+  </div>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero" id="home">
+    <!-- Fallback: Ken Burns photo shown until/if video loads -->
+    <div class="hero-bg" id="heroBg"></div>
+    <!-- Drone video — autoplay muted loop; poster = hero photo fallback -->
+    <video
+      class="hero-video"
+      id="heroVideo"
+      autoplay
+      muted
+      loop
+      playsinline
+      poster="assets/img/10_DJI_0851-12.jpg">
+      <source
+        src="assets/video/DaBoscoAVilla.mp4"
+        type="video/mp4">
+      <!-- Fallback text for browsers that don't support video at all -->
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-eyebrow">San Miniato, Tuscany · Italy's White Truffle Capital</span>
+        <h1 class="hero-title">
+          Truffle Hunting<br>
+          in <em>San Miniato.</em>
+        </h1>
+        <p class="hero-sub">
+          With a real truffle hunter. In a real forest.
+          At a table you'll never forget.
+        </p>
+        <div class="hero-ctas">
+          <a href="#experience" class="btn btn-primary">Discover the Experience</a>
+          <a href="#booking" class="btn btn-outline-light">Check Availability →</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-badge">
+            <span class="icon">⭐</span>
+            <span>5.0 on GetYourGuide</span>
+          </div>
+          <div class="trust-badge">
+            <span class="icon">🐾</span>
+            <span>Levante &amp; Ares — Certified Lagotto Romagnolo</span>
+          </div>
+          <div class="trust-badge">
+            <span class="icon">✓</span>
+            <span>Free cancellation · 48h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       HOOK — 4 PILLARS
+  ============================================================ -->
+  <section class="hook" id="hook">
+    <div class="container">
+      <div class="hook-header fade-in">
+        <span class="section-label">What awaits you</span>
+        <h2 class="section-title">Four experiences.<br>One single morning.</h2>
+      </div>
+      <div class="hook-grid">
+        <div class="pillar fade-in delay-1">
+          <div class="pillar-icon">🐾</div>
+          <span class="pillar-num">01 — The Hunt</span>
+          <h3 class="pillar-title">Into the Forest</h3>
+          <p class="pillar-text">Deep in our private woodland with Levante and Ares — you'll find the truffle with your own hands, in the ground where it grows.</p>
+        </div>
+        <div class="pillar fade-in delay-2">
+          <div class="pillar-icon">🍽️</div>
+          <span class="pillar-num">02 — The Feast</span>
+          <h3 class="pillar-title">Lunch at the Villa</h3>
+          <p class="pillar-text">Lunch built around what you found: fresh truffle pasta, estate olive oil, and local wine. At a table set the way it's done at home.</p>
+        </div>
+        <div class="pillar fade-in delay-3">
+          <div class="pillar-icon">🍷</div>
+          <span class="pillar-num">03 — The Tasting</span>
+          <h3 class="pillar-title">Wine &amp; Truffle</h3>
+          <p class="pillar-text">Tuscan wines paired with seasonal truffle — explained simply, poured generously. No ceremony, just pleasure.</p>
+        </div>
+        <div class="pillar fade-in delay-4">
+          <div class="pillar-icon">👨‍🍳</div>
+          <span class="pillar-num">04 — The Lesson</span>
+          <h3 class="pillar-title">The Knowledge</h3>
+          <p class="pillar-text">How to clean it, store it, and use it. How to tell a real truffle from an industrial fake. The things you won't find in any guidebook.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       EXPERIENCE — 5 STEPS
+  ============================================================ -->
+  <section class="experience" id="experience">
+    <div class="container">
+      <div class="experience-header fade-in">
+        <span class="section-label">The morning, step by step</span>
+        <h2 class="section-title">What happens,<br>from morning to table</h2>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step fade-in">
+      <div class="step-text">
+        <span class="step-number">01</span>
+        <span class="step-time">10:00 AM — Arrive</span>
+        <h3 class="step-title">We meet at the villa</h3>
+        <p class="step-body">You arrive at our historic estate in San Miniato — the undisputed capital of Italy's white truffle. We'll be there: us, Levante, Ares, and the smell of the forest already in the air. No signs. No crowds. Just you and a small group of lucky guests.</p>
+      </div>
+      <div class="step-img">
+        <img src="assets/img/01_DJI_0848-11.jpg" alt="Historic Tuscan villa seen from above, San Miniato" loading="lazy" decoding="async">
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step reverse fade-in">
+      <div class="step-text">
+        <span class="step-number">02</span>
+        <span class="step-time">10:30 AM — Walk</span>
+        <h3 class="step-title">Into the forest</h3>
+        <p class="step-body">Through the olive grove and into our private woodland. Levante and Ares take off. Their noses go to work. You learn to read the signals: where truffles grow, why they grow there, how moisture and tree roots create an underground miracle.</p>
+      </div>
+      <div class="step-img">
+        <img src="assets/img/12_DSC_9769-39.jpg" alt="Guests walking through Tuscan olive grove toward the truffle forest" loading="lazy" decoding="async">
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step fade-in">
+      <div class="step-text">
+        <span class="step-number">03</span>
+        <span class="step-time">11:00 AM — The Hunt</span>
+        <h3 class="step-title">You dig. You find it.</h3>
+        <p class="step-body">One of them stops. You kneel down. Your hands go into the earth. Then it happens — the truffle comes up, and with it a scent you've never experienced: intense, earthy, alive. This is the moment our guests still talk about months later.</p>
+      </div>
+      <div class="step-img">
+        <img src="assets/img/05_DSC_9702-17.jpg" alt="Guests digging for truffles in the forest with Levante and Ares" loading="lazy" decoding="async">
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step reverse fade-in">
+      <div class="step-text">
+        <span class="step-number">04</span>
+        <span class="step-time">12:00 PM — The Lesson</span>
+        <h3 class="step-title">The knowledge no guidebook gives you</h3>
+        <p class="step-body">How to clean a truffle without ruining it. How to store it for five days without losing a gram of fragrance. How to tell a real truffle from an industrially scented fake. Francesca teaches what she knows because she's known it since childhood.</p>
+      </div>
+      <div class="step-img">
+        <img src="assets/img/06_DSC_9713-25.jpg" alt="Guest experiencing fresh truffle scent after the hunt" loading="lazy" decoding="async">
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step fade-in">
+      <div class="step-text">
+        <span class="step-number">05</span>
+        <span class="step-time">1:00 PM — The Feast</span>
+        <h3 class="step-title">At the table: the truffle you found</h3>
+        <p class="step-body">Back at the villa, Francesca takes over. Fresh truffle pasta grated at the table. Our own estate olive oil. Carefully selected Tuscan wine. A table set the way it's done at home — not in a restaurant. And the silence of the hills around you.</p>
+      </div>
+      <div class="step-img">
+        <img src="assets/img/09_DSC_9861-58.jpg" alt="Truffle bruschetta and wine served at the villa table" loading="lazy" decoding="async">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       HOST — FRANCESCA
+  ============================================================ -->
+  <section class="host" id="host">
+    <div class="container">
+      <div class="host-inner">
+        <div class="host-img-wrap fade-in">
+          <img class="host-img-main"
+               src="assets/img/08_DSC_9886-63.jpg"
+               alt="Francesca grating fresh truffle over pasta at the villa"
+               loading="lazy" decoding="async">
+          <img class="host-img-accent"
+               src="assets/img/14_DSC_9691-14.jpg"
+               alt="Francesca leading the truffle hunt in the forest with a spade"
+               loading="lazy" decoding="async">
+        </div>
+        <div class="host-content fade-in delay-2">
+          <span class="section-label">Who takes you there</span>
+          <h2 class="section-title">Francesca</h2>
+          <blockquote class="host-quote">
+            "I don't sell an experience. I let you into something I've always done."
+          </blockquote>
+          <p class="host-bio">
+            <strong>Francesca</strong> was born and raised near San Miniato, surrounded by these forests. She spent her childhood learning to read her dogs before she learned to read books — truffle hunting passed down through generations, not taught in classrooms.
+          </p>
+          <p class="host-bio" style="margin-top: 14px;">
+            She's not a tour guide. She's a truffle hunter who also happens to cook with extraordinary instinct. In the morning she leads the hunt. At noon she returns to the villa kitchen and prepares a lunch that guests compare, year after year, to a Michelin-starred experience.
+          </p>
+          <div class="host-credentials">
+            <div class="credential">
+              <span class="cred-icon">🌱</span>
+              <span>Born and raised in San Miniato, Tuscany</span>
+            </div>
+            <div class="credential">
+              <span class="cred-icon">🐾</span>
+              <span>Levante and Ares — personally trained Lagotto Romagnolo truffle dogs</span>
+            </div>
+            <div class="credential">
+              <span class="cred-icon">🤝</span>
+              <span>Member of the Tuscan Truffle Hunters Association</span>
+            </div>
+            <div class="credential">
+              <span class="cred-icon">⭐</span>
+              <span>5.0 · Verified on GetYourGuide</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DOG — CO-PROTAGONIST
+  ============================================================ -->
+  <section class="dog" id="dog">
+    <div class="container">
+      <div class="dog-inner">
+        <div class="fade-in">
+          <img class="dog-img"
+               src="assets/img/04_DSC_9688-13.jpg"
+               alt="Levante, Lagotto Romagnolo, digging for truffles in the San Miniato forest"
+               loading="lazy" decoding="async">
+        </div>
+        <div class="dog-content fade-in delay-2">
+          <span class="section-label light">The real stars</span>
+          <h2 class="section-title light">Levante and Ares<br>know before we do.</h2>
+          <div class="dog-body">
+            <p>Levante and Ares — our two Lagotto Romagnolos, the Italian breed selectively bred for centuries for this exact work — are not props. They're the reason this works.</p>
+            <p>Trained by Francesca since puppyhood, they know every corner of our private San Miniato forest. They follow their noses, not instructions. When one of them stops and digs, he's right.</p>
+            <p>Our guests always mention them in reviews. Not because they're cute. Because watching them work, they understand: what they're experiencing is real.</p>
+          </div>
+          <a href="#experience" class="btn btn-outline-light">See the full experience →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       GALLERY
+  ============================================================ -->
+  <section class="gallery" id="gallery">
+    <div class="container">
+      <div class="gallery-header fade-in">
+        <span class="section-label light">In the forest & at the table</span>
+        <h2 class="section-title light">A morning in images</h2>
+        <p>Click any photo to explore</p>
+      </div>
+    </div>
+
+    <div class="gallery-grid fade-in">
+      <div class="gallery-item" data-index="0">
+        <img src="assets/img/04_DSC_9688-13.jpg" alt="Levante digging in the truffle forest" loading="lazy" decoding="async">
+        <div class="gallery-caption">They know before we do.</div>
+      </div>
+      <div class="gallery-item" data-index="1">
+        <img src="assets/img/03_DSC_9747-32.jpg" alt="Hands passing a fresh truffle in the forest" loading="lazy" decoding="async">
+        <div class="gallery-caption">This is what truffle hunting actually feels like.</div>
+      </div>
+      <div class="gallery-item" data-index="2">
+        <img src="assets/img/06_DSC_9713-25.jpg" alt="Guest smelling fresh truffle in Tuscan forest" loading="lazy" decoding="async">
+        <div class="gallery-caption">A scent you've never experienced before.</div>
+      </div>
+      <div class="gallery-item" data-index="3">
+        <img src="assets/img/05_DSC_9702-17.jpg" alt="Group of guests hunting truffles with Levante and Ares" loading="lazy" decoding="async">
+        <div class="gallery-caption">When a stranger becomes the best partner in the forest.</div>
+      </div>
+      <div class="gallery-item" data-index="4">
+        <img src="assets/img/09_DSC_9861-58.jpg" alt="Truffle crostini and Tuscan wine on the table" loading="lazy" decoding="async">
+        <div class="gallery-caption">The lunch you find, the lunch you eat.</div>
+      </div>
+      <div class="gallery-item" data-index="5">
+        <img src="assets/img/08_DSC_9886-63.jpg" alt="Francesca grating fresh truffle over pasta" loading="lazy" decoding="async">
+        <div class="gallery-caption">Brunello and fresh truffle. No further explanation needed.</div>
+      </div>
+      <div class="gallery-item" data-index="6">
+        <img src="assets/img/17_DSC_9836-51.jpg" alt="Guests dining in the historic villa sala" loading="lazy" decoding="async">
+        <div class="gallery-caption">This is where we sit after the hunt.</div>
+      </div>
+      <div class="gallery-item" data-index="7">
+        <img src="assets/img/34_DJI_0857-17.jpg" alt="Aerial view of San Miniato villa and Tuscan landscape" loading="lazy" decoding="async">
+        <div class="gallery-caption">San Miniato. Italy's truffle capital. Our home.</div>
+      </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+      <span class="lightbox-close" id="lightboxClose">×</span>
+      <span class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</span>
+      <img class="lightbox-img" id="lightboxImg" src="" alt="">
+      <span class="lightbox-nav lightbox-next" id="lightboxNext">›</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       REVIEWS
+  ============================================================ -->
+  <section class="reviews" id="reviews">
+    <div class="container">
+
+      <div class="reviews-header fade-in">
+        <span class="section-label light">Verified review</span>
+        <h2 class="section-title light">After their morning in the forest</h2>
+      </div>
+
+      <!-- ★ SINGLE VERIFIED REVIEW ───────────────────────────────
+           SOURCE: GetYourGuide · 5 stars · United States · March 2026
+           TODO: paste the exact review text inside the <p> below,
+                 and replace "Verified guest" with the reviewer's
+                 username/name as it appears on GetYourGuide.
+      ─────────────────────────────────────────────────────────── -->
+      <div class="reviews-grid fade-in">
+        <div class="review-card">
+          <div class="review-platform-badge">
+            <div class="review-platform-icon gyg">G</div>
+            <span class="review-platform-name">Verified on GetYourGuide</span>
+          </div>
+          <div class="review-stars">★★★★★</div>
+          <span class="review-author">Verified guest · United States · March 2026 · GetYourGuide</span>
+        </div>
+      </div>
+
+      <!-- PLATFORM LINKS ───────────────────────────────────────
+           TODO: replace the href="#" placeholders with your real
+                 listing URLs on each platform.
+      ─────────────────────────────────────────────────────────── -->
+      <div class="reviews-platforms fade-in">
+        <p class="reviews-platforms-label">Find us on</p>
+        <div class="platform-pills">
+          <a href="https://www.airbnb.it/experiences/7012254"
+             class="platform-pill platform-airbnb"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Book on Airbnb Experiences">
+            <!-- TODO: replace # with your Airbnb Experiences listing URL -->
+            <span class="pill-dot"></span>
+            Airbnb Experiences
+          </a>
+          <a href="https://www.viator.com/it-IT/tours/Lucca/Black-Gold-The-real-Truffle-Hunt/d22436-5593487P1"
+             class="platform-pill platform-viator"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Book on Viator">
+            <!-- TODO: replace # with your Viator listing URL -->
+            <span class="pill-dot"></span>
+            Viator
+          </a>
+          <a href="https://gyg.me/Yai249xI"
+             class="platform-pill platform-gyg"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Book on GetYourGuide">
+            <!-- TODO: replace # with your GetYourGuide listing URL -->
+            <span class="pill-dot"></span>
+            GetYourGuide
+          </a>
+        </div>
+        <p class="reviews-first-reviewer">
+          Be one of our first reviewers — your experience shapes our story.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       INCLUDED
+  ============================================================ -->
+  <section class="included" id="included">
+    <div class="container">
+      <div class="included-inner">
+        <div class="included-content fade-in">
+          <span class="section-label">Everything that's waiting for you</span>
+          <h2 class="section-title">What's included</h2>
+
+          <p class="checklist-label">Included</p>
+          <ul class="checklist">
+            <li>
+              <div class="check-icon">✓</div>
+              Guided truffle hunt in our private San Miniato forest
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Truffle masterclass: identification, storage, seasonal varieties
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Lunch featuring fresh truffles found that morning
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Estate extra-virgin olive oil tasting
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Curated Tuscan wine tasting
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Small group — max 10 guests
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Hosted in English and Italian
+            </li>
+            <li>
+              <div class="check-icon">✓</div>
+              Free cancellation up to 48 hours before
+            </li>
+          </ul>
+
+          <p class="checklist-label">Not included</p>
+          <ul class="checklist">
+            <li>
+              <div class="check-icon no">×</div>
+              Private transfer available on request — contact Eleonora for a personalised quote
+            </li>
+            <li>
+              <div class="check-icon no">×</div>
+              Truffles to take home (available for purchase separately)
+            </li>
+          </ul>
+
+          <div class="logistics-box" style="margin-top: 28px;">
+            <h4>Practical details</h4>
+            <div class="logistics-row">
+              <span class="logistics-icon">📍</span>
+              <span><strong>Meeting point:</strong>
+                Via Collebrunacchi 6, San Miniato (PI) ·
+                <a href="https://maps.google.com/?q=Via+Collebrunacchi+6+San+Miniato+PI"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   style="color:var(--terra);text-decoration:underline;text-underline-offset:3px;white-space:nowrap;">
+                  Open in Google Maps ↗
+                </a>
+              </span>
+            </div>
+            <div class="logistics-row">
+              <span class="logistics-icon">⏱</span>
+              <span><strong>Duration:</strong> 3 hours · available daily 10:00 AM – 5:00 PM</span>
+            </div>
+            <div class="logistics-row">
+              <span class="logistics-icon">👥</span>
+              <span><strong>Group size:</strong> Maximum 10 guests</span>
+            </div>
+            <div class="logistics-row">
+              <span class="logistics-icon">🗓</span>
+              <span><strong>Season:</strong> Year-round · peak season Oct–Jan (white truffle)</span>
+            </div>
+            <div class="logistics-row">
+              <span class="logistics-icon">🌍</span>
+              <span><strong>Languages:</strong> English and Italian</span>
+            </div>
+            <div class="logistics-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:14px;">
+              <span class="logistics-icon">🏡</span>
+              <span>Guests are welcome to stay and relax at the villa after the experience.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="included-visual fade-in delay-2">
+          <img class="included-img-main"
+               src="assets/img/20_DSC_9911-71.jpg"
+               alt="Fresh black truffle shaved over a dish at the villa" loading="lazy" decoding="async">
+          <img class="included-img-accent"
+               src="assets/img/07_DSC_9664-3.jpg"
+               alt="Welcome at the historic villa dining room" loading="lazy" decoding="async">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PRICING
+  ============================================================ -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="pricing-header fade-in">
+        <span class="section-label">Choose your experience</span>
+        <h2 class="section-title">Two ways to join</h2>
+        <p>Best price when you pay online — or reserve now and pay on arrival for €10 more per person.</p>
+      </div>
+
+      <!-- Book direct banner -->
+      <div class="direct-banner fade-in">
+        <div class="direct-banner-inner">
+          <div class="direct-banner-icon">🏷</div>
+          <div class="direct-banner-copy">
+            <strong>Lowest price, direct.</strong>
+            <span>No platform fees, no commissions — what you pay goes entirely to the experience.</span>
+          </div>
+          <div class="direct-banner-badge">Best Price</div>
+        </div>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Tier 1: Shared -->
+        <div class="price-card fade-in delay-1">
+          <span class="price-tag">Most popular</span>
+          <h3 class="price-name">Small Group</h3>
+          <p class="price-capacity">Maximum 10 guests</p>
+          <div class="price-amount">€159</div>
+          <div class="price-unit">per person · <span style="color:var(--verde-light);font-weight:600;">online price</span></div>
+          <div class="price-divider"></div>
+          <ul class="price-features">
+            <li><span class="feat-icon">✓</span> Guided truffle hunt</li>
+            <li><span class="feat-icon">✓</span> Truffle masterclass</li>
+            <li><span class="feat-icon">✓</span> Lunch with fresh truffle &amp; olive oil</li>
+            <li><span class="feat-icon">✓</span> Tuscan wine tasting</li>
+            <li><span class="feat-icon">✓</span> Cooking lesson</li>
+            <li><span class="feat-icon">✓</span> English &amp; Italian hosting</li>
+            <li><span class="feat-icon">✓</span> Free cancellation 48h</li>
+          </ul>
+          <a href="#booking" class="btn btn-verde" style="width:100%; justify-content:center;">Book Now →</a>
+        </div>
+
+        <!-- Tier 2: Private -->
+        <div class="price-card featured fade-in delay-2">
+          <span class="price-tag">🏆 Premium</span>
+          <h3 class="price-name">Private Experience</h3>
+          <p class="price-capacity">Exclusive for your group</p>
+          <div class="price-amount">€259</div>
+          <div class="price-unit">per person · <span style="color:var(--gold);">online price</span></div>
+          <div class="price-divider"></div>
+          <ul class="price-features">
+            <li><span class="feat-icon">✓</span> Everything in Small Group</li>
+            <li><span class="feat-icon">✓</span> <span class="bold-feat">Exclusive private forest access</span></li>
+            <li><span class="feat-icon">✓</span> <span class="bold-feat">Flexible timing — your schedule</span></li>
+            <li><span class="feat-icon">✓</span> <span class="bold-feat">Personalized menu</span> (white or black truffle)</li>
+            <li><span class="feat-icon">✓</span> <span class="bold-feat">Guided estate olive oil tasting</span></li>
+            <li><span class="feat-icon">✓</span> Private transfer available on request — contact Eleonora for a personalised quote</li>
+            <li><span class="feat-icon">✓</span> Free cancellation 48h</li>
+          </ul>
+          <a href="mailto:grazianocristian.33@gmail.com?subject=Private%20Experience%20Booking%20-%20Truffle%20San%20Miniato" class="btn btn-gold" style="width:100%; justify-content:center;">Request Availability →</a>
+        </div>
+      </div>
+
+      <div class="pricing-trust fade-in">
+        <div class="pricing-trust-item">
+          <span class="icon">💳</span>
+          <span><strong>Best price online</strong> · or pay on arrival (+€10)</span>
+        </div>
+        <div class="pricing-trust-item">
+          <span class="icon">✓</span>
+          <span>Free cancellation up to 48h</span>
+        </div>
+        <div class="pricing-trust-item">
+          <span class="icon">⭐</span>
+          <span>5.0 · GetYourGuide</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FAQ
+  ============================================================ -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="faq-header fade-in">
+        <span class="section-label">Common questions</span>
+        <h2 class="section-title">Everything you need to know</h2>
+      </div>
+
+      <div class="faq-list fade-in">
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What if we don't find any truffles?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-a-text">It hasn't happened yet — but if it did, the experience doesn't change. Francesca knows these forests better than she knows her own kitchen. Some days you find two truffles, other days twelve. The unpredictability is part of what makes it real.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Is this suitable for children?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-a-text">Yes, from age 6 upward. Children are usually the most excited during the hunt — Levante and Ares draw them in immediately. The lunch works for all ages. Just drop us a note before booking so we can adjust the menu if needed.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">How do I get to San Miniato without a car?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-a-text">San Miniato is reachable by train from Florence (San Miniato-Fucecchio station, ~35 minutes). Private transfers are also available — contact Eleonora for a personalised quote tailored to your pick-up point and group size.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">When is the best time to come?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-a-text">The prized white truffle (Tuber Magnatum Pico) is found October through January — San Miniato is Italy's capital for it. Black truffle (Tuber Melanosporum) runs December to April. Summer black truffle is available in warmer months. The experience is rewarding all year, but October and November are pure magic.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Can I buy truffles to take home?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p class="faq-a-text">Yes. At the end of the experience you can purchase fresh truffles directly from Francesca — at fair prices, without tourist-shop markups. We'll also show you how to keep them fresh during your journey home.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BOOKING — Live Calendar Widget
+  ============================================================ -->
+  <section class="booking-section" id="booking">
+    <div class="container">
+      <div class="booking-header fade-in">
+        <span class="section-label">Reserve your morning</span>
+        <h2 class="section-title">Check availability &amp; book</h2>
+        <p style="font-size:15px;color:var(--warm-gray);margin-top:10px;">Pay online at the best price, or choose to pay on arrival. Free cancellation up to 48 hours before.</p>
+        <div id="truffle-season-banner" style="display:none;margin-top:22px;background:linear-gradient(135deg,#FDF7EC,#FAF0DC);border:1.5px solid var(--gold);border-radius:4px;padding:13px 22px;font-size:14px;color:var(--terra-dark);font-weight:500;align-items:center;gap:10px;justify-content:center;">
+          <span style="font-size:13px;color:var(--gold);font-weight:700;">✦</span>
+          White truffle season: October — December · Book early
+        </div>
+      </div>
+      <div id="bw-root" class="fade-in" style="margin-top:48px;"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONTACT FORM
+  ============================================================ -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <div class="contact-inner">
+        <div class="contact-header fade-in">
+          <span class="section-label">Get in touch</span>
+          <h2 class="section-title">Request Information</h2>
+          <p>We reply within 24 hours. For faster responses, message us on WhatsApp.</p>
+        </div>
+
+        <form class="fade-in"
+              id="contactForm"
+              action="https://formspree.io/f/mojbrpbv"
+              method="POST"
+              novalidate>
+
+          <!-- Formspree: custom email subject -->
+          <input type="hidden" name="_subject" value="New enquiry — Tenuta Collebrunacchi">
+          <!-- Honeypot: hidden field to block spam bots -->
+          <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="cf-name">Full name *</label>
+              <input class="form-control" id="cf-name" name="name"
+                     type="text" placeholder="Your name" required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cf-email">Email address *</label>
+              <input class="form-control" id="cf-email" name="email"
+                     type="email" placeholder="your@email.com" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cf-date">Preferred date</label>
+            <input class="form-control" id="cf-date" name="preferred_date" type="date">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cf-message">Message *</label>
+            <textarea class="form-control" id="cf-message" name="message"
+                      placeholder="Tell us about your group, any dietary requirements, or questions you have…"
+                      required></textarea>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary" id="cfSubmitBtn">Send Request →</button>
+            <p class="form-error-msg" id="cfErrorMsg">
+              Something went wrong — please try again or contact us on WhatsApp.
+            </p>
+            <p class="form-note">
+              We reply within 24 hours. We will never share your data with third parties.
+              <a href="privacy-policy.html" style="color:var(--terra);text-underline-offset:3px;text-decoration:underline;">Privacy Policy</a>
+            </p>
+          </div>
+        </form>
+
+        <!-- Success state (shown after Formspree confirms submission) -->
+        <div class="form-success" id="cfSuccess">
+          <div class="form-success-icon">✉️</div>
+          <h3 class="form-success-title">Message sent.</h3>
+          <p class="form-success-body">
+            Thank you — we'll be in touch within 24 hours.<br>
+            In the meantime, feel free to message us on WhatsApp.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BOOKING CTA
+  ============================================================ -->
+  <section class="booking-cta" id="cta">
+    <div class="cta-bg"></div>
+    <div class="cta-overlay"></div>
+    <div class="container">
+      <div class="cta-content fade-in">
+        <h2 class="cta-title">Your truffle is underground,<br>waiting.</h2>
+        <p class="cta-subtitle">All that's missing is you.</p>
+        <p class="cta-body">
+          Limited spots. Small groups. No tourist buses.<br>
+          Best price online. Or pay on arrival on the day. Free cancellation up to 48 hours before.
+        </p>
+        <div class="cta-buttons">
+          <a href="#booking" class="btn btn-primary">Book Your Morning →</a>
+          <a href="#pricing" class="btn btn-outline-light">See Pricing</a>
+        </div>
+        <a href="https://wa.me/393476074046" class="cta-whatsapp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Have questions? Message us on WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">
+            Tenuta Collebrunacchi
+            <span>Truffle Hunting · San Miniato · Tuscany</span>
+          </div>
+          <p class="footer-tagline">Authentic truffle hunting in the private forests of San Miniato — Italy's white truffle capital. Small groups, expert hosts, exceptional lunches.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Experience</h5>
+          <ul>
+            <li><a href="#experience">The Morning</a></li>
+            <li><a href="#host">Your Host Francesca</a></li>
+            <li><a href="#dog">Levante &amp; Ares</a></li>
+            <li><a href="#gallery">Photo Gallery</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Book</h5>
+          <ul>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="mailto:grazianocristian.33@gmail.com">Email Us</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Tenuta Collebrunacchi · San Miniato (PI), Tuscany, Italy</span>
+        <div class="footer-platforms">
+          <a href="https://www.airbnb.it/experiences/7012254" target="_blank" rel="noopener noreferrer">Airbnb Experiences</a>
+          <a href="https://www.viator.com/it-IT/tours/Lucca/Black-Gold-The-real-Truffle-Hunt/d22436-5593487P1" target="_blank" rel="noopener noreferrer">Viator</a>
+          <a href="https://gyg.me/Yai249xI" target="_blank" rel="noopener noreferrer">GetYourGuide</a>
+        </div>
+      </div>
+
+      <!-- Legal data — Art. 7 D.Lgs. 70/2003, D.Lgs. 196/2003, GDPR -->
+      <div class="footer-legal">
+        <div class="footer-legal-row">
+          <div>
+            <strong style="color:rgba(255,255,255,0.35);font-weight:600;">HOME TRAVEL SOLUTION S.R.L.</strong>
+            &nbsp;·&nbsp; P.IVA / CF 07367870487
+            &nbsp;·&nbsp; Sede legale: Via Donizetti 21/2, 50053 Empoli (FI)
+            &nbsp;·&nbsp; REA FI-698631
+            &nbsp;·&nbsp; Cap. soc. € 10.000,00 i.v.
+            &nbsp;·&nbsp; PEC: hometravelsolution@pec.it
+          </div>
+          <div class="footer-legal-links">
+            <a href="privacy-policy.html" id="footerPrivacyLink">Privacy Policy</a>
+            <a href="cookie-policy.html" id="footerCookieLink">Cookie Policy</a>
+            <a href="#" id="footerTermsLink">Terms &amp; Conditions</a>
+          </div>
+        </div>
+        <p style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.15);">
+          This website complies with D.Lgs. 70/2003 (e-commerce), D.Lgs. 196/2003 and EU Reg. 2016/679 (GDPR).
+          Bookings are subject to our Terms &amp; Conditions. Consumers have a 14-day right of withdrawal pursuant to D.Lgs. 206/2005 where applicable.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ─── Hero Video with Ken Burns Fallback ───────────────────
+    (function () {
+      const heroVideo = document.getElementById('heroVideo');
+      const heroBg    = document.getElementById('heroBg');
+      if (!heroVideo) return;
+
+      // Video started playing: disable Ken Burns to save GPU
+      heroVideo.addEventListener('playing', () => {
+        heroBg.classList.add('video-playing');
+      }, { once: true });
+
+      // Video failed (file missing, network error, codec unsupported):
+      // hide the broken video element so the photo fallback shows cleanly
+      heroVideo.addEventListener('error', () => {
+        heroVideo.style.display = 'none';
+      });
+
+      // Source-level error (e.g. 404 on the mp4 file)
+      const source = heroVideo.querySelector('source');
+      if (source) {
+        source.addEventListener('error', () => {
+          heroVideo.style.display = 'none';
+        });
+      }
+
+      // Respect reduced-motion: pause video, let Ken Burns bg take over
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        heroVideo.pause();
+        heroVideo.style.display = 'none';
+      }
+    })();
+
+    // ─── Sticky Nav (rAF-throttled, no layout thrash) ─────────
+    const nav = document.getElementById('nav');
+    let navTicking = false;
+    window.addEventListener('scroll', () => {
+      if (navTicking) return;
+      navTicking = true;
+      requestAnimationFrame(() => {
+        nav.classList.toggle('scrolled', window.scrollY > 60);
+        navTicking = false;
+      });
+    }, { passive: true });
+
+    // ─── Mobile Menu ──────────────────────────────────────────
+    const hamburger   = document.getElementById('hamburger');
+    const mobileMenu  = document.getElementById('mobileMenu');
+    const mobileLinks = document.querySelectorAll('.mobile-link, .mobile-cta');
+
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // ─── Scroll Animations (will-change managed per element) ──
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          // Release GPU layer hint once animation is done
+          el.addEventListener('transitionend', () => {
+            el.style.willChange = 'auto';
+          }, { once: true });
+          el.classList.add('visible');
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.10, rootMargin: '0px 0px -32px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+      if (!prefersReducedMotion) {
+        // Hint GPU to promote to composited layer just before it enters view
+        el.style.willChange = 'opacity, transform';
+      }
+      observer.observe(el);
+    });
+
+    // ─── Gallery Lightbox ─────────────────────────────────────
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox     = document.getElementById('lightbox');
+    const lightboxImg  = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+
+    const galleryImages = Array.from(galleryItems).map(item => ({
+      src: item.querySelector('img').src,
+      alt: item.querySelector('img').alt,
+      caption: item.querySelector('.gallery-caption')?.textContent || ''
+    }));
+
+    let currentIndex = 0;
+
+    function openLightbox(index) {
+      currentIndex = index;
+      lightboxImg.src = galleryImages[index].src;
+      lightboxImg.alt = galleryImages[index].alt;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+      lightboxImg.src = galleryImages[currentIndex].src;
+      lightboxImg.alt = galleryImages[currentIndex].alt;
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % galleryImages.length;
+      lightboxImg.src = galleryImages[currentIndex].src;
+      lightboxImg.alt = galleryImages[currentIndex].alt;
+    }
+
+    galleryItems.forEach((item, i) => {
+      item.addEventListener('click', () => openLightbox(i));
+    });
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', prevImage);
+    lightboxNext.addEventListener('click', nextImage);
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape')      closeLightbox();
+      if (e.key === 'ArrowLeft')   prevImage();
+      if (e.key === 'ArrowRight')  nextImage();
+    });
+
+    // ─── FAQ Accordion ────────────────────────────────────────
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const item = question.parentElement;
+        const isOpen = item.classList.contains('open');
+
+        // Close all
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+
+        // Open clicked if it was closed
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    // ─── Hero scroll reveal (already handled by CSS animation)
+    // Nothing needed — CSS keyframe animations fire on load.
+
+    // ─── Cookie Banner ────────────────────────────────────────
+    (function () {
+      const banner  = document.getElementById('cookieBanner');
+      const accept  = document.getElementById('cookieAccept');
+      const decline = document.getElementById('cookieDecline');
+      const COOKIE_KEY = 'hts_cookie_consent';
+
+      function hideBanner() {
+        banner.classList.add('hidden');
+        // after transition, remove from tab order
+        setTimeout(() => { banner.setAttribute('aria-hidden', 'true'); }, 450);
+      }
+
+      // Show banner only if no previous choice stored
+      if (!localStorage.getItem(COOKIE_KEY)) {
+        setTimeout(() => banner.classList.remove('hidden'), 800);
+      }
+
+      accept.addEventListener('click', () => {
+        localStorage.setItem(COOKIE_KEY, 'all');
+        hideBanner();
+      });
+
+      decline.addEventListener('click', () => {
+        localStorage.setItem(COOKIE_KEY, 'essential');
+        hideBanner();
+      });
+    })();
+
+    // ─── Contact Form (Formspree fetch) ──────────────────────
+    (function () {
+      const form      = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('cfSubmitBtn');
+      const successEl = document.getElementById('cfSuccess');
+      const errorEl   = document.getElementById('cfErrorMsg');
+      if (!form) return;
+
+      // Inline validation: highlight required empty fields
+      function validate() {
+        let valid = true;
+        ['cf-name', 'cf-email', 'cf-message'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el.value.trim()) {
+            el.style.borderColor = '#C0392B';
+            valid = false;
+          }
+        });
+        return valid;
+      }
+
+      // Remove red border as the user types
+      form.querySelectorAll('.form-control').forEach(el => {
+        el.addEventListener('input', () => { el.style.borderColor = ''; });
+      });
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        errorEl.style.display = 'none';
+
+        if (!validate()) return;
+
+        // Loading state
+        submitBtn.classList.add('btn-loading');
+        submitBtn.textContent = 'Sending…';
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' }
+          });
+
+          if (response.ok) {
+            // Hide form, show success message
+            form.style.display = 'none';
+            successEl.style.display = 'block';
+          } else {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error || 'Submission failed');
+          }
+        } catch (err) {
+          // Restore button, show inline error
+          submitBtn.classList.remove('btn-loading');
+          submitBtn.textContent = 'Send Request →';
+          errorEl.style.display = 'block';
+          console.error('Form error:', err);
+        }
+      });
+    })();
+  </script>
+
+  <!-- ============================================================
+       WHATSAPP FIXED WIDGET
+  ============================================================ -->
+  <div class="wa-widget" id="waWidget">
+    <div class="wa-tooltip">
+      Ciao! Scrivici su WhatsApp per informazioni sull'esperienza di caccia al tartufo.
+    </div>
+    <a class="wa-btn"
+       href="https://wa.me/393311682664?text=Ciao%2C%20vorrei%20informazioni%20sull%27esperienza%20di%20caccia%20al%20tartufo%20a%20San%20Miniato.%20Ho%20visto%20il%20sito%20web."
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Contact us on WhatsApp">
+      <div class="wa-pulse" aria-hidden="true"></div>
+      <!-- WhatsApp official SVG icon -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Supabase JS SDK (required by booking widget) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    window.BOOKING_CONFIG = {
+      supabaseUrl:          'https://ioyjhvlbamgiiqdtgutk.supabase.co',
+      supabaseAnonKey:      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko',
+      edgeFunctionsUrl:     'https://ioyjhvlbamgiiqdtgutk.supabase.co/functions/v1',
+      stripePublishableKey: 'pk_test_51TczBcCD3C1KJFygutsaeBZEtwTtupYkxGiq8h8PJkgjZ2SzCPhyAYMPpAyheKN9zLBzvOF6nvQVv5blFe9QaV2f00RCNgbgQR',
+    }
+  </script>
+  <script src="booking.js"></script>
+
+  <script>
+    // Show truffle season banner from September to December
+    ;(function () {
+      var m = new Date().getMonth() // 0=Jan … 6=Jul 7=Aug … 11=Dec
+      if (m >= 6 && m <= 11) {
+        var el = document.getElementById('truffle-season-banner')
+        if (el) el.style.display = 'flex'
+      }
+    })()
+  </script>
+
+</body>
+</html>

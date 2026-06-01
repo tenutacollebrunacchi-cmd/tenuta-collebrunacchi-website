@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Bookings — Tenuta Collebrunacchi</title>
+  <meta name="robots" content="noindex,nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --terra:       #8B5E3C;
+      --terra-dark:  #6B4528;
+      --verde:       #1A2D15;
+      --verde-mid:   #2D4A22;
+      --cream:       #F2EDE3;
+      --ivory:       #FAFAF5;
+      --white:       #FFFFFF;
+      --charcoal:    #1C1C1A;
+      --warm-gray:   #6B6B64;
+      --gold-light:  #E8D5A0;
+      --border:      #E0D8CC;
+      --danger:      #C0392B;
+      --success:     #27AE60;
+      --font-serif:  'Playfair Display', Georgia, serif;
+      --font-sans:   'Inter', system-ui, sans-serif;
+      --radius:      4px;
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans); background: var(--ivory); color: var(--charcoal);
+      -webkit-font-smoothing: antialiased; min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── Header ── */
+    .header {
+      background: var(--verde); padding: 18px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-logo {
+      font-family: var(--font-serif); font-size: 18px; font-weight: 500;
+      color: var(--white); line-height: 1.25;
+    }
+    .header-logo span {
+      display: block; font-family: var(--font-sans); font-size: 9px;
+      letter-spacing: 3.5px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-top: 3px;
+    }
+    .header-back {
+      font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.6);
+      letter-spacing: 0.5px; transition: color .2s;
+    }
+    .header-back:hover { color: var(--white); }
+
+    /* ── Container ── */
+    .container { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── Views — all hidden by default ── */
+    .view { display: none; }
+
+    /* ── Loading ── */
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 20px; padding: 80px 24px; color: var(--warm-gray);
+    }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--terra); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Auth card (login, forgot, set-password) ── */
+    .auth-card {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 36px; max-width: 420px; margin: 0 auto;
+    }
+    .auth-card-title {
+      font-family: var(--font-serif); font-size: 24px; font-weight: 500;
+      margin-bottom: 6px; line-height: 1.2;
+    }
+    .auth-card-sub { font-size: 14px; color: var(--warm-gray); margin-bottom: 28px; line-height: 1.55; }
+
+    /* ── Form elements ── */
+    .fg { margin-bottom: 16px; }
+    .lbl {
+      display: block; font-size: 11px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--warm-gray); margin-bottom: 7px;
+    }
+    .inp {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14px; outline: none; font-family: inherit;
+      transition: border-color .2s; background: var(--white);
+    }
+    .inp:focus { border-color: var(--terra); }
+    .inp::placeholder { color: #B8B0A4; }
+    textarea.inp { resize: vertical; min-height: 96px; }
+    .form-note { font-size: 12px; color: var(--warm-gray); line-height: 1.6; margin-top: 12px; }
+    .form-msg  { font-size: 13px; margin-top: 8px; }
+    .form-msg.ok  { color: var(--success); }
+    .form-msg.err { color: var(--danger); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 28px; font-size: 13px; font-weight: 600; letter-spacing: 1.2px;
+      text-transform: uppercase; border-radius: var(--radius); font-family: inherit;
+      transition: background .25s, border-color .25s, transform .2s, box-shadow .2s;
+      white-space: nowrap;
+    }
+    .btn-full { width: 100%; }
+    .btn:disabled { opacity: .5; pointer-events: none; }
+    .btn-terra {
+      background: var(--terra); color: var(--white); border: 2px solid var(--terra);
+    }
+    .btn-terra:hover {
+      background: var(--terra-dark); border-color: var(--terra-dark);
+      transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139,94,60,.3);
+    }
+    .btn-outline {
+      background: transparent; color: var(--charcoal); border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--terra); color: var(--terra); }
+    .btn-danger-outline {
+      background: transparent; color: var(--danger); border: 1.5px solid var(--danger);
+    }
+    .btn-danger-outline:hover { background: var(--danger); color: var(--white); }
+    .btn-text {
+      font-size: 13px; color: var(--terra); font-weight: 500;
+      background: none; border: none; cursor: pointer; padding: 4px 0;
+    }
+    .btn-text:hover { text-decoration: underline; }
+    .btn-text-muted {
+      font-size: 12px; color: var(--warm-gray); font-weight: 500;
+      background: none; border: none; cursor: pointer; padding: 4px 0;
+    }
+    .btn-text-muted:hover { color: var(--charcoal); }
+
+    /* ── Result / success wraps ── */
+    .result-wrap { text-align: center; padding: 60px 24px; }
+    .result-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin: 0 auto 24px;
+    }
+    .result-icon.ok    { background: var(--verde-mid, #2D4A22); color: var(--white); }
+    .result-icon.terra { background: var(--terra); color: var(--white); }
+    .result-title { font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-bottom: 12px; }
+    .result-body  { font-size: 15px; color: var(--warm-gray); line-height: 1.7; max-width: 440px; margin: 0 auto 28px; }
+
+    /* ── Dashboard header ── */
+    .dash-hdr {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; margin-bottom: 32px; flex-wrap: wrap;
+    }
+    .page-title { font-family: var(--font-serif); font-size: clamp(24px, 5vw, 34px); font-weight: 500; line-height: 1.2; margin-bottom: 4px; }
+    .page-sub   { font-size: 13px; color: var(--warm-gray); margin-bottom: 2px; }
+
+    /* ── Section label ── */
+    .section-lbl {
+      font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--terra); margin-bottom: 14px; display: block;
+    }
+
+    /* ── Booking card ── */
+    .booking-card {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 8px; overflow: hidden; margin-bottom: 20px;
+    }
+    .booking-card-header {
+      background: var(--verde); padding: 22px 28px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .booking-date-badge {
+      background: rgba(255,255,255,0.12); border-radius: 6px;
+      padding: 10px 14px; text-align: center; flex-shrink: 0;
+    }
+    .booking-date-badge .day   { font-family: var(--font-serif); font-size: 26px; font-weight: 500; color: var(--white); line-height: 1; }
+    .booking-date-badge .month { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); margin-top: 2px; }
+    .booking-card-title { flex: 1; min-width: 0; }
+    .booking-card-title h2 { font-family: var(--font-serif); font-size: 18px; font-weight: 500; color: var(--white); line-height: 1.2; }
+    .booking-card-title p  { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+    .booking-card-body { padding: 24px 28px; }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 40px; font-size: 10px; font-weight: 700;
+      letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
+    }
+    .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-confirmed { background: #D4EDDA; color: #155724; }
+    .status-confirmed .dot { background: #155724; }
+    .status-pending   { background: #FFF3CD; color: #856404; }
+    .status-pending .dot   { background: #856404; }
+    .status-cancelled { background: #F8D7DA; color: #721C24; }
+    .status-cancelled .dot { background: #721C24; }
+
+    /* ── Detail rows ── */
+    .detail-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 9px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px; gap: 16px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--warm-gray); flex-shrink: 0; }
+    .detail-value { font-weight: 500; text-align: right; }
+
+    /* ── Payment box ── */
+    .payment-box { border-radius: 6px; padding: 14px 18px; margin-top: 14px; display: flex; align-items: center; gap: 12px; }
+    .payment-box.online  { background: #D1ECF1; border: 1px solid #BEE5EB; }
+    .payment-box.arrival { background: var(--cream); border: 1px solid var(--border); }
+    .payment-box-icon { font-size: 20px; flex-shrink: 0; }
+    .payment-box-text strong { display: block; font-size: 13px; color: var(--charcoal); margin-bottom: 2px; }
+    .payment-box-text span   { font-size: 12px; color: var(--warm-gray); }
+
+    /* ── Warning box ── */
+    .warning-box {
+      background: #FFF3CD; border: 1.5px solid #FFEAA7;
+      border-radius: 6px; padding: 14px 18px; margin-top: 14px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .warning-box .wi { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .warning-box p { font-size: 13px; color: #856404; line-height: 1.6; }
+
+    /* ── Card actions ── */
+    .card-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+    /* ── Modify form ── */
+    .modify-form {
+      background: var(--ivory); border: 1.5px solid var(--border);
+      border-radius: 6px; padding: 22px; margin-top: 14px; display: none;
+    }
+    .modify-form.open { display: block; }
+    .modify-form h3 { font-family: var(--font-serif); font-size: 18px; font-weight: 500; margin-bottom: 14px; }
+
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 60px 24px; }
+    .empty-icon  { font-size: 48px; margin-bottom: 16px; }
+    .empty-title { font-family: var(--font-serif); font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+    .empty-body  { font-size: 14px; color: var(--warm-gray); line-height: 1.65; margin-bottom: 28px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--charcoal); color: #fff; padding: 12px 20px;
+      border-radius: 6px; font-size: 13px; font-weight: 500;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .3s, transform .3s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.toast-success { background: var(--success); }
+    #toast.toast-error   { background: var(--danger); }
+
+    /* ── Page footer ── */
+    .page-footer { text-align: center; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); }
+    .page-footer p { font-size: 13px; color: var(--warm-gray); line-height: 1.65; }
+    .page-footer a { color: var(--terra); }
+    .page-footer a:hover { text-decoration: underline; }
+
+    /* ── Cancel confirmation modal ── */
+    .cancel-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 800;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .cancel-backdrop.open { display: flex; }
+    .cancel-modal {
+      background: var(--white); border-radius: 8px; padding: 36px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      animation: cmIn .2s ease;
+    }
+    @keyframes cmIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .cm-icon  { font-size: 32px; margin-bottom: 14px; }
+    .cm-title { font-family: var(--font-serif); font-size: 22px; font-weight: 500; margin-bottom: 10px; line-height: 1.2; }
+    .cm-body  { font-size: 14px; color: var(--warm-gray); line-height: 1.65; margin-bottom: 24px; }
+    .cm-amount { font-family: var(--font-serif); font-weight: 500; color: var(--danger); font-size: 17px; }
+    .cm-actions { display: flex; flex-direction: column; gap: 10px; }
+
+    @media (max-width: 480px) {
+      .container { padding: 32px 16px 60px; }
+      .auth-card { padding: 28px 20px; }
+      .booking-card-body { padding: 20px; }
+      .detail-row { flex-direction: column; gap: 4px; }
+      .detail-value { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="header-logo">
+    Tenuta Collebrunacchi
+    <span>Truffle Hunting · Tuscany</span>
+  </a>
+  <a href="index.html" class="header-back">← Back to site</a>
+</header>
+
+<div class="container">
+
+  <!-- ── Loading ── -->
+  <div class="view" id="view-loading">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p>Loading…</p>
+    </div>
+  </div>
+
+  <!-- ── Login ── -->
+  <div class="view" id="view-login">
+    <div class="auth-card">
+      <h1 class="auth-card-title">My Bookings</h1>
+      <p class="auth-card-sub">Sign in to view and manage your reservations.</p>
+      <div class="fg">
+        <label class="lbl" for="login-email">Email address</label>
+        <input class="inp" type="email" id="login-email" autocomplete="email" placeholder="your@email.com">
+      </div>
+      <div class="fg">
+        <label class="lbl" for="login-pw">Password</label>
+        <input class="inp" type="password" id="login-pw" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-terra btn-full" id="btn-login">Sign in</button>
+      <p class="form-msg err" id="login-err"></p>
+      <div style="margin-top:18px;text-align:center">
+        <button class="btn-text" id="btn-goto-forgot">Forgot your password?</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Forgot password ── -->
+  <div class="view" id="view-forgot">
+    <div class="auth-card">
+      <h2 class="auth-card-title">Reset your password</h2>
+      <p class="auth-card-sub">Enter your email and we'll send a reset link. It expires in 1 hour.</p>
+      <div class="fg">
+        <label class="lbl" for="forgot-email">Email address</label>
+        <input class="inp" type="email" id="forgot-email" autocomplete="email" placeholder="your@email.com">
+      </div>
+      <button class="btn btn-terra btn-full" id="btn-send-reset">Send reset link</button>
+      <p class="form-msg err" id="forgot-err"></p>
+      <div style="margin-top:18px;text-align:center">
+        <button class="btn-text-muted" id="btn-back-to-login">← Back to sign in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Reset email sent ── -->
+  <div class="view" id="view-reset-sent">
+    <div class="result-wrap">
+      <div class="result-icon terra">✉️</div>
+      <h2 class="result-title">Check your inbox</h2>
+      <p class="result-body">We've sent a password reset link to your email. Click the link to set a new password — it expires in 1 hour.</p>
+      <button class="btn btn-outline" id="btn-back-login-2">← Back to sign in</button>
+    </div>
+  </div>
+
+  <!-- ── Set password (recovery link flow) ── -->
+  <div class="view" id="view-set-password">
+    <div class="auth-card">
+      <h2 class="auth-card-title">Set your password</h2>
+      <p class="auth-card-sub">Choose a password to secure your account and access your bookings anytime.</p>
+      <div class="fg">
+        <label class="lbl" for="new-pw">New password</label>
+        <input class="inp" type="password" id="new-pw" autocomplete="new-password" placeholder="At least 8 characters" minlength="8">
+      </div>
+      <div class="fg">
+        <label class="lbl" for="new-pw-confirm">Confirm password</label>
+        <input class="inp" type="password" id="new-pw-confirm" autocomplete="new-password" placeholder="Repeat password">
+      </div>
+      <button class="btn btn-terra btn-full" id="btn-set-pw">Set password &amp; view bookings</button>
+      <p class="form-msg err" id="set-pw-err"></p>
+    </div>
+  </div>
+
+  <!-- ── Dashboard ── -->
+  <div class="view" id="view-dashboard">
+    <div class="dash-hdr">
+      <div>
+        <p class="page-sub" id="dash-email"></p>
+        <h1 class="page-title" id="dash-title">My Bookings</h1>
+      </div>
+      <button class="btn btn-outline" id="btn-signout" style="align-self:flex-start;margin-top:4px">Sign out</button>
+    </div>
+    <div id="bookings-list"></div>
+  </div>
+
+  <div class="page-footer">
+    <p>
+      Need help? <a href="mailto:tenutacollebrunacchi@gmail.com">tenutacollebrunacchi@gmail.com</a>
+      &nbsp;·&nbsp; <a href="https://wa.me/393311682664" target="_blank" rel="noopener">WhatsApp</a>
+    </p>
+  </div>
+
+</div>
+
+<!-- ── Cancel confirmation modal ── -->
+<div class="cancel-backdrop" id="cancel-backdrop">
+  <div class="cancel-modal">
+    <div class="cm-icon" id="cm-icon"></div>
+    <h2 class="cm-title" id="cm-title"></h2>
+    <p class="cm-body" id="cm-body"></p>
+    <div class="cm-actions">
+      <button class="btn btn-danger-outline" id="cm-confirm-btn"></button>
+      <button class="btn btn-outline" id="cm-keep-btn">Keep my booking</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  window.BOOKING_CONFIG = {
+    supabaseUrl:     'https://ioyjhvlbamgiiqdtgutk.supabase.co',
+    supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko',
+  }
+</script>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────
+const CFG           = window.BOOKING_CONFIG || {}
+const SUPABASE_URL  = CFG.supabaseUrl      || ''
+const SUPABASE_ANON = CFG.supabaseAnonKey  || ''
+const ADMIN_EMAIL   = 'tenutacollebrunacchi@gmail.com'
+const FORMSPREE_URL = 'https://formspree.io/f/mojbrpbv'
+const MONTH_SHORT   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+const { createClient } = window.supabase
+const db = createClient(SUPABASE_URL, SUPABASE_ANON)
+
+let currentUser  = null
+let allBookings  = []
+let recoveryMode = false  // true while PASSWORD_RECOVERY flow is active
+
+// ── View manager ───────────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(el => { el.style.display = 'none' })
+  const el = document.getElementById(id)
+  if (el) el.style.display = 'block'
+}
+
+// ── Init ───────────────────────────────────────────────────────
+;(async () => {
+  showView('view-loading')
+  // Recovery redirects contain a hash fragment — let onAuthStateChange handle them
+  if (window.location.hash.includes('type=recovery')) return
+  const { data: { session } } = await db.auth.getSession()
+  if (session) { await loadDashboard() } else { showView('view-login') }
+})()
+
+db.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    recoveryMode = true
+    showView('view-set-password')
+    return
+  }
+  if (event === 'SIGNED_OUT') {
+    currentUser = null; allBookings = []; recoveryMode = false
+    showView('view-login')
+    return
+  }
+  // SIGNED_IN fires after login AND after updateUser — skip during recovery
+  if (event === 'SIGNED_IN' && !recoveryMode && session) {
+    await loadDashboard()
+  }
+})
+
+// ── Login ──────────────────────────────────────────────────────
+document.getElementById('btn-login').addEventListener('click', login)
+document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') login() })
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim()
+  const pw    = document.getElementById('login-pw').value
+  const errEl = document.getElementById('login-err')
+  errEl.textContent = ''
+
+  if (!email || !pw) { errEl.textContent = 'Please enter your email and password.'; return }
+
+  const btn = document.getElementById('btn-login')
+  btn.textContent = 'Signing in…'; btn.disabled = true
+
+  const { error } = await db.auth.signInWithPassword({ email, password: pw })
+
+  btn.textContent = 'Sign in'; btn.disabled = false
+
+  if (error) {
+    errEl.textContent = (error.message.includes('Invalid login') || error.message.includes('credentials'))
+      ? 'Email or password incorrect. Try "Forgot password" if you haven\'t set one yet.'
+      : error.message
+  }
+  // On success: onAuthStateChange SIGNED_IN fires → loadDashboard
+}
+
+// ── Forgot password ────────────────────────────────────────────
+document.getElementById('btn-goto-forgot').addEventListener('click', () => showView('view-forgot'))
+document.getElementById('btn-back-to-login').addEventListener('click', () => showView('view-login'))
+document.getElementById('btn-back-login-2').addEventListener('click', () => showView('view-login'))
+
+document.getElementById('btn-send-reset').addEventListener('click', async () => {
+  const email = document.getElementById('forgot-email').value.trim()
+  const errEl = document.getElementById('forgot-err')
+  errEl.textContent = ''
+
+  if (!email) { errEl.textContent = 'Please enter your email address.'; return }
+
+  const btn = document.getElementById('btn-send-reset')
+  btn.textContent = 'Sending…'; btn.disabled = true
+
+  const { error } = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname,
+  })
+
+  btn.textContent = 'Send reset link'; btn.disabled = false
+
+  if (error) { errEl.textContent = 'Error: ' + error.message; return }
+  showView('view-reset-sent')
+})
+
+// ── Set password (recovery flow) ───────────────────────────────
+document.getElementById('btn-set-pw').addEventListener('click', async () => {
+  const pw    = document.getElementById('new-pw').value
+  const pw2   = document.getElementById('new-pw-confirm').value
+  const errEl = document.getElementById('set-pw-err')
+  errEl.textContent = ''
+
+  if (pw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; return }
+  if (pw !== pw2)    { errEl.textContent = 'Passwords do not match.'; return }
+
+  const btn = document.getElementById('btn-set-pw')
+  btn.textContent = 'Saving…'; btn.disabled = true
+
+  const { error } = await db.auth.updateUser({ password: pw })
+
+  if (error) {
+    errEl.textContent = 'Error: ' + error.message
+    btn.textContent = 'Set password & view bookings'; btn.disabled = false
+    return
+  }
+
+  // Clear recovery hash from URL bar
+  history.replaceState(null, '', window.location.pathname)
+  recoveryMode = false
+  toast('Password set successfully!', 'success')
+  await loadDashboard()
+})
+
+// ── Sign out ───────────────────────────────────────────────────
+document.getElementById('btn-signout').addEventListener('click', async () => {
+  await db.auth.signOut()
+})
+
+// ── Dashboard ──────────────────────────────────────────────────
+async function loadDashboard() {
+  showView('view-loading')
+
+  const { data: { user }, error: userErr } = await db.auth.getUser()
+  if (userErr || !user) { showView('view-login'); return }
+  currentUser = user
+
+  const firstName = user.user_metadata?.full_name?.split(' ')[0] || null
+  document.getElementById('dash-email').textContent = user.email || ''
+  document.getElementById('dash-title').textContent = firstName
+    ? 'Welcome back, ' + firstName
+    : 'My Bookings'
+
+  const { data, error } = await db
+    .from('bookings')
+    .select('id,name,email,persons,type,status,payment_method,amount_eur,created_at,slots(date,time)')
+    .order('created_at', { ascending: false })
+
+  allBookings = (error ? [] : data) || []
+  renderBookings()
+  showView('view-dashboard')
+}
+
+function renderBookings() {
+  const list = document.getElementById('bookings-list')
+
+  if (!allBookings.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🍄</div>
+        <h2 class="empty-title">No bookings yet</h2>
+        <p class="empty-body">Once you book a truffle hunting experience, your reservations will appear here.</p>
+        <a href="index.html#booking" class="btn btn-terra">Book an experience →</a>
+      </div>`
+    return
+  }
+
+  const now = new Date(); now.setHours(0,0,0,0)
+
+  const upcoming = allBookings.filter(b => {
+    const d = b.slots?.date ? new Date(b.slots.date + 'T00:00:00') : null
+    return d && d >= now && b.status !== 'cancelled'
+  })
+  const past = allBookings.filter(b => {
+    const d = b.slots?.date ? new Date(b.slots.date + 'T00:00:00') : null
+    return !d || d < now || b.status === 'cancelled'
+  })
+
+  let html = ''
+  if (upcoming.length) {
+    html += `<span class="section-lbl">Upcoming</span>`
+    upcoming.forEach(b => { html += bookingCardHtml(b) })
+  }
+  if (past.length) {
+    html += `<span class="section-lbl" style="margin-top:${upcoming.length ? '28px' : '0'}">Past &amp; Cancelled</span>`
+    past.forEach(b => { html += bookingCardHtml(b) })
+  }
+
+  list.innerHTML = html
+
+  // Wire up events after DOM insertion
+  list.querySelectorAll('[data-action="modify-toggle"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const form = document.getElementById('mf-' + el.dataset.id)
+      if (form) form.classList.toggle('open')
+    })
+  })
+  list.querySelectorAll('[data-action="mod-send"]').forEach(el => {
+    el.addEventListener('click', () => sendModifyRequest(el.dataset.id))
+  })
+  list.querySelectorAll('[data-action="cancel"]').forEach(el => {
+    el.addEventListener('click', () => cancelBooking(el.dataset.id, el.dataset.date, el.dataset.paid))
+  })
+}
+
+function bookingCardHtml(b) {
+  const date    = b.slots?.date?.slice(0,10) || ''
+  const time    = b.slots?.time?.slice(0,5)  || '—'
+  const dObj    = date ? new Date(date + 'T12:00:00') : null
+  const day     = dObj ? dObj.getDate() : '—'
+  const mon     = dObj ? MONTH_SHORT[dObj.getMonth()] : '—'
+  const dateStr = dObj ? dObj.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '—'
+  const typeStr = b.type === 'private' ? 'Private experience' : 'Small group'
+  const ref     = '#' + b.id.slice(0,8).toUpperCase()
+
+  const now      = new Date()
+  const isLast48 = dObj ? now > new Date(dObj.getTime() - 48 * 3600 * 1000) : false
+  const canAct   = b.status !== 'cancelled'
+
+  const payHtml = b.payment_method === 'arrival'
+    ? `<div class="payment-box arrival"><span class="payment-box-icon">💵</span><div class="payment-box-text"><strong>Pay on arrival · €${b.amount_eur||'—'}</strong><span>Due on the day of your experience</span></div></div>`
+    : `<div class="payment-box online"><span class="payment-box-icon">✅</span><div class="payment-box-text"><strong>Paid online · €${b.amount_eur||'—'}</strong><span>Confirmed via Stripe</span></div></div>`
+
+  const warnHtml = (canAct && isLast48)
+    ? `<div class="warning-box"><span class="wi">⚠️</span><p><strong>Late cancellation policy:</strong> Your experience starts in less than 48 hours. Cancellations at this stage are non-refundable.</p></div>`
+    : ''
+
+  const cancelLabel = isLast48 ? '⚠️ Cancel (no refund)' : 'Cancel booking'
+
+  const actionsHtml = canAct ? `
+    <div class="card-actions">
+      <button class="btn btn-outline" data-action="modify-toggle" data-id="${b.id}">✏️ Request a modification</button>
+      <button class="btn btn-danger-outline" data-action="cancel" data-id="${b.id}" data-date="${date}" data-paid="${b.payment_method}">${cancelLabel}</button>
+    </div>
+    <div class="modify-form" id="mf-${b.id}">
+      <h3>Request a change</h3>
+      <div class="fg">
+        <label class="lbl" for="mm-${b.id}">What would you like to change?</label>
+        <textarea class="inp" id="mm-${b.id}" placeholder="E.g. different date, number of guests, dietary requirements…"></textarea>
+      </div>
+      <button class="btn btn-terra" data-action="mod-send" data-id="${b.id}">Send request</button>
+      <p class="form-msg" id="mfb-${b.id}"></p>
+      <p class="form-note">We'll reply to your email address within 24 hours.</p>
+    </div>` : ''
+
+  return `
+    <div class="booking-card">
+      <div class="booking-card-header">
+        <div class="booking-date-badge">
+          <div class="day">${day}</div>
+          <div class="month">${mon}</div>
+        </div>
+        <div class="booking-card-title">
+          <h2>Truffle Hunting Experience</h2>
+          <p>${ref} · ${typeStr}</p>
+        </div>
+        ${statusBadgeHtml(b.status)}
+      </div>
+      <div class="booking-card-body">
+        <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${dateStr}</span></div>
+        <div class="detail-row"><span class="detail-label">Time</span><span class="detail-value">${time}</span></div>
+        <div class="detail-row"><span class="detail-label">Guests</span><span class="detail-value">${b.persons} ${b.persons === 1 ? 'guest' : 'guests'}</span></div>
+        <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${typeStr}</span></div>
+        ${payHtml}
+        ${warnHtml}
+        ${actionsHtml}
+      </div>
+    </div>`
+}
+
+// ── Cancel modal ───────────────────────────────────────────────
+let _cmResolve = null
+
+function showCancelModal(isLast48, amount) {
+  return new Promise(resolve => {
+    _cmResolve = resolve
+    const confirmBtn = document.getElementById('cm-confirm-btn')
+    document.getElementById('cm-icon').textContent = isLast48 ? '⚠️' : '🗑️'
+    if (isLast48) {
+      document.getElementById('cm-title').textContent = 'Late cancellation'
+      document.getElementById('cm-body').innerHTML =
+        `Your payment of <span class="cm-amount">€${amount}</span> will not be refunded per our cancellation policy. Cancellations within 48 hours of the experience are non-refundable.`
+      confirmBtn.textContent = 'Cancel anyway'
+    } else {
+      document.getElementById('cm-title').textContent = 'Free cancellation'
+      document.getElementById('cm-body').textContent =
+        'Your booking will be cancelled at no charge. If you paid online, you\'ll receive a full refund within 5–10 business days.'
+      confirmBtn.textContent = 'Cancel my booking'
+    }
+    document.getElementById('cancel-backdrop').classList.add('open')
+  })
+}
+
+function _closeCancelModal(result) {
+  document.getElementById('cancel-backdrop').classList.remove('open')
+  if (_cmResolve) { _cmResolve(result); _cmResolve = null }
+}
+
+document.getElementById('cm-confirm-btn').addEventListener('click', () => _closeCancelModal(true))
+document.getElementById('cm-keep-btn').addEventListener('click', () => _closeCancelModal(false))
+document.getElementById('cancel-backdrop').addEventListener('click', e => {
+  if (e.target.id === 'cancel-backdrop') _closeCancelModal(false)
+})
+
+// ── Cancel booking ─────────────────────────────────────────────
+async function cancelBooking(id, date, payMethod) {
+  const b        = allBookings.find(x => x.id === id)
+  const dObj     = date ? new Date(date + 'T12:00:00') : null
+  const isLast48 = dObj ? new Date() > new Date(dObj.getTime() - 48 * 3600 * 1000) : false
+  const wasPaid  = payMethod !== 'arrival'
+
+  const confirmed = await showCancelModal(isLast48, b?.amount_eur || '—')
+  if (!confirmed) return
+
+  const { error } = await db.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+
+  if (error) { toast('Something went wrong. Please contact us directly.', 'error'); return }
+
+  // Notify admin (fire-and-forget, non-blocking)
+  fetch(FORMSPREE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      _subject:   `❌ Cancellation (Account) — ${b?.name || currentUser?.email} — ${date || '?'}`,
+      booking_id: id,
+      name:       b?.name || '—',
+      email:      currentUser?.email || '—',
+      date:       date || '?',
+      last_minute: isLast48 ? 'yes' : 'no',
+      refund_due:  (wasPaid && !isLast48) ? 'yes' : 'no',
+      _type:      'cancellation_account',
+    })
+  }).catch(() => {})
+
+  toast(isLast48 ? 'Booking cancelled (no refund applies).' : 'Booking cancelled successfully.', 'success')
+
+  // Update local state and re-render without a full network round-trip
+  allBookings = allBookings.map(x => x.id === id ? { ...x, status: 'cancelled' } : x)
+  renderBookings()
+}
+
+// ── Modify request ─────────────────────────────────────────────
+async function sendModifyRequest(id) {
+  const b   = allBookings.find(x => x.id === id)
+  const msg = document.getElementById('mm-' + id)?.value?.trim()
+  const fb  = document.getElementById('mfb-' + id)
+  if (!msg) { fb.textContent = 'Please describe the change you need.'; fb.className = 'form-msg err'; return }
+
+  const btn = document.querySelector(`[data-action="mod-send"][data-id="${id}"]`)
+  btn.textContent = 'Sending…'; btn.disabled = true
+
+  try {
+    const res = await fetch(FORMSPREE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject:   `Modification Request — ${b?.name || currentUser?.email} — ${b?.slots?.date?.slice(0,10) || '?'}`,
+        booking_id: id,
+        name:       b?.name || '—',
+        email:      currentUser?.email || '—',
+        date:       b?.slots?.date?.slice(0,10) || '?',
+        time:       b?.slots?.time?.slice(0,5)  || '?',
+        persons:    b?.persons,
+        type:       b?.type,
+        request:    msg,
+        _type:      'modification_account',
+      })
+    })
+    if (!res.ok) throw new Error()
+    fb.textContent = 'Request sent! We\'ll reply within 24 hours.'; fb.className = 'form-msg ok'
+  } catch {
+    fb.textContent = 'Failed to send. Please email ' + ADMIN_EMAIL + ' directly.'; fb.className = 'form-msg err'
+  }
+
+  btn.textContent = 'Send request'; btn.disabled = false
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function statusBadgeHtml(s) {
+  const map = {
+    confirmed: ['status-confirmed', 'Confirmed'],
+    pending:   ['status-pending',   'Pending'],
+    cancelled: ['status-cancelled', 'Cancelled'],
+  }
+  const [cls, label] = map[s] || ['', s]
+  return `<span class="status-badge ${cls}" style="align-self:flex-start"><span class="dot"></span>${label}</span>`
+}
+
+let _toastTimer
+function toast(msg, type = '') {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.className   = 'show' + (type ? ' toast-' + type : '')
+  clearTimeout(_toastTimer)
+  _toastTimer = setTimeout(() => { el.className = '' }, 3500)
+}
+</script>
+</body>
+</html>
