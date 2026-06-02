@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termini e Condizioni · Terms & Conditions — Tenuta Collebrunacchi</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Variables (identical to index.html) ── */
+    :root {
+      --terra:        #8B5E3C;
+      --terra-dark:   #6B4528;
+      --terra-light:  #C4956A;
+      --verde:        #1A2D15;
+      --verde-mid:    #2D4A22;
+      --verde-light:  #4A7040;
+      --cream:        #F2EDE3;
+      --ivory:        #FAFAF5;
+      --white:        #FFFFFF;
+      --charcoal:     #1C1C1A;
+      --warm-gray:    #6B6B64;
+      --gold:         #C4A456;
+      --gold-light:   #E8D5A0;
+      --border:       #E0D8CC;
+      --font-serif:   'Playfair Display', Georgia, serif;
+      --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+      --max-w:        1160px;
+      --radius:       4px;
+      --shadow:       0 4px 24px rgba(0,0,0,0.08);
+      --shadow-lg:    0 12px 48px rgba(0,0,0,0.14);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--ivory);
+      color: var(--charcoal);
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Navigation (identical to index.html) ── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      will-change: background-color;
+      transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    }
+    .nav.scrolled {
+      background: rgba(250,250,245,0.97);
+      backdrop-filter: blur(12px);
+      padding: 14px 0;
+      box-shadow: 0 1px 16px rgba(0,0,0,0.08);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--charcoal);
+      letter-spacing: 0.3px;
+      transition: color 0.35s;
+      line-height: 1.2;
+    }
+    .nav-logo span {
+      display: block;
+      font-size: 10px;
+      font-family: var(--font-sans);
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-top: 1px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--charcoal); }
+    .nav-cta {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 22px;
+      background: var(--terra);
+      color: var(--white);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--terra);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+    .nav-cta:hover {
+      background: var(--terra-dark);
+      border-color: var(--terra-dark);
+    }
+    .nav-account {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      background: transparent;
+      color: var(--warm-gray);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+    .nav-account:hover {
+      color: var(--charcoal);
+      border-color: var(--terra);
+    }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--charcoal);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--ivory);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-link {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+    .btn-primary {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      background: var(--terra);
+      color: var(--white);
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+    }
+    .mobile-cta { margin-top: 8px; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--verde);
+      padding: 120px 0 64px;
+      text-align: center;
+    }
+    .page-header-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 16px;
+    }
+    .page-header-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .page-header-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Loading state ── */
+    .prices-loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--terra);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Tab switcher ── */
+    .lang-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 56px;
+    }
+    .lang-tab {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border: none;
+      background: none;
+      color: var(--warm-gray);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .lang-tab:hover { color: var(--charcoal); }
+    .lang-tab.active {
+      color: var(--terra);
+      border-bottom-color: var(--terra);
+    }
+    .lang-panel { display: none; }
+    .lang-panel.active { display: block; }
+
+    /* ── T&C content ── */
+    .terms-wrap {
+      padding: 64px 0 96px;
+    }
+    .terms-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .terms-inner h2 {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--charcoal);
+      margin-bottom: 8px;
+      margin-top: 48px;
+    }
+    .terms-inner h2:first-child { margin-top: 0; }
+    .terms-inner h3 {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 8px;
+      margin-top: 32px;
+    }
+    .terms-inner p {
+      font-size: 15px;
+      color: var(--charcoal);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .terms-inner ul {
+      margin: 0 0 16px 20px;
+    }
+    .terms-inner ul li {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+    }
+    .terms-inner a {
+      color: var(--terra);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .terms-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+    .terms-highlight {
+      background: var(--cream);
+      border-left: 3px solid var(--gold);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 20px 0;
+    }
+    .terms-highlight p { margin-bottom: 0; font-size: 14px; color: var(--warm-gray); }
+    .updated-on {
+      font-size: 12px;
+      color: var(--warm-gray);
+      margin-bottom: 40px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Footer (identical to index.html) ── */
+    .footer {
+      background: var(--verde);
+      color: rgba(255,255,255,0.7);
+      padding: 64px 0 0;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .footer-logo span {
+      display: block;
+      font-size: 10px;
+      font-family: var(--font-sans);
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-top: 2px;
+    }
+    .footer-tagline { font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.5); }
+    .footer-col h5 {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+    }
+    .footer-platforms { display: flex; gap: 24px; }
+    .footer-platforms a {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.4);
+      transition: color 0.2s;
+    }
+    .footer-platforms a:hover { color: rgba(255,255,255,0.75); }
+    .footer-legal {
+      padding: 24px 0 32px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      line-height: 1.6;
+    }
+    .footer-legal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .footer-legal-links { display: flex; gap: 20px; flex-shrink: 0; }
+    .footer-legal-links a {
+      color: rgba(255,255,255,0.35);
+      transition: color 0.2s;
+    }
+    .footer-legal-links a:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta, .nav-account { display: none; }
+      .hamburger { display: flex; }
+      .page-header { padding: 100px 0 48px; }
+      .lang-tab { padding: 14px 20px; font-size: 11px; }
+      .terms-wrap { padding: 48px 0 72px; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .footer-legal-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav class="nav scrolled" id="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">
+          Tenuta Collebrunacchi
+          <span>Truffle Hunting · San Miniato · Tuscany</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html#experience">The Experience</a></li>
+          <li><a href="index.html#host">Your Host</a></li>
+          <li><a href="index.html#pricing">Pricing</a></li>
+          <li><a href="index.html#faq">FAQ</a></li>
+        </ul>
+        <a href="booking-account.html" class="nav-account">My Account</a>
+        <a href="index.html#booking" class="nav-cta">Book Now</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#experience" class="mobile-link">The Experience</a>
+    <a href="index.html#host" class="mobile-link">Your Host</a>
+    <a href="index.html#pricing" class="mobile-link">Pricing</a>
+    <a href="index.html#faq" class="mobile-link">FAQ</a>
+    <a href="booking-account.html" class="mobile-link">My Account</a>
+    <a href="index.html#booking" class="btn-primary mobile-cta">Book Your Morning →</a>
+  </div>
+
+  <!-- ============================================================
+       PAGE HEADER
+  ============================================================ -->
+  <header class="page-header">
+    <div class="container">
+      <p class="page-header-eyebrow">Tenuta Collebrunacchi · San Miniato, Toscana</p>
+      <h1 class="page-header-title">Termini e Condizioni<br><em>Terms &amp; Conditions</em></h1>
+      <p class="page-header-sub">Home Travel Solution S.R.L. — P.IVA 07367870487</p>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       T&C CONTENT
+  ============================================================ -->
+  <section class="terms-wrap">
+    <div class="container">
+
+      <!-- Language tabs -->
+      <div class="lang-tabs" role="tablist" aria-label="Lingua / Language">
+        <button class="lang-tab active" role="tab" aria-selected="true"  aria-controls="panel-it" id="tab-it" onclick="switchLang('it')">Italiano</button>
+        <button class="lang-tab"        role="tab" aria-selected="false" aria-controls="panel-en" id="tab-en" onclick="switchLang('en')">English</button>
+      </div>
+
+      <!-- ── ITALIANO ── -->
+      <div class="lang-panel active" id="panel-it" role="tabpanel" aria-labelledby="tab-it">
+        <div class="terms-inner">
+          <p class="updated-on">Ultimo aggiornamento: 2 giugno 2026</p>
+
+          <h2>1. Oggetto del servizio</h2>
+          <p>
+            Il presente documento disciplina i rapporti tra <strong>Home Travel Solution S.R.L.</strong>
+            (di seguito "il Fornitore"), con sede in Via Donizetti 21/2, 50053 Empoli (FI) — P.IVA 07367870487 —
+            e il cliente che acquista o prenota l'esperienza denominata
+            <strong>Caccia al Tartufo — Tenuta Collebrunacchi</strong>.
+          </p>
+          <p>
+            L'esperienza consiste in una <strong>caccia al tartufo della durata di circa 3 ore</strong>
+            nei boschi privati della Tenuta Collebrunacchi, nel comune di San Miniato (PI),
+            condotta da una guida esperta in compagnia di cani da tartufo addestrati.
+            L'attività include la passeggiata nei boschi, la raccolta guidata del tartufo e una
+            degustazione finale dei prodotti del territorio.
+          </p>
+          <p>
+            L'esperienza è disponibile nelle seguenti modalità:
+          </p>
+          <ul>
+            <li><strong>Shared (gruppo condiviso):</strong> partecipazione a un gruppo aperto, fino a un massimo definito dal Fornitore.</li>
+            <li><strong>Private (gruppo privato):</strong> esclusiva per il gruppo del cliente, senza altri partecipanti esterni.</li>
+          </ul>
+
+          <hr class="terms-divider">
+
+          <h2>2. Prezzi</h2>
+          <p>I prezzi vigenti al momento della prenotazione sono i seguenti:</p>
+          <ul>
+            <li><strong>Esperienza Shared:</strong> <span class="dyn-shared"><span class="prices-loading"></span></span> €/persona</li>
+            <li><strong>Esperienza Private:</strong> <span class="dyn-private"><span class="prices-loading"></span></span> €/persona</li>
+          </ul>
+          <p>
+            I prezzi sono espressi in Euro e si intendono IVA inclusa ove applicabile.
+            Il Fornitore si riserva il diritto di aggiornare i prezzi in qualsiasi momento;
+            il prezzo applicato sarà quello indicato al momento della conferma della prenotazione.
+          </p>
+
+          <hr class="terms-divider">
+
+          <h2>3. Modalità di pagamento</h2>
+          <h3>3a. Pagamento online</h3>
+          <p>
+            Il pagamento può essere effettuato online con carta di credito o debito al momento della prenotazione,
+            tramite le piattaforme autorizzate (Airbnb Experiences, Viator, GetYourGuide) o direttamente
+            sul sito web del Fornitore mediante gateway di pagamento sicuro (Stripe).
+            La prenotazione si considera confermata solo dopo il ricevimento del pagamento.
+          </p>
+          <h3>3b. Pagamento in loco</h3>
+          <p>
+            È possibile pagare direttamente il giorno dell'esperienza, previo accordo con il Fornitore
+            tramite WhatsApp (<a href="https://wa.me/393311682664">+39 331 168 2664</a>).
+            In questo caso si applica una <strong>maggiorazione del <span class="dyn-surcharge"><span class="prices-loading"></span></span>%</strong>
+            sul prezzo standard, a copertura dei costi amministrativi.
+          </p>
+          <div class="terms-highlight">
+            <p>Il pagamento in loco non è garantito e dipende dalla disponibilità confermata dal Fornitore. Si consiglia di prenotare e pagare in anticipo per assicurarsi il posto.</p>
+          </div>
+
+          <hr class="terms-divider">
+
+          <h2>4. Cancellazione e rimborsi</h2>
+          <p>
+            <strong>Cancellazione gratuita:</strong> il cliente ha diritto al rimborso integrale
+            se cancella la prenotazione entro <strong><span class="dyn-cancel-it"><span class="prices-loading"></span></span> ore</strong>
+            dalla data/ora di prenotazione (non dall'esperienza).
+          </p>
+          <p>
+            <strong>Cancellazione tardiva:</strong> oltre il termine sopra indicato, nessun rimborso
+            è dovuto, indipendentemente dal motivo della cancellazione, salvo cause di forza maggiore
+            riconosciute dal Fornitore a propria discrezione.
+          </p>
+          <p>
+            In caso di cancellazione da parte del Fornitore per ragioni operative o meteorologiche,
+            verrà proposta al cliente una data alternativa o il rimborso integrale.
+          </p>
+          <div class="terms-highlight">
+            <p>Per cancellare contattare il Fornitore via WhatsApp (<a href="https://wa.me/393311682664">+39 331 168 2664</a>) o via email all'indirizzo <a href="mailto:grazianocristian.33@gmail.com">grazianocristian.33@gmail.com</a>.</p>
+          </div>
+
+          <hr class="terms-divider">
+
+          <h2>5. Responsabilità e sicurezza</h2>
+          <p>
+            L'esperienza si svolge <strong>all'aperto, in ambiente boschivo</strong>.
+            I partecipanti sono tenuti a presentarsi con abbigliamento e calzature adeguati
+            (scarpe chiuse o da trekking, abbigliamento comodo e a strati, giacca impermeabile in caso di pioggia).
+          </p>
+          <p>
+            Il Fornitore declina ogni responsabilità per danni a cose o persone derivanti da:
+          </p>
+          <ul>
+            <li>mancato rispetto delle indicazioni della guida;</li>
+            <li>abbigliamento o calzature inadeguati;</li>
+            <li>condizioni fisiche del partecipante non dichiarate al momento della prenotazione;</li>
+            <li>comportamenti imprudenti nei confronti degli animali o dell'ambiente naturale.</li>
+          </ul>
+          <p>
+            I cani da tartufo sono addestrati e docili; tuttavia, i partecipanti sono pregati di
+            seguire le istruzioni della guida durante l'interazione con gli animali.
+          </p>
+          <p>
+            La partecipazione è sconsigliata a persone con gravi difficoltà motorie.
+            Per esigenze particolari contattare il Fornitore prima di prenotare.
+          </p>
+
+          <hr class="terms-divider">
+
+          <h2>6. Privacy e trattamento dei dati</h2>
+          <p>
+            Il trattamento dei dati personali raccolti in fase di prenotazione avviene nel rispetto
+            del Regolamento UE 2016/679 (GDPR) e del D.Lgs. 196/2003.
+            Per ogni informazione consultare la nostra
+            <a href="privacy-policy.html">Informativa sulla Privacy</a>.
+          </p>
+
+          <hr class="terms-divider">
+
+          <h2>7. Contatti</h2>
+          <p>
+            Per informazioni, modifiche o cancellazioni contattare il Fornitore:
+          </p>
+          <ul>
+            <li><strong>WhatsApp:</strong> <a href="https://wa.me/393311682664">+39 331 168 2664</a></li>
+            <li><strong>Email:</strong> <a href="mailto:grazianocristian.33@gmail.com">grazianocristian.33@gmail.com</a></li>
+          </ul>
+          <p>
+            Sede legale: Home Travel Solution S.R.L. — Via Donizetti 21/2, 50053 Empoli (FI)
+            · REA FI-698631 · PEC: hometravelsolution@pec.it
+          </p>
+        </div>
+      </div>
+
+      <!-- ── ENGLISH ── -->
+      <div class="lang-panel" id="panel-en" role="tabpanel" aria-labelledby="tab-en">
+        <div class="terms-inner">
+          <p class="updated-on">Last updated: June 2, 2026</p>
+
+          <h2>1. Service Description</h2>
+          <p>
+            These Terms and Conditions govern the relationship between
+            <strong>Home Travel Solution S.R.L.</strong> (hereinafter "the Provider"),
+            registered at Via Donizetti 21/2, 50053 Empoli (FI), Italy — VAT No. IT07367870487 —
+            and any customer who books or purchases the experience known as
+            <strong>Truffle Hunting — Tenuta Collebrunacchi</strong>.
+          </p>
+          <p>
+            The experience consists of an <strong>approximately 3-hour truffle hunt</strong>
+            in the private forests of Tenuta Collebrunacchi, in the municipality of San Miniato (PI),
+            guided by an expert host accompanied by trained truffle-hunting dogs.
+            The activity includes a woodland walk, guided truffle foraging, and a final tasting
+            of local products.
+          </p>
+          <p>The experience is available in two formats:</p>
+          <ul>
+            <li><strong>Shared (open group):</strong> participation in a group open to other guests, up to a maximum set by the Provider.</li>
+            <li><strong>Private (exclusive group):</strong> the entire experience is reserved exclusively for the customer's party.</li>
+          </ul>
+
+          <hr class="terms-divider">
+
+          <h2>2. Pricing</h2>
+          <p>The prices in effect at the time of booking are as follows:</p>
+          <ul>
+            <li><strong>Shared Experience:</strong> <span class="dyn-shared"><span class="prices-loading"></span></span> €/person</li>
+            <li><strong>Private Experience:</strong> <span class="dyn-private"><span class="prices-loading"></span></span> €/person</li>
+          </ul>
+          <p>
+            All prices are in Euros and include applicable taxes.
+            The Provider reserves the right to update prices at any time;
+            the price applicable to a booking is the one confirmed at the time of reservation.
+          </p>
+
+          <hr class="terms-divider">
+
+          <h2>3. Payment Methods</h2>
+          <h3>3a. Online Payment</h3>
+          <p>
+            Payment may be completed online by credit or debit card at the time of booking,
+            via authorised platforms (Airbnb Experiences, Viator, GetYourGuide) or directly
+            on the Provider's website through a secure payment gateway (Stripe).
+            A booking is only confirmed upon receipt of full payment.
+          </p>
+          <h3>3b. On-site Payment</h3>
+          <p>
+            Payment may be made on the day of the experience, subject to prior arrangement
+            with the Provider via WhatsApp (<a href="https://wa.me/393311682664">+39 331 168 2664</a>).
+            In this case, a <strong>surcharge of <span class="dyn-surcharge"><span class="prices-loading"></span></span>%</strong>
+            will be added to the standard price to cover administrative costs.
+          </p>
+          <div class="terms-highlight">
+            <p>On-site payment is not guaranteed and is subject to confirmation by the Provider. Booking and paying in advance is strongly recommended to secure your place.</p>
+          </div>
+
+          <hr class="terms-divider">
+
+          <h2>4. Cancellation &amp; Refunds</h2>
+          <p>
+            <strong>Free cancellation:</strong> customers are entitled to a full refund
+            if they cancel their booking within <strong><span class="dyn-cancel-en"><span class="prices-loading"></span></span> hours</strong>
+            of the booking date/time (not of the experience date).
+          </p>
+          <p>
+            <strong>Late cancellation:</strong> beyond the above deadline, no refund will be issued,
+            regardless of the reason, except in cases of force majeure recognised by the Provider
+            at its sole discretion.
+          </p>
+          <p>
+            If the Provider cancels the experience for operational or weather-related reasons,
+            the customer will be offered an alternative date or a full refund.
+          </p>
+          <div class="terms-highlight">
+            <p>To cancel, contact the Provider via WhatsApp (<a href="https://wa.me/393311682664">+39 331 168 2664</a>) or by email at <a href="mailto:grazianocristian.33@gmail.com">grazianocristian.33@gmail.com</a>.</p>
+          </div>
+
+          <hr class="terms-divider">
+
+          <h2>5. Liability &amp; Safety</h2>
+          <p>
+            This experience takes place <strong>outdoors, in a woodland environment</strong>.
+            Participants are required to arrive wearing appropriate clothing and footwear
+            (closed-toe or hiking shoes, comfortable layered clothing, and a waterproof jacket
+            in case of rain).
+          </p>
+          <p>The Provider accepts no liability for damage to property or personal injury arising from:</p>
+          <ul>
+            <li>failure to follow the guide's instructions;</li>
+            <li>inappropriate clothing or footwear;</li>
+            <li>undisclosed physical conditions at the time of booking;</li>
+            <li>reckless behaviour towards the animals or the natural environment.</li>
+          </ul>
+          <p>
+            The truffle dogs are trained and gentle; however, participants are asked to follow
+            the guide's instructions at all times when interacting with the animals.
+          </p>
+          <p>
+            The experience is not recommended for guests with significant mobility impairments.
+            Please contact the Provider before booking if you have specific requirements.
+          </p>
+
+          <hr class="terms-divider">
+
+          <h2>6. Privacy &amp; Data Protection</h2>
+          <p>
+            Personal data collected during the booking process is handled in accordance with
+            EU Regulation 2016/679 (GDPR) and Italian Legislative Decree 196/2003.
+            For full details, please refer to our
+            <a href="privacy-policy.html">Privacy Policy</a>.
+          </p>
+
+          <hr class="terms-divider">
+
+          <h2>7. Contact</h2>
+          <p>For enquiries, amendments or cancellations, please contact the Provider:</p>
+          <ul>
+            <li><strong>WhatsApp:</strong> <a href="https://wa.me/393311682664">+39 331 168 2664</a></li>
+            <li><strong>Email:</strong> <a href="mailto:grazianocristian.33@gmail.com">grazianocristian.33@gmail.com</a></li>
+          </ul>
+          <p>
+            Registered office: Home Travel Solution S.R.L. — Via Donizetti 21/2, 50053 Empoli (FI), Italy
+            · REA FI-698631 · PEC: hometravelsolution@pec.it
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">
+            Tenuta Collebrunacchi
+            <span>Truffle Hunting · San Miniato · Tuscany</span>
+          </div>
+          <p class="footer-tagline">Authentic truffle hunting in the private forests of San Miniato — Italy's white truffle capital. Small groups, expert hosts, exceptional lunches.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Experience</h5>
+          <ul>
+            <li><a href="index.html#experience">The Morning</a></li>
+            <li><a href="index.html#host">Your Host Francesca</a></li>
+            <li><a href="index.html#gallery">Photo Gallery</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Book</h5>
+          <ul>
+            <li><a href="index.html#pricing">Pricing</a></li>
+            <li><a href="index.html#faq">FAQ</a></li>
+            <li><a href="mailto:grazianocristian.33@gmail.com">Email Us</a></li>
+            <li><a href="index.html#reviews">Reviews</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Tenuta Collebrunacchi · San Miniato (PI), Tuscany, Italy</span>
+        <div class="footer-platforms">
+          <a href="https://www.airbnb.it/experiences/7012254" target="_blank" rel="noopener noreferrer">Airbnb Experiences</a>
+          <a href="https://www.viator.com/it-IT/tours/Lucca/Black-Gold-The-real-Truffle-Hunt/d22436-5593487P1" target="_blank" rel="noopener noreferrer">Viator</a>
+          <a href="https://gyg.me/Yai249xI" target="_blank" rel="noopener noreferrer">GetYourGuide</a>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <div class="footer-legal-row">
+          <div>
+            <strong style="color:rgba(255,255,255,0.35);font-weight:600;">HOME TRAVEL SOLUTION S.R.L.</strong>
+            &nbsp;·&nbsp; P.IVA / CF 07367870487
+            &nbsp;·&nbsp; Sede legale: Via Donizetti 21/2, 50053 Empoli (FI)
+            &nbsp;·&nbsp; REA FI-698631
+            &nbsp;·&nbsp; Cap. soc. € 10.000,00 i.v.
+            &nbsp;·&nbsp; PEC: hometravelsolution@pec.it
+          </div>
+          <div class="footer-legal-links">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="cookie-policy.html">Cookie Policy</a>
+            <a href="terms.html" aria-current="page">Terms &amp; Conditions</a>
+          </div>
+        </div>
+        <p style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.15);">
+          This website complies with D.Lgs. 70/2003 (e-commerce), D.Lgs. 196/2003 and EU Reg. 2016/679 (GDPR).
+          Bookings are subject to our Terms &amp; Conditions. Consumers have a 14-day right of withdrawal pursuant to D.Lgs. 206/2005 where applicable.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co/rest/v1'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
+
+    const headers = {
+      'apikey':        SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+    }
+
+    async function loadDynamicPrices () {
+      try {
+        const [priceRes, cancelRes] = await Promise.all([
+          fetch(SUPABASE_URL + '/price_settings?select=shared_price,private_price,onsite_surcharge_percent&limit=1', { headers }),
+          fetch(SUPABASE_URL + '/cancellation_policies?select=free_cancellation_hours&is_active=eq.true&limit=1',    { headers })
+        ])
+
+        if (!priceRes.ok || !cancelRes.ok) throw new Error('Fetch failed')
+
+        const [prices, cancels] = await Promise.all([priceRes.json(), cancelRes.json()])
+
+        const p = prices[0]  || {}
+        const c = cancels[0] || {}
+
+        const shared    = p.shared_price                 != null ? p.shared_price                 : '—'
+        const priv      = p.private_price                != null ? p.private_price                : '—'
+        const surcharge = p.onsite_surcharge_percent     != null ? p.onsite_surcharge_percent     : '—'
+        const hours     = c.free_cancellation_hours      != null ? c.free_cancellation_hours      : '—'
+
+        document.querySelectorAll('.dyn-shared').forEach(el  => { el.textContent = shared })
+        document.querySelectorAll('.dyn-private').forEach(el => { el.textContent = priv })
+        document.querySelectorAll('.dyn-surcharge').forEach(el => { el.textContent = surcharge })
+        document.querySelectorAll('.dyn-cancel-it, .dyn-cancel-en').forEach(el => { el.textContent = hours })
+
+      } catch (err) {
+        console.warn('[terms] Supabase fetch failed:', err)
+        document.querySelectorAll('.dyn-shared, .dyn-private, .dyn-surcharge, .dyn-cancel-it, .dyn-cancel-en')
+          .forEach(el => { el.textContent = '—' })
+      }
+    }
+
+    // Tab switcher
+    function switchLang (lang) {
+      document.querySelectorAll('.lang-tab').forEach(btn => {
+        const active = btn.id === 'tab-' + lang
+        btn.classList.toggle('active', active)
+        btn.setAttribute('aria-selected', active)
+      })
+      document.querySelectorAll('.lang-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'panel-' + lang)
+      })
+    }
+
+    // Navbar scroll behaviour
+    const nav = document.getElementById('nav')
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40)
+    }, { passive: true })
+
+    // Hamburger
+    const hamburger   = document.getElementById('hamburger')
+    const mobileMenu  = document.getElementById('mobileMenu')
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open')
+      mobileMenu.classList.toggle('open')
+    })
+    mobileMenu.addEventListener('click', e => {
+      if (e.target !== mobileMenu) {
+        hamburger.classList.remove('open')
+        mobileMenu.classList.remove('open')
+      }
+    })
+
+    // Boot
+    loadDynamicPrices()
+  </script>
+</body>
+</html>

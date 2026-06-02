@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Truffle Hunting San Miniato, Tuscany | Authentic Experience & Lunch</title>
   <meta name="description" content="Truffle hunting in San Miniato's private forests with a local hunter, fresh truffle lunch, Tuscan wine. Small groups, max 10 guests. Free cancellation.">
   <meta name="keywords" content="truffle hunting San Miniato, truffle experience Tuscany, white truffle Tuscany, small group truffle tour Florence, authentic truffle hunting Tuscany">
-  <meta property="og:title" content="Truffle Hunting San Miniato, Tuscany">
-  <meta property="og:description" content="Hunt, cook, and feast. An authentic truffle morning in the private forests of San Miniato.">
+  <meta property="og:title" content="Tenuta Collebrunacchi – Truffle Hunting in Tuscany">
+  <meta property="og:description" content="Book a private truffle hunting experience in San Miniato, Tuscany.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/img/10_DJI_0851-12.jpg">
+  <meta property="og:url" content="https://tenutacollebrunacchi.com">
 
   <script type="application/ld+json">
   {
@@ -2125,23 +2128,6 @@
     }
   </style>
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HQBJQC0L1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-1HQBJQC0L1');
-  </script>
-
-  <!-- Microsoft Clarity -->
-  <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "x0dxzpo3yg");
-  </script>
 </head>
 <body>
 
@@ -2712,7 +2698,7 @@
           <span class="price-tag">Most popular</span>
           <h3 class="price-name">Small Group</h3>
           <p class="price-capacity">Maximum 10 guests</p>
-          <div class="price-amount">€159</div>
+          <div class="price-amount">€159 <span style="font-size:12px;font-weight:400;color:var(--warm-gray);">VAT incl.</span></div>
           <div class="price-unit">per person · <span style="color:var(--verde-light);font-weight:600;">online price</span></div>
           <div class="price-divider"></div>
           <ul class="price-features">
@@ -2732,7 +2718,7 @@
           <span class="price-tag">🏆 Premium</span>
           <h3 class="price-name">Private Experience</h3>
           <p class="price-capacity">Exclusive for your group</p>
-          <div class="price-amount">€259</div>
+          <div class="price-amount">€259 <span style="font-size:12px;font-weight:400;color:var(--warm-gray);">VAT incl.</span></div>
           <div class="price-unit">per person · <span style="color:var(--gold);">online price</span></div>
           <div class="price-divider"></div>
           <ul class="price-features">
@@ -2938,7 +2924,7 @@
           <a href="#booking" class="btn btn-primary">Book Your Morning →</a>
           <a href="#pricing" class="btn btn-outline-light">See Pricing</a>
         </div>
-        <a href="https://wa.me/393476074046" class="cta-whatsapp">
+        <a href="https://wa.me/393311682664" class="cta-whatsapp">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           Have questions? Message us on WhatsApp
         </a>
@@ -3188,10 +3174,38 @@
       const decline = document.getElementById('cookieDecline');
       const COOKIE_KEY = 'hts_cookie_consent';
 
+      // Load GA4 and Clarity only after explicit "Accept all" consent
+      function loadAnalytics() {
+        // Google Analytics 4
+        var gaScript = document.createElement('script');
+        gaScript.async = true;
+        gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HQBJQC0L1';
+        document.head.appendChild(gaScript);
+        gaScript.onload = function () {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){ window.dataLayer.push(arguments); }
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', 'G-1HQBJQC0L1');
+        };
+
+        // Microsoft Clarity
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, 'clarity', 'script', 'x0dxzpo3yg');
+      }
+
       function hideBanner() {
         banner.classList.add('hidden');
         // after transition, remove from tab order
         setTimeout(() => { banner.setAttribute('aria-hidden', 'true'); }, 450);
+      }
+
+      // Returning visitor: if they already accepted, load analytics immediately
+      if (localStorage.getItem(COOKIE_KEY) === 'all') {
+        loadAnalytics();
       }
 
       // Show banner only if no previous choice stored
@@ -3201,6 +3215,7 @@
 
       accept.addEventListener('click', () => {
         localStorage.setItem(COOKIE_KEY, 'all');
+        loadAnalytics();
         hideBanner();
       });
 
@@ -3300,7 +3315,7 @@
       supabaseUrl:          'https://ioyjhvlbamgiiqdtgutk.supabase.co',
       supabaseAnonKey:      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko',
       edgeFunctionsUrl:     'https://ioyjhvlbamgiiqdtgutk.supabase.co/functions/v1',
-      stripePublishableKey: 'pk_test_51TczBcCD3C1KJFygutsaeBZEtwTtupYkxGiq8h8PJkgjZ2SzCPhyAYMPpAyheKN9zLBzvOF6nvQVv5blFe9QaV2f00RCNgbgQR',
+      stripePublishableKey: 'pk_live_51Qf4WhFgHqntlM2RCOFepFps89akxfm2pZarJci15qFhiQo18XBHxM6YROyQVqxNkESKCsgxzbRjl64QSkjGJpiO000AoFHSJk',
     }
   </script>
   <script src="booking.js"></script>
@@ -3313,6 +3328,36 @@
         var el = document.getElementById('truffle-season-banner')
         if (el) el.style.display = 'flex'
       }
+    })()
+  </script>
+
+  <script>
+    // Replace hardcoded "48h" / "48 hours" text with the live cancellation policy from Supabase
+    ;(function () {
+      var cfg = window.BOOKING_CONFIG || {}
+      var url = cfg.supabaseUrl
+      var key = cfg.supabaseAnonKey
+      if (!url || !key) return
+      fetch(url + '/rest/v1/cancellation_policies?select=free_cancellation_hours&is_active=eq.true&limit=1', {
+        headers: { apikey: key, Authorization: 'Bearer ' + key }
+      })
+        .then(function (r) { return r.ok ? r.json() : null })
+        .then(function (data) {
+          if (!data || !data[0] || data[0].free_cancellation_hours == null) return
+          var hours = String(data[0].free_cancellation_hours)
+          if (hours === '48') return
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+          var node
+          while ((node = walker.nextNode())) {
+            var t = node.nodeValue
+            if (!/\b48[ h]/.test(t)) continue
+            node.nodeValue = t
+              .replace(/\b48 hours before\b/g, hours + ' hours before')
+              .replace(/\b48 hours\b/g, hours + ' hours')
+              .replace(/\b48h\b/g, hours + 'h')
+          }
+        })
+        .catch(function () {})
     })()
   </script>
 

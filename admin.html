@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — Tenuta Collebrunacchi</title>
   <meta name="robots" content="noindex,nofollow">
@@ -1264,7 +1265,27 @@ document.getElementById('dc-create-btn').addEventListener('click', async () => {
     max_uses: maxuses,
   })
   if (error) { msg.textContent = error.message; msg.style.color = 'var(--danger)'; return }
-  msg.textContent = 'Codice creato!'; msg.style.color = 'var(--success)'
+
+  try {
+    const stripeRes = await fetch(`${SUPABASE_URL}/functions/v1/create-stripe-coupon`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.access_token ?? SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        code, type, value,
+        expires_at: expires ? new Date(expires).toISOString() : null,
+        max_uses:   maxuses,
+      }),
+    })
+    if (!stripeRes.ok) throw new Error(await stripeRes.text())
+    msg.textContent = 'Codice creato e sincronizzato con Stripe!'; msg.style.color = 'var(--success)'
+  } catch (stripeErr) {
+    console.warn('Stripe sync failed:', stripeErr)
+    msg.textContent = 'Codice salvato ma non sincronizzato con Stripe'; msg.style.color = '#f59e0b'
+  }
+
   document.getElementById('dc-code').value = ''
   document.getElementById('dc-value').value = ''
   document.getElementById('dc-expires').value = ''

@@ -11,7 +11,7 @@
   const EDGE_URL          = C.edgeFunctionsUrl || ''
   const WA_URL            = 'https://wa.me/393311682664'
   const FORMSPREE_URL     = 'https://formspree.io/f/mojbrpbv'
-  const PRICES            = {
+  let PRICES              = {
     shared:  { online: 159, arrival: 169 },
     private: { online: 259, arrival: 269 },
   }
@@ -40,9 +40,10 @@
 
   let db = null
   let _submitLock = false
+  let CANCEL_HOURS = 48
 
   // ── Boot ────────────────────────────────────────────────────
-  function init () {
+  async function init () {
     if (!document.getElementById('bw-root')) return
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       document.getElementById('bw-root').innerHTML =
@@ -51,6 +52,7 @@
     }
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     injectCSS()
+    await Promise.all([loadPrices(), loadCancellationPolicy()])
     render()
     fetchMonthSlots()
 
@@ -91,6 +93,32 @@
     ;(minimumsRes.data || []).forEach(m => {
       S.slotMinimums[m.time.slice(0,5)] = m.min_persons
     })
+  }
+
+  async function loadCancellationPolicy () {
+    const { data, error } = await db
+      .from('cancellation_policies')
+      .select('free_cancellation_hours')
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+    if (!error && data?.free_cancellation_hours != null) {
+      CANCEL_HOURS = data.free_cancellation_hours
+    }
+  }
+
+  async function loadPrices () {
+    const { data, error } = await db
+      .from('price_settings')
+      .select('shared_online_price,shared_arrival_price,private_online_price,private_arrival_price')
+      .limit(1)
+      .single()
+    if (!error && data) {
+      PRICES = {
+        shared:  { online: data.shared_online_price,  arrival: data.shared_arrival_price  },
+        private: { online: data.private_online_price, arrival: data.private_arrival_price },
+      }
+    }
   }
 
   // ── Rendering ────────────────────────────────────────────────
@@ -272,6 +300,7 @@
       <div class="bw-price">
         <span>${S.persons} × €${price}</span>
         <strong>Total: €${total.toLocaleString()}</strong>
+        <span style="font-size:12px;color:var(--warm-gray);">VAT included / IVA inclusa</span>
       </div>`
 
     const paySelector = `
@@ -307,8 +336,8 @@
       : `Proceed to Payment · €${total.toLocaleString()} →`
 
     const submitNote = S.paymentMethod === 'arrival'
-      ? `We'll confirm your booking by email within 24 hours. Free cancellation up to 48h before.`
-      : `Secure payment via Stripe. Free cancellation up to 48 hours before.`
+      ? `We'll confirm your booking by email within 24 hours. Free cancellation up to ${CANCEL_HOURS}h before.`
+      : `Secure payment via Stripe. Free cancellation up to ${CANCEL_HOURS} hours before.`
 
     const bookingForm = `
       <form id="bwForm" novalidate>
@@ -479,35 +508,39 @@
     _submitLock = true
     S.step = 'submitting'; S.error = null; render()
 
-    // ── Pay on arrival → Formspree ───────────────────────────
+    // ── Pay on arrival → Edge Function (reserves slot in DB) ─
     if (S.paymentMethod === 'arrival') {
       try {
-        const sl        = S.selectedSlot
-        const dObj      = new Date(sl.date + 'T12:00:00')
-        const fmtDate   = dObj.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-        const price     = PRICES[S.bookingType].arrival
-        const total     = price * S.persons
-        const typeLabel = S.bookingType === 'private' ? 'Private Experience' : 'Small Group'
-
-        const res = await fetch(FORMSPREE_URL, {
+        const res = await fetch(`${EDGE_URL}/create-arrival-booking`, {
           method:  'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
           body: JSON.stringify({
-            _subject:       `Reservation Request — ${name} — ${sl.date}`,
+            slot_id: S.selectedSlot.id,
             name,
             email,
-            phone:          phone || 'Not provided',
-            date:           fmtDate,
-            time:           sl.time.slice(0, 5),
-            persons:        S.persons,
-            type:           typeLabel,
-            total:          `€${total}`,
-            payment_method: 'Pay on arrival',
-            notes:          notes || '',
+            phone:   phone || null,
+            persons: S.persons,
+            type:    S.bookingType,
+            notes:   notes || null,
           }),
         })
 
-        if (!res.ok) throw new Error('Submission failed')
+        const data = await res.json()
+
+        if (!res.ok) {
+          if (data.sold_out) {
+            await fetchDateSlots(S.selectedDate)
+            _submitLock = false
+            S.step  = 'form'
+            S.error = 'Sorry — this slot just sold out. Please choose a different time.'
+            render(); return
+          }
+          throw new Error(data.error || `Server error ${res.status}`)
+        }
+
         _submitLock = false
         S.step = 'arrival_sent'
         render()

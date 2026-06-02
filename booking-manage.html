@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Your Booking — Tenuta Collebrunacchi</title>
   <meta name="robots" content="noindex,nofollow">
@@ -578,19 +579,47 @@ document.getElementById('btn-cancel').addEventListener('click', async () => {
   const btn = document.getElementById('btn-cancel')
   btn.disabled = true; btn.textContent = 'Cancelling…'
 
-  const { error } = await db.from('bookings').update({ status: 'cancelled' }).eq('id', b.id).eq('booking_token', b.booking_token)
-
-  if (error) {
-    btn.disabled = false; btn.textContent = 'Cancel booking'
-    alert('Something went wrong. Please contact us at ' + ADMIN_EMAIL)
-    return
-  }
-
+  const isWithinFreeWindow = !isLast48
   const cancelMsgEl = document.getElementById('cancel-msg')
-  if (isLast48) {
-    cancelMsgEl.textContent = 'Your booking has been cancelled. Please note that due to late cancellation, no refund will be issued. We hope to welcome you another time.'
+
+  if (isWithinFreeWindow) {
+    let res, data
+    try {
+      res  = await fetch(`${EDGE_URL}/process-refund`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ booking_id: b.id, booking_token: b.booking_token })
+      })
+      data = await res.json()
+    } catch {
+      btn.disabled = false; btn.textContent = 'Cancel booking (free)'
+      alert('Errore durante la cancellazione, contatta il supporto via WhatsApp')
+      return
+    }
+
+    if (data.success) {
+      cancelMsgEl.textContent = 'Prenotazione cancellata. Il rimborso verrà accreditato entro 5–10 giorni lavorativi.'
+    } else if (data.error === 'already_cancelled') {
+      btn.disabled = false; btn.textContent = 'Cancel booking (free)'
+      alert('Prenotazione già cancellata.')
+      return
+    } else if (data.error === 'outside_cancellation_window') {
+      btn.disabled = false; btn.textContent = 'Cancel booking (free)'
+      alert(`Cancellazione non possibile: la finestra gratuita di ${data.hours_allowed} ore è scaduta.`)
+      return
+    } else {
+      btn.disabled = false; btn.textContent = 'Cancel booking (free)'
+      alert('Errore durante la cancellazione, contatta il supporto via WhatsApp')
+      return
+    }
   } else {
-    cancelMsgEl.textContent = 'Your booking has been cancelled. If you paid online, a refund will be processed within 5–10 business days to your original payment method.'
+    const { error } = await db.from('bookings').update({ status: 'cancelled' }).eq('id', b.id).eq('booking_token', b.booking_token)
+    if (error) {
+      btn.disabled = false; btn.textContent = '⚠️ Cancel (no refund)'
+      alert('Something went wrong. Please contact us at ' + ADMIN_EMAIL)
+      return
+    }
+    cancelMsgEl.textContent = 'Your booking has been cancelled. Please note that due to late cancellation, no refund will be issued. We hope to welcome you another time.'
   }
 
   // Notify admin via Formspree
