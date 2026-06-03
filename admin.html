@@ -617,6 +617,24 @@
           </table>
         </div>
       </div>
+
+      <!-- Preavviso minimo prenotazione -->
+      <div class="chart-card" style="margin-top:28px">
+        <h3 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin-bottom:20px">Preavviso minimo prenotazione</h3>
+        <div class="fg" style="max-width:420px;margin-bottom:8px">
+          <label class="lbl">Tempo minimo prima della data di prenotazione</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input class="inp" id="leadtime-value" type="number" min="1" value="24" style="max-width:90px">
+            <select class="inp" id="leadtime-unit" style="max-width:130px">
+              <option value="hours">ore</option>
+              <option value="days">giorni</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="leadtime-save">Salva</button>
+            <span class="form-success-msg" id="leadtime-msg" style="font-size:12px"></span>
+          </div>
+        </div>
+        <p class="page-subtitle">Il widget di prenotazione mostrerà un modal "last minute" per le date con meno preavviso di questo valore.</p>
+      </div>
     </div>
   </main>
 
@@ -1314,6 +1332,7 @@ async function deleteDiscount(id) {
 
 // ── Politica cancellazione ────────────────────────────────────
 let _globalPolicyId = null
+let _leadTimeId     = null
 
 async function loadPolicy() {
   const { data } = await db.from('cancellation_policies').select('*').order('date', { nullsFirst: true })
@@ -1323,6 +1342,7 @@ async function loadPolicy() {
   _globalPolicyId = global?.id ?? null
   document.getElementById('pol-global-hours').value = global?.hours ?? 48
   renderExceptions(exceptions)
+  await loadLeadTime()
 }
 
 function renderExceptions(list) {
@@ -1389,6 +1409,37 @@ async function deleteException(id) {
   toast('Eccezione eliminata', 'success')
   await loadPolicy()
 }
+
+// ── Preavviso minimo prenotazione ─────────────────────────────
+async function loadLeadTime() {
+  const { data, error } = await db.from('booking_lead_time').select('*').eq('is_active', true).limit(1).maybeSingle()
+  if (error || !data) return
+  _leadTimeId = data.id
+  document.getElementById('leadtime-value').value = data.min_lead_value ?? 24
+  document.getElementById('leadtime-unit').value  = data.min_lead_unit  ?? 'hours'
+}
+
+async function saveLeadTime() {
+  const value  = parseInt(document.getElementById('leadtime-value').value)
+  const unit   = document.getElementById('leadtime-unit').value
+  const msgEl  = document.getElementById('leadtime-msg')
+  msgEl.textContent = ''
+  if (isNaN(value) || value < 1) { toast('Inserisci un valore valido (min 1)', 'error'); return }
+
+  let error
+  if (_leadTimeId) {
+    ;({ error } = await db.from('booking_lead_time').update({ min_lead_value: value, min_lead_unit: unit, updated_at: new Date().toISOString() }).eq('id', _leadTimeId))
+  } else {
+    const res = await db.from('booking_lead_time').insert({ min_lead_value: value, min_lead_unit: unit, is_active: true }).select().single()
+    error = res.error
+    if (!error) _leadTimeId = res.data.id
+  }
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast('Preavviso minimo aggiornato', 'success')
+  msgEl.textContent = 'Salvato ✓'; setTimeout(() => { msgEl.textContent = '' }, 2500)
+}
+
+document.getElementById('leadtime-save').addEventListener('click', saveLeadTime)
 
 // ── Modals ────────────────────────────────────────────────────
 document.querySelectorAll('.modal-close[data-close]').forEach(btn => {

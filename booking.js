@@ -41,6 +41,7 @@
   let db = null
   let _submitLock = false
   let CANCEL_HOURS = 48
+  let LEAD_TIME    = { value: 24, unit: 'hours' }
 
   // ── Boot ────────────────────────────────────────────────────
   async function init () {
@@ -52,7 +53,7 @@
     }
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     injectCSS()
-    await Promise.all([loadPrices(), loadCancellationPolicy()])
+    await Promise.all([loadPrices(), loadCancellationPolicy(), loadLeadTime()])
     render()
     fetchMonthSlots()
 
@@ -104,6 +105,18 @@
       .single()
     if (!error && data?.free_cancellation_hours != null) {
       CANCEL_HOURS = data.free_cancellation_hours
+    }
+  }
+
+  async function loadLeadTime () {
+    const { data, error } = await db
+      .from('booking_lead_time')
+      .select('min_lead_value,min_lead_unit')
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+    if (!error && data?.min_lead_value != null) {
+      LEAD_TIME = { value: data.min_lead_value, unit: data.min_lead_unit || 'hours' }
     }
   }
 
@@ -165,6 +178,7 @@
       if (ds === S.selectedDate)      cls += ' bw-dc--sel'
 
       if (isTruffleSeason && avail === 'available') cls += ' bw-dc--demand'
+      if (!past && avail === 'available' && isWithinLeadTime(ds)) cls += ' bw-dc--leadtime'
       const clickable = !past && avail === 'available'
       grid += `<button class="${cls}" ${clickable ? `data-date="${ds}"` : 'disabled'} type="button">
         <span>${d}</span>${dot}
@@ -440,7 +454,9 @@
 
     // Day click (calendar)
     qsa('[data-date]', el => el.addEventListener('click', async e => {
-      const date = e.currentTarget.dataset.date
+      const btn = e.currentTarget
+      if (btn.classList.contains('bw-dc--leadtime')) { showLeadTimeModal(); return }
+      const date = btn.dataset.date
       S.selectedDate = date
       S.step = 'loading_slots'
       render()
@@ -644,6 +660,53 @@
   function qsa (sel, fn) { document.querySelectorAll(sel).forEach(fn) }
   function val (id) { return (document.getElementById(id)?.value || '').trim() }
 
+  // ── Lead-time helpers ─────────────────────────────────────────
+  function isWithinLeadTime (dateStr) {
+    const hoursUntil = (new Date(dateStr + 'T00:00:00') - new Date()) / 3600000
+    const leadHours  = LEAD_TIME.unit === 'days' ? LEAD_TIME.value * 24 : LEAD_TIME.value
+    return hoursUntil < leadHours
+  }
+
+  function leadTimeLabel () {
+    const v = LEAD_TIME.value
+    const u = LEAD_TIME.unit === 'days' ? (v === 1 ? 'day' : 'days') : (v === 1 ? 'hour' : 'hours')
+    return `${v} ${u}`
+  }
+
+  function showLeadTimeModal () {
+    const WA_LASTMINUTE = 'https://wa.me/393311682664?text=Hi%2C%20I\'d%20like%20to%20book%20a%20last-minute%20truffle%20hunting%20experience%20at%20Tenuta%20Collebrunacchi.%20Is%20there%20availability%3F'
+    let modal = document.getElementById('bw-leadtime-modal')
+    if (!modal) {
+      modal = document.createElement('div')
+      modal.id = 'bw-leadtime-modal'
+      modal.innerHTML = `
+        <div class="bw-lt-overlay" id="bw-lt-overlay"></div>
+        <div class="bw-lt-box">
+          <h3 class="bw-lt-title">Want to book last minute?</h3>
+          <p class="bw-lt-text">This date requires less than <strong>${leadTimeLabel()}</strong> notice. Contact us to check availability:</p>
+          <div class="bw-lt-actions">
+            <a href="${WA_LASTMINUTE}" target="_blank" rel="noopener noreferrer" class="bw-lt-btn bw-lt-btn--wa">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </a>
+            <a href="mailto:tenutacollebrunacchi@gmail.com" class="bw-lt-btn bw-lt-btn--email">Email</a>
+            <a href="tel:+393311682664" class="bw-lt-btn bw-lt-btn--phone">Call</a>
+          </div>
+          <button type="button" class="bw-lt-close" id="bw-lt-close">Close</button>
+        </div>
+      `
+      document.body.appendChild(modal)
+      document.getElementById('bw-lt-overlay').addEventListener('click', closeLeadTimeModal)
+      document.getElementById('bw-lt-close').addEventListener('click', closeLeadTimeModal)
+    }
+    modal.style.display = 'flex'
+  }
+
+  function closeLeadTimeModal () {
+    const modal = document.getElementById('bw-leadtime-modal')
+    if (modal) modal.style.display = 'none'
+  }
+
   // ── Styles ────────────────────────────────────────────────────
   function injectCSS () {
     if (document.getElementById('bw-styles')) return
@@ -690,7 +753,13 @@
 .bw-dc--empty { }
 .bw-dc--past  { color:#C8C2BA; cursor:default; }
 .bw-dc--none  { color:#C8C2BA; cursor:default; }
-.bw-dc--full  { color:var(--warm-gray,#6B6B64); cursor:default; }
+.bw-dc--full     { color:var(--warm-gray,#6B6B64); cursor:default; }
+.bw-dc--leadtime {
+  background:var(--cream,#F2EDE3); color:var(--charcoal,#1C1C1A);
+  cursor:pointer; opacity:.65;
+  border:1.5px dashed var(--terra,#8B5E3C);
+}
+.bw-dc--leadtime:hover { opacity:1; }
 .bw-dc--avail {
   background:var(--cream,#F2EDE3); color:var(--charcoal,#1C1C1A);
   cursor:pointer;
@@ -932,6 +1001,45 @@
   animation:bwSpin .7s linear infinite;
 }
 @keyframes bwSpin { to { transform:rotate(360deg); } }
+
+/* Lead-time modal */
+#bw-leadtime-modal {
+  display:none; position:fixed; inset:0; z-index:9000;
+  align-items:center; justify-content:center;
+}
+.bw-lt-overlay {
+  position:absolute; inset:0; background:rgba(28,28,26,.55);
+}
+.bw-lt-box {
+  position:relative; background:#fff; border-radius:10px;
+  padding:32px 28px; max-width:380px; width:calc(100% - 32px);
+  box-shadow:0 12px 40px rgba(0,0,0,.18);
+  display:flex; flex-direction:column; gap:16px;
+}
+.bw-lt-title {
+  font-family:var(--font-serif,'Playfair Display',serif);
+  font-size:20px; font-weight:500; color:var(--charcoal,#1C1C1A); margin:0;
+}
+.bw-lt-text { font-size:14px; color:var(--charcoal,#1C1C1A); line-height:1.6; margin:0; }
+.bw-lt-actions { display:flex; flex-direction:column; gap:10px; }
+.bw-lt-btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 18px; border-radius:4px; font-size:13px; font-weight:600;
+  letter-spacing:.8px; text-transform:uppercase; text-decoration:none;
+  transition:background .2s, border-color .2s;
+}
+.bw-lt-btn--wa   { background:#25D366; color:#fff; }
+.bw-lt-btn--wa:hover { background:#1ebe5d; }
+.bw-lt-btn--email { background:transparent; color:var(--charcoal,#1C1C1A); border:1.5px solid var(--border,#E0D8CC); }
+.bw-lt-btn--email:hover { border-color:var(--terra,#8B5E3C); color:var(--terra,#8B5E3C); }
+.bw-lt-btn--phone { background:transparent; color:var(--charcoal,#1C1C1A); border:1.5px solid var(--border,#E0D8CC); }
+.bw-lt-btn--phone:hover { border-color:var(--terra,#8B5E3C); color:var(--terra,#8B5E3C); }
+.bw-lt-close {
+  background:none; border:none; font-size:12px; font-weight:600; letter-spacing:1px;
+  text-transform:uppercase; color:var(--warm-gray,#6B6B64); cursor:pointer;
+  padding:4px 0; align-self:center;
+}
+.bw-lt-close:hover { color:var(--charcoal,#1C1C1A); }
 
 /* Mobile ≤ 600px */
 @media (max-width:600px) {
