@@ -308,6 +308,7 @@
       .detail-value { text-align: left; }
     }
   </style>
+  <script src="assets/js/email-validator.js"></script>
 </head>
 <body>
 
@@ -515,6 +516,9 @@ async function login() {
   errEl.textContent = ''
 
   if (!email || !pw) { errEl.textContent = 'Please enter your email and password.'; return }
+  const loginEmailInp = document.getElementById('login-email')
+  clearEmailError(loginEmailInp)
+  if (!isValidEmail(email)) { showEmailError(loginEmailInp, 'Please enter a valid email address.'); return }
 
   const btn = document.getElementById('btn-login')
   btn.textContent = 'Signing in…'; btn.disabled = true
@@ -541,7 +545,9 @@ document.getElementById('btn-send-reset').addEventListener('click', async () => 
   const errEl = document.getElementById('forgot-err')
   errEl.textContent = ''
 
-  if (!email) { errEl.textContent = 'Please enter your email address.'; return }
+  const forgotEmailInp = document.getElementById('forgot-email')
+  clearEmailError(forgotEmailInp)
+  if (!email || !isValidEmail(email)) { showEmailError(forgotEmailInp, 'Please enter a valid email address.'); return }
 
   const btn = document.getElementById('btn-send-reset')
   btn.textContent = 'Sending…'; btn.disabled = true

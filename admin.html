@@ -359,6 +359,7 @@
       .stat-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="assets/js/email-validator.js"></script>
 </head>
 <body>
 
@@ -717,6 +718,9 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const pw    = document.getElementById('login-pw').value
   const err   = document.getElementById('login-err')
   err.textContent = ''
+  const emailInp = document.getElementById('login-email')
+  clearEmailError(emailInp)
+  if (!isValidEmail(email)) { showEmailError(emailInp, 'Inserisci un indirizzo email valido.'); return }
   const btn = document.getElementById('login-btn')
   btn.textContent = 'Accesso in corso…'; btn.disabled = true
   const { error } = await db.auth.signInWithPassword({ email, password: pw })

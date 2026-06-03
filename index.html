@@ -3243,6 +3243,11 @@
             valid = false;
           }
         });
+        const cfEmailEl = document.getElementById('cf-email');
+        if (cfEmailEl && cfEmailEl.value.trim() && !isValidEmail(cfEmailEl.value.trim())) {
+          showEmailError(cfEmailEl, 'Please enter a valid email address.');
+          valid = false;
+        }
         return valid;
       }
 
@@ -3318,6 +3323,7 @@
       stripePublishableKey: 'pk_live_51Qf4WhFgHqntlM2RCOFepFps89akxfm2pZarJci15qFhiQo18XBHxM6YROyQVqxNkESKCsgxzbRjl64QSkjGJpiO000AoFHSJk',
     }
   </script>
+  <script src="assets/js/email-validator.js"></script>
   <script src="booking.js"></script>
 
   <script>

@@ -503,6 +503,11 @@
       const el = document.getElementById(id)
       if (el && !el.value.trim()) { el.style.borderColor = '#C0392B'; ok = false }
     })
+    const bwEmailEl = document.getElementById('bwEmail')
+    if (bwEmailEl && email && !isValidEmail(email)) {
+      showEmailError(bwEmailEl, 'Please enter a valid email address.')
+      ok = false
+    }
     if (!ok) return
 
     _submitLock = true
