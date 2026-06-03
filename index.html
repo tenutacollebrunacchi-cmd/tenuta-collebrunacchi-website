@@ -304,7 +304,15 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .nav.scrolled .hamburger span { background: var(--charcoal); }
-    .hamburger.open span { background: #1C1C1A !important; }
+    .hamburger.open { opacity: 0; pointer-events: none; }
+    .mobile-menu-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer;
+      font-size: 22px; color: #1C1C1A; line-height: 1;
+    }
     .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
@@ -312,14 +320,14 @@
     .mobile-menu {
       display: none;
       position: fixed;
-      top: 64px; left: 0;
-      width: 280px; height: calc(100vh - 64px);
+      top: 0; left: 0;
+      width: 280px; height: 100vh;
       background: var(--ivory);
       z-index: 9999;
       flex-direction: column;
       align-items: flex-start;
       justify-content: flex-start;
-      padding: 28px 28px 32px;
+      padding: 80px 28px 32px;
       gap: 24px;
       box-shadow: 4px 0 24px rgba(0,0,0,0.12);
       overflow-y: auto;
@@ -2182,6 +2190,7 @@
 
   <!-- Mobile menu -->
   <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">✕</button>
     <a href="#experience" class="mobile-link">The Experience</a>
     <a href="#host" class="mobile-link">Your Host</a>
     <a href="#gallery" class="mobile-link">Gallery</a>
@@ -2827,7 +2836,7 @@
   <section class="booking-section" id="booking">
     <div class="container">
       <div class="booking-header fade-in">
-        <span class="section-label">Reserve your morning</span>
+        <span class="section-label">Reserve your experience</span>
         <h2 class="section-title">Check availability &amp; book</h2>
         <p style="font-size:15px;color:var(--warm-gray);margin-top:10px;">Pay online at the best price, or choose to pay on arrival. Free cancellation up to 48 hours before.</p>
         <div id="truffle-season-banner" style="display:none;margin-top:22px;background:linear-gradient(135deg,#FDF7EC,#FAF0DC);border:1.5px solid var(--gold);border-radius:4px;padding:13px 22px;font-size:14px;color:var(--terra-dark);font-weight:500;align-items:center;gap:10px;justify-content:center;">
@@ -2927,7 +2936,7 @@
           Best price online. Or pay on arrival on the day. Free cancellation up to 48 hours before.
         </p>
         <div class="cta-buttons">
-          <a href="#booking" class="btn btn-primary">Book Your Morning →</a>
+          <a href="#booking" class="btn btn-primary">Book Your Experience →</a>
           <a href="#pricing" class="btn btn-outline-light">See Pricing</a>
         </div>
         <a href="https://wa.me/393311682664?text=Hi%2C%20I'm%20interested%20in%20booking%20a%20truffle%20hunting%20experience%20at%20Tenuta%20Collebrunacchi.%20Could%20you%20help%20me%3F" class="cta-whatsapp">
@@ -2954,7 +2963,7 @@
         <div class="footer-col">
           <h5>Experience</h5>
           <ul>
-            <li><a href="#experience">The Morning</a></li>
+            <li><a href="#experience">The Experience</a></li>
             <li><a href="#host">Your Host Francesca</a></li>
             <li><a href="#dog">Levante &amp; Ares</a></li>
             <li><a href="#gallery">Photo Gallery</a></li>
@@ -3070,6 +3079,15 @@
         document.body.style.overflow = '';
       });
     });
+
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+    if (mobileMenuClose) {
+      mobileMenuClose.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    }
 
     // ─── Scroll Animations (will-change managed per element) ──
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3304,7 +3322,7 @@
   ============================================================ -->
   <div class="wa-widget" id="waWidget">
     <div class="wa-tooltip">
-      Ciao! Scrivici su WhatsApp per informazioni sull'esperienza di caccia al tartufo.
+      Have questions? Message us on WhatsApp.
     </div>
     <a class="wa-btn"
        href="https://wa.me/393311682664?text=Hi%2C%20I'm%20interested%20in%20booking%20a%20truffle%20hunting%20experience%20at%20Tenuta%20Collebrunacchi.%20Could%20you%20help%20me%3F"
@@ -3374,13 +3392,16 @@
   </script>
 
   <script>
-    document.querySelectorAll('a[href="#booking"]').forEach(link => {
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      const hash = link.getAttribute('href');
+      if (hash === '#') return;
       link.addEventListener('click', function(e) {
+        const target = document.getElementById(hash.slice(1));
+        if (!target) return;
         e.preventDefault();
-        const target = document.getElementById('booking');
         const navbar = document.querySelector('nav') || document.querySelector('header');
         const navHeight = navbar ? navbar.offsetHeight : 80;
-        const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+        const top = target.getBoundingClientRect().top + window.scrollY - navHeight + 60;
         window.scrollTo({ top, behavior: 'smooth' });
       });
     });
