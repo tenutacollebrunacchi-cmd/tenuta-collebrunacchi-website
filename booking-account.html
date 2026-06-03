@@ -484,7 +484,6 @@ function showView(id) {
 })()
 
 db.auth.onAuthStateChange(async (event, session) => {
-  console.log('Auth event:', event, session);
   if (event === 'PASSWORD_RECOVERY') {
     recoveryMode = true
     showView('view-set-password')
@@ -603,7 +602,6 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
 
 // ── Dashboard ──────────────────────────────────────────────────
 async function loadDashboard() {
-  console.log('loadDashboard called');
   const loginEl = document.getElementById('view-login')
   if (loginEl) loginEl.style.display = 'none'
   showView('view-loading')
