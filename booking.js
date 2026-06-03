@@ -99,12 +99,12 @@
   async function loadCancellationPolicy () {
     const { data, error } = await db
       .from('cancellation_policies')
-      .select('free_cancellation_hours')
+      .select('hours')
       .eq('is_active', true)
       .limit(1)
       .single()
-    if (!error && data?.free_cancellation_hours != null) {
-      CANCEL_HOURS = data.free_cancellation_hours
+    if (!error && data?.hours != null) {
+      CANCEL_HOURS = data.hours
     }
   }
 
@@ -123,13 +123,13 @@
   async function loadPrices () {
     const { data, error } = await db
       .from('price_settings')
-      .select('shared_online_price,shared_arrival_price,private_online_price,private_arrival_price')
-      .limit(1)
-      .single()
-    if (!error && data) {
+      .select('key,value_eur')
+    if (!error && data?.length) {
+      const map = {}
+      for (const row of data) map[row.key] = row.value_eur
       PRICES = {
-        shared:  { online: data.shared_online_price,  arrival: data.shared_arrival_price  },
-        private: { online: data.private_online_price, arrival: data.private_arrival_price },
+        shared:  { online: map.shared_online  ?? PRICES.shared.online,  arrival: map.shared_arrival  ?? PRICES.shared.arrival  },
+        private: { online: map.private_online ?? PRICES.private.online, arrival: map.private_arrival ?? PRICES.private.arrival },
       }
     }
   }

@@ -835,7 +835,7 @@
       try {
         const [priceRes, cancelRes] = await Promise.all([
           fetch(SUPABASE_URL + '/price_settings?select=shared_price,private_price,onsite_surcharge_percent&limit=1', { headers }),
-          fetch(SUPABASE_URL + '/cancellation_policies?select=free_cancellation_hours&is_active=eq.true&limit=1',    { headers })
+          fetch(SUPABASE_URL + '/cancellation_policies?select=hours&is_active=eq.true&limit=1',    { headers })
         ])
 
         if (!priceRes.ok || !cancelRes.ok) throw new Error('Fetch failed')
@@ -848,7 +848,7 @@
         const shared    = p.shared_price                 != null ? p.shared_price                 : '—'
         const priv      = p.private_price                != null ? p.private_price                : '—'
         const surcharge = p.onsite_surcharge_percent     != null ? p.onsite_surcharge_percent     : '—'
-        const hours     = c.free_cancellation_hours      != null ? c.free_cancellation_hours      : '—'
+        const hours     = c.hours      != null ? c.hours      : '—'
 
         document.querySelectorAll('.dyn-shared').forEach(el  => { el.textContent = shared })
         document.querySelectorAll('.dyn-private').forEach(el => { el.textContent = priv })

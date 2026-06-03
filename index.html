@@ -3345,13 +3345,13 @@
       var url = cfg.supabaseUrl
       var key = cfg.supabaseAnonKey
       if (!url || !key) return
-      fetch(url + '/rest/v1/cancellation_policies?select=free_cancellation_hours&is_active=eq.true&limit=1', {
+      fetch(url + '/rest/v1/cancellation_policies?select=hours&is_active=eq.true&limit=1', {
         headers: { apikey: key, Authorization: 'Bearer ' + key }
       })
         .then(function (r) { return r.ok ? r.json() : null })
         .then(function (data) {
-          if (!data || !data[0] || data[0].free_cancellation_hours == null) return
-          var hours = String(data[0].free_cancellation_hours)
+          if (!data || !data[0] || data[0].hours == null) return
+          var hours = String(data[0].hours)
           if (hours === '48') return
           var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
           var node
