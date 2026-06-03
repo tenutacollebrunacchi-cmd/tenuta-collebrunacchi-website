@@ -9,7 +9,7 @@
   const SUPABASE_URL      = C.supabaseUrl      || ''
   const SUPABASE_ANON_KEY = C.supabaseAnonKey  || ''
   const EDGE_URL          = C.edgeFunctionsUrl || ''
-  const WA_URL            = 'https://wa.me/393311682664'
+  const WA_URL            = 'https://wa.me/393311682664?text=Hi%2C%20I\'m%20interested%20in%20booking%20a%20truffle%20hunting%20experience%20at%20Tenuta%20Collebrunacchi.%20Could%20you%20help%20me%3F'
   const FORMSPREE_URL     = 'https://formspree.io/f/mojbrpbv'
   let PRICES              = {
     shared:  { online: 159, arrival: 169 },
