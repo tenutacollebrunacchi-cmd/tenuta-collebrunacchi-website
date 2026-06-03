@@ -476,6 +476,12 @@ function showView(id) {
 
 // ── Init ───────────────────────────────────────────────────────
 ;(async () => {
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  if (hashParams.get('access_token')) {
+    // Supabase gestirà automaticamente il token via onAuthStateChange
+    // Pulisci l'URL senza ricaricare la pagina
+    history.replaceState(null, '', window.location.pathname);
+  }
   showView('view-loading')
   // Recovery redirects contain a hash fragment — let onAuthStateChange handle them
   if (window.location.hash.includes('type=recovery')) return

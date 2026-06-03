@@ -1635,7 +1635,8 @@
       .container { padding: 0 20px; }
 
       .nav-links { display: none; }
-      .hamburger { display: flex; }
+      .hamburger { display: flex; order: -1; margin-right: auto; }
+      .nav-cta { display: flex; }
 
       .hook { padding: 64px 0; }
       .hook-grid { grid-template-columns: 1fr; gap: 2px; }
@@ -3400,7 +3401,7 @@
         if (!target) return;
         e.preventDefault();
         const navbar = document.querySelector('nav') || document.querySelector('header');
-        const navHeight = navbar ? navbar.offsetHeight : 80;
+        const navHeight = (navbar && navbar.offsetHeight > 0) ? navbar.offsetHeight : 80;
         const top = target.getBoundingClientRect().top + window.scrollY - navHeight + 60;
         window.scrollTo({ top, behavior: 'smooth' });
       });
