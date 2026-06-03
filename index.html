@@ -71,7 +71,7 @@
       --shadow-lg:    0 12px 48px rgba(0,0,0,0.14);
     }
 
-    html { scroll-behavior: smooth; font-size: 16px; }
+    html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 80px; }
 
     body {
       font-family: var(--font-sans);
@@ -304,6 +304,7 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .nav.scrolled .hamburger span { background: var(--charcoal); }
+    .hamburger.open span { background: #1C1C1A !important; }
     .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
@@ -311,13 +312,17 @@
     .mobile-menu {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 64px; left: 0;
+      width: 280px; height: calc(100vh - 64px);
       background: var(--ivory);
-      z-index: 999;
+      z-index: 9999;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 32px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 28px 28px 32px;
+      gap: 24px;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      overflow-y: auto;
     }
     .mobile-menu.open { display: flex; }
     .mobile-menu a {
@@ -2183,7 +2188,7 @@
     <a href="#pricing" class="mobile-link">Pricing</a>
     <a href="#faq" class="mobile-link">FAQ</a>
     <a href="booking-account.html" class="mobile-link">My Account</a>
-    <a href="#booking" class="btn btn-primary mobile-cta">Book Your Morning →</a>
+    <a href="#booking" class="btn btn-primary mobile-cta">Book Your Experience →</a>
   </div>
 
   <!-- ============================================================
@@ -3302,7 +3307,7 @@
       Ciao! Scrivici su WhatsApp per informazioni sull'esperienza di caccia al tartufo.
     </div>
     <a class="wa-btn"
-       href="https://wa.me/393311682664?text=Ciao%2C%20vorrei%20informazioni%20sull%27esperienza%20di%20caccia%20al%20tartufo%20a%20San%20Miniato.%20Ho%20visto%20il%20sito%20web."
+       href="https://wa.me/393311682664?text=Hi%2C%20I'm%20interested%20in%20booking%20a%20truffle%20hunting%20experience%20at%20Tenuta%20Collebrunacchi.%20Could%20you%20help%20me%3F"
        target="_blank"
        rel="noopener noreferrer"
        aria-label="Contact us on WhatsApp">
@@ -3366,6 +3371,19 @@
         })
         .catch(function () {})
     })()
+  </script>
+
+  <script>
+    document.querySelectorAll('a[href="#booking"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.getElementById('booking');
+        const navbar = document.querySelector('nav') || document.querySelector('header');
+        const navHeight = navbar ? navbar.offsetHeight : 80;
+        const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
   </script>
 
 </body>

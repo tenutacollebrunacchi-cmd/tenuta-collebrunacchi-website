@@ -20,6 +20,28 @@
   const MONTH_NAMES = ['January','February','March','April','May','June',
                        'July','August','September','October','November','December']
   const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+  const DIAL_CODES  = [
+    { flag:'🇺🇸', name:'United States',  code:'+1'   },
+    { flag:'🇬🇧', name:'United Kingdom', code:'+44'  },
+    { flag:'🇩🇪', name:'Germany',        code:'+49'  },
+    { flag:'🇫🇷', name:'France',         code:'+33'  },
+    { flag:'🇦🇺', name:'Australia',      code:'+61'  },
+    { flag:'🇨🇦', name:'Canada',         code:'+1'   },
+    { flag:'🇳🇱', name:'Netherlands',    code:'+31'  },
+    { flag:'🇨🇭', name:'Switzerland',    code:'+41'  },
+    { flag:'🇧🇪', name:'Belgium',        code:'+32'  },
+    { flag:'🇪🇸', name:'Spain',          code:'+34'  },
+    { flag:'🇮🇹', name:'Italy',          code:'+39'  },
+    { flag:'🇵🇹', name:'Portugal',       code:'+351' },
+    { flag:'🇸🇪', name:'Sweden',         code:'+46'  },
+    { flag:'🇳🇴', name:'Norway',         code:'+47'  },
+    { flag:'🇩🇰', name:'Denmark',        code:'+45'  },
+    { flag:'🇮🇪', name:'Ireland',        code:'+353' },
+    { flag:'🇳🇿', name:'New Zealand',    code:'+64'  },
+    { flag:'🇯🇵', name:'Japan',          code:'+81'  },
+    { flag:'🇧🇷', name:'Brazil',         code:'+55'  },
+    { flag:'🇦🇷', name:'Argentina',      code:'+54'  },
+  ]
 
   // ── State ───────────────────────────────────────────────────
   let S = {
@@ -372,9 +394,22 @@
           </div>
         </div>
         <div class="bw-fg">
-          <label class="bw-lbl" for="bwPhone">Phone / WhatsApp</label>
-          <input class="bw-inp" id="bwPhone" name="phone" type="tel"
-                 placeholder="+1 234 567 890" autocomplete="tel">
+          <label class="bw-lbl" for="bwPhoneNum">Phone / WhatsApp <em>(optional)</em></label>
+          <div class="bw-phone-wrap">
+            <div class="bw-dial-wrap" id="bwDialWrap">
+              <button type="button" class="bw-dial-btn" id="bwDialBtn" aria-haspopup="listbox" aria-expanded="false">
+                <span id="bwDialFlag">🇺🇸</span>
+                <span id="bwDialCode">+1</span>
+                <svg class="bw-dial-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="bw-dial-panel" id="bwDialPanel">
+                <input class="bw-dial-search" id="bwDialSearch" type="text" placeholder="Search country…" autocomplete="off">
+                <ul class="bw-dial-list" id="bwDialList" role="listbox"></ul>
+              </div>
+            </div>
+            <input class="bw-inp bw-dial-num" id="bwPhoneNum" type="tel" placeholder="7911 123 456" autocomplete="tel-national">
+            <input type="hidden" id="bwPhone" name="phone">
+          </div>
         </div>
         <div class="bw-fg">
           <label class="bw-lbl" for="bwNotes">Special requests <em>(optional)</em></label>
@@ -495,6 +530,68 @@
       render()
     }))
 
+    // Phone widget
+    const dialBtn    = document.getElementById('bwDialBtn')
+    const dialPanel  = document.getElementById('bwDialPanel')
+    const dialSearch = document.getElementById('bwDialSearch')
+    const dialList   = document.getElementById('bwDialList')
+    const phoneNum   = document.getElementById('bwPhoneNum')
+    const phoneFull  = document.getElementById('bwPhone')
+    if (dialBtn && dialPanel && dialList && phoneNum && phoneFull) {
+      let selectedCode = '+1'
+
+      function renderDialList (filter) {
+        const q = (filter || '').toLowerCase()
+        const items = DIAL_CODES.filter(c =>
+          !q || c.name.toLowerCase().includes(q) || c.code.includes(q)
+        )
+        dialList.innerHTML = items.map(c => `
+          <li class="bw-dial-item${c.code === selectedCode ? ' selected' : ''}"
+              data-code="${c.code}" data-flag="${c.flag}" role="option">
+            <span>${c.flag}</span>
+            <span>${c.name}</span>
+            <span class="bw-dial-item-code">${c.code}</span>
+          </li>`).join('')
+        dialList.querySelectorAll('.bw-dial-item').forEach(li => {
+          li.addEventListener('click', () => {
+            selectedCode = li.dataset.code
+            document.getElementById('bwDialFlag').textContent = li.dataset.flag
+            document.getElementById('bwDialCode').textContent = li.dataset.code
+            updateFullPhone()
+            closePanel()
+          })
+        })
+      }
+
+      function updateFullPhone () {
+        const num = phoneNum.value.trim()
+        phoneFull.value = num ? `${selectedCode} ${num}` : ''
+      }
+
+      function openPanel () {
+        dialPanel.classList.add('open')
+        dialBtn.classList.add('open')
+        dialBtn.setAttribute('aria-expanded', 'true')
+        dialSearch.value = ''
+        renderDialList('')
+        dialSearch.focus()
+      }
+
+      function closePanel () {
+        dialPanel.classList.remove('open')
+        dialBtn.classList.remove('open')
+        dialBtn.setAttribute('aria-expanded', 'false')
+      }
+
+      renderDialList('')
+      dialBtn.addEventListener('click', () => dialPanel.classList.contains('open') ? closePanel() : openPanel())
+      dialSearch.addEventListener('input', () => renderDialList(dialSearch.value))
+      phoneNum.addEventListener('input', updateFullPhone)
+      document.addEventListener('click', e => {
+        if (!document.getElementById('bwDialWrap')?.contains(e.target)) closePanel()
+      })
+    }
+
     // Form submit
     const form = document.getElementById('bwForm')
     if (form) {
@@ -609,6 +706,11 @@
 
       if (data.url) {
         S.step = 'redirecting'; render()
+        const _ol = document.createElement('div')
+        _ol.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(242,237,227,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;'
+        _ol.innerHTML = '<div class="bw-spin" style="width:40px;height:40px;"></div><p style="font-family:inherit;color:#1C1C1A;font-size:16px;margin:0;letter-spacing:0.3px;">Processing your booking…</p>'
+        document.body.appendChild(_ol)
+        document.body.style.overflow = 'hidden'
         window.location.href = data.url
       } else {
         throw new Error('No checkout URL in response')
@@ -918,6 +1020,47 @@
 .bw-inp::placeholder { color:#B8B0A4; }
 .bw-ta { resize:vertical; min-height:90px; }
 .bw-err { color:#C0392B; font-size:13px; margin:12px 0; }
+
+/* Phone widget */
+.bw-phone-wrap { display:flex; gap:8px; align-items:stretch; }
+.bw-dial-wrap  { position:relative; flex-shrink:0; }
+.bw-dial-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:12px 10px; height:100%;
+  border:1.5px solid var(--border,#E0D8CC); border-radius:4px;
+  background:#fff; cursor:pointer; font-size:14px;
+  white-space:nowrap; transition:border-color .2s;
+  color:var(--charcoal,#1C1C1A); font-family:inherit;
+}
+.bw-dial-btn:focus, .bw-dial-btn.open { border-color:var(--terra,#8B5E3C); outline:none; }
+.bw-dial-arrow { transition:transform .2s; flex-shrink:0; }
+.bw-dial-btn.open .bw-dial-arrow { transform:rotate(180deg); }
+.bw-dial-panel {
+  display:none; position:absolute; top:calc(100% + 4px); left:0;
+  width:260px; background:#fff;
+  border:1.5px solid var(--border,#E0D8CC); border-radius:4px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.1); z-index:200; overflow:hidden;
+}
+.bw-dial-panel.open { display:block; }
+.bw-dial-search {
+  width:100%; padding:10px 12px; border:none;
+  border-bottom:1.5px solid var(--border,#E0D8CC);
+  font-size:13px; font-family:inherit; outline:none;
+  color:var(--charcoal,#1C1C1A); background:#fff; box-sizing:border-box;
+}
+.bw-dial-search::placeholder { color:#B8B0A4; }
+.bw-dial-list {
+  list-style:none; margin:0; padding:4px 0;
+  max-height:200px; overflow-y:auto;
+}
+.bw-dial-item {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px; cursor:pointer; font-size:13px;
+  color:var(--charcoal,#1C1C1A); transition:background .1s;
+}
+.bw-dial-item:hover, .bw-dial-item.selected { background:var(--cream,#F2EDE3); }
+.bw-dial-item-code { color:var(--warm-gray,#6B6B64); margin-left:auto; font-size:12px; }
+.bw-dial-num { flex:1; min-width:0; }
 .bw-submit {
   width:100%; padding:15px; margin-top:8px;
   background:var(--terra,#8B5E3C); color:#fff;
@@ -1047,9 +1190,11 @@
   .bw-type-row  { grid-template-columns:1fr; }
   .bw-form-row  { grid-template-columns:1fr; }
   .bw-pay-row   { grid-template-columns:1fr; }
-  .bw-cal-grid  { gap:2px; }
-  .bw-dc        { font-size:13px; }
+  .bw-cal-grid  { gap:1px; width:100%; overflow:hidden; }
+  .bw-dh        { font-size:9px; padding:3px 0; letter-spacing:0.5px; }
+  .bw-dc        { font-size:11px; }
   .bw-month-lbl { font-size:17px; }
+  .bw           { max-width:100%; }
 }
 `
     document.head.appendChild(s)

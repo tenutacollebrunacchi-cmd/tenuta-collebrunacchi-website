@@ -496,6 +496,11 @@ db.auth.onAuthStateChange(async (event, session) => {
   }
   // SIGNED_IN fires after login AND after updateUser — skip during recovery
   if (event === 'SIGNED_IN' && !recoveryMode && session) {
+    const createdAt  = new Date(session.user.created_at).getTime()
+    const lastSignIn = new Date(session.user.last_sign_in_at).getTime()
+    if (Math.abs(createdAt - lastSignIn) < 5000) {
+      toast('Welcome! Your account has been created successfully.', 'success')
+    }
     await loadDashboard()
   }
 })
@@ -597,6 +602,8 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
 
 // ── Dashboard ──────────────────────────────────────────────────
 async function loadDashboard() {
+  const loginEl = document.getElementById('view-login')
+  if (loginEl) loginEl.style.display = 'none'
   showView('view-loading')
 
   const { data: { user }, error: userErr } = await db.auth.getUser()
