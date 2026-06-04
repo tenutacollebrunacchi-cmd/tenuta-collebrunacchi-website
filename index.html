@@ -3258,6 +3258,20 @@
       const errorEl   = document.getElementById('cfErrorMsg');
       if (!form) return;
 
+      const waWidget = document.getElementById('waWidget');
+      if (waWidget) {
+        form.addEventListener('focusin', () => {
+          waWidget.style.opacity = '0';
+          waWidget.style.pointerEvents = 'none';
+        });
+        form.addEventListener('focusout', () => {
+          setTimeout(() => {
+            waWidget.style.opacity = '1';
+            waWidget.style.pointerEvents = '';
+          }, 500);
+        });
+      }
+
       // Inline validation: highlight required empty fields
       function validate() {
         let valid = true;
