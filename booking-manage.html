@@ -387,6 +387,10 @@
   </div>
 
   <div class="page-footer">
+    <a href="ticket.html?token=TOKEN_PLACEHOLDER" id="btnTicket" style="display:inline-flex;align-items:center;gap:8px;background:var(--verde,#1A2D15);color:white;font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;padding:12px 24px;border-radius:40px;margin-bottom:12px;" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Download Ticket
+    </a>
     <p>
       Need help? Email us at <a href="mailto:tenutacollebrunacchi@gmail.com">tenutacollebrunacchi@gmail.com</a><br>
       or message us on <a href="https://wa.me/393311682664" target="_blank" rel="noopener">WhatsApp</a>.
@@ -514,6 +518,9 @@ function renderBooking() {
       ? '⚠️ Cancel (no refund)'
       : 'Cancel booking (free)'
   }
+
+  const btnTicket = document.getElementById('btnTicket')
+  if (btnTicket && booking.booking_token) btnTicket.href = 'ticket.html?token=' + booking.booking_token
 
   show('state-booking')
 }

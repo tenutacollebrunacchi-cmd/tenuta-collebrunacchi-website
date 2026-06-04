@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica Prenotazione — Tenuta Collebrunacchi</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --verde: #1A2D15; --gold: #C4A456; --charcoal: #1C1C1A; --warm-gray: #6B6B64; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--verde); min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 32px 16px 48px; -webkit-font-smoothing: antialiased; }
+    .logo { color: var(--gold); font-size: 20px; font-weight: 700; letter-spacing: .5px; margin-bottom: 4px; text-align: center; }
+    .logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 28px; text-align: center; }
+    .loading { color: rgba(255,255,255,0.5); font-size: 14px; padding: 40px; }
+    .error { background: #FEE2E2; border-radius: 12px; padding: 24px; text-align: center; max-width: 380px; width: 100%; color: #DC2626; font-weight: 600; font-size: 15px; line-height: 1.5; }
+    .card { background: white; border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 380px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 40px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    .status-confirmed { background: #DCFCE7; color: #16A34A; }
+    .status-pending   { background: #FEF9C3; color: #CA8A04; }
+    .status-cancelled { background: #FEE2E2; color: #DC2626; }
+    .row { padding: 13px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .row:last-child { border-bottom: none; }
+    .row-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 3px; }
+    .row-value { font-size: 17px; font-weight: 700; color: var(--charcoal); }
+    .row-value.payment-arrival { color: #CA8A04; }
+  </style>
+</head>
+<body>
+  <div class="logo">Tenuta Collebrunacchi</div>
+  <div class="logo-sub">Staff · Verifica Prenotazione</div>
+  <div class="loading" id="viewLoading">Caricamento…</div>
+  <div class="error" id="viewError" style="display:none">Prenotazione non trovata.<br>Verifica il QR code.</div>
+  <div class="card" id="viewCard" style="display:none">
+    <div class="status-badge" id="statusBadge"></div>
+    <div id="rows"></div>
+  </div>
+  <script>
+    const SUPABASE_URL = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
+    const { createClient } = supabase
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const token = new URLSearchParams(window.location.search).get('token')
+
+    function formatDate(d) {
+      if (!d) return '—'
+      return new Date(d + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    }
+
+    ;(async () => {
+      if (!token) {
+        document.getElementById('viewLoading').style.display = 'none'
+        document.getElementById('viewError').style.display = 'block'
+        return
+      }
+      const { data, error } = await db.from('bookings')
+        .select('name, email, persons, type, status, amount_eur, payment_method, slots(date, time)')
+        .eq('booking_token', token).single()
+      document.getElementById('viewLoading').style.display = 'none'
+      if (error || !data) { document.getElementById('viewError').style.display = 'block'; return }
+      const statusMap = {
+        confirmed: { label: '✓ Confermata', cls: 'status-confirmed' },
+        pending:   { label: '⏳ In attesa',  cls: 'status-pending'   },
+        cancelled: { label: '✗ Cancellata', cls: 'status-cancelled'  },
+        refunded:  { label: '↩ Rimborsata', cls: 'status-cancelled'  },
+      }
+      const s = statusMap[data.status] || { label: data.status, cls: 'status-pending' }
+      const badge = document.getElementById('statusBadge')
+      badge.textContent = s.label; badge.className = 'status-badge ' + s.cls
+      const slot = data.slots || {}
+      const isArrival = data.payment_method === 'arrival'
+      const rows = [
+        { label: 'Ospite',        value: data.name, cls: '' },
+        { label: 'Data',          value: formatDate(slot.date), cls: '' },
+        { label: 'Ora',           value: slot.time ? slot.time.slice(0,5) : '—', cls: '' },
+        { label: 'Partecipanti',  value: data.persons + (data.persons === 1 ? ' persona' : ' persone'), cls: '' },
+        { label: 'Tipo',          value: data.type && data.type.toLowerCase().includes('private') ? 'Privata' : 'Condivisa', cls: '' },
+        { label: 'Pagamento',     value: isArrival ? 'DA RISCUOTERE IN LOCO' : 'Pagato online', cls: isArrival ? 'payment-arrival' : '' },
+        { label: 'Importo',       value: data.amount_eur ? '€ ' + Number(data.amount_eur).toFixed(2).replace('.',',') : '—', cls: '' },
+      ]
+      document.getElementById('rows').innerHTML = rows.map(r =>
+        `<div class="row"><div class="row-label">${r.label}</div><div class="row-value ${r.cls}">${r.value}</div></div>`
+      ).join('')
+      document.getElementById('viewCard').style.display = 'block'
+    })()
+  </script>
+</body>
+</html>
