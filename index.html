@@ -3401,12 +3401,14 @@
           const target = document.getElementById(hash.slice(1));
           if (!target) return;
           e.preventDefault();
-          setTimeout(() => {
+          const doScroll = () => {
             const navbar = document.getElementById('nav') || document.querySelector('nav');
             const navHeight = navbar ? (navbar.classList.contains('scrolled') ? 80 : 113) : 80;
             const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
             window.scrollTo({ top, behavior: 'smooth' });
-          }, 100);
+          };
+          doScroll();
+          setTimeout(doScroll, 450);
         });
       });
     });
