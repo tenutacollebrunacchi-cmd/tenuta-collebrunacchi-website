@@ -172,6 +172,12 @@
       arrival_sent:  renderArrivalSent,
     }[S.step]
     root.innerHTML = `<div class="bw">${html()}</div>`
+    if (['submitting', 'redirecting', 'arrival_sent'].includes(S.step)) {
+      const navEl = document.getElementById('nav')
+      const navH  = navEl ? (navEl.classList.contains('scrolled') ? 80 : 113) : 113
+      const top   = root.getBoundingClientRect().top + window.scrollY - navH - 16
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
     bind()
   }
 
