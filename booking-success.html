@@ -245,6 +245,17 @@
     fill('sumPersone', p.get('persone') ? p.get('persone') + ' persone' : null, '2 persone');
     fill('sumTipo',    p.get('tipo'),    'Caccia al Tartufo');
     fill('sumImporto', p.get('importo') ? '€ ' + p.get('importo') : null, '€ —');
+
+    const ticketToken = p.get('token');
+    if (ticketToken) {
+      const btn = document.createElement('a');
+      btn.href = 'ticket.html?token=' + ticketToken;
+      btn.target = '_blank';
+      btn.style.cssText = 'display:inline-flex;align-items:center;gap:8px;background:#1A2D15;color:white;font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;padding:12px 24px;border-radius:40px;margin-bottom:16px;';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download Ticket';
+      const waBtn = document.querySelector('.wa-btn');
+      if (waBtn) waBtn.parentNode.insertBefore(btn, waBtn);
+    }
   </script>
 </body>
 </html>
