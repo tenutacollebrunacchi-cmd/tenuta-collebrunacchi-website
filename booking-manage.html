@@ -500,9 +500,15 @@ function renderBooking() {
 
   // Show/hide actions based on status
   const cancelled = b.status === 'cancelled'
+  const refunded  = b.status === 'refunded'
   const actionsEl = document.getElementById('booking-actions')
-  if (cancelled) {
+  if (cancelled || refunded) {
     actionsEl.style.display = 'none'
+    const cancelMsgEl = document.getElementById('cancel-msg')
+    if (refunded) {
+      cancelMsgEl.textContent = 'This booking has already been cancelled and refunded.'
+      show('state-cancelled')
+    }
   } else {
     document.getElementById('btn-cancel').textContent = isLast48
       ? '⚠️ Cancel (no refund)'
@@ -592,7 +598,6 @@ document.getElementById('btn-cancel').addEventListener('click', async () => {
         body: JSON.stringify({ booking_id: b.id, booking_token: b.booking_token })
       })
       data = await res.json()
-      console.log('process-refund response', res.status, data)
     } catch {
       btn.disabled = false; btn.textContent = 'Cancel booking (free)'
       alert('Errore durante la cancellazione, contatta il supporto via WhatsApp')
