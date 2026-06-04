@@ -8,16 +8,17 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --terra: #8B5E3C; --verde: #1A2D15; --verde-mid: #2D4A22;
-      --cream: #F2EDE3; --ivory: #FAFAF5; --charcoal: #1C1C1A;
-      --warm-gray: #6B6B64; --gold: #C4A456;
+      --verde: #1A2D15; --verde-mid: #2D4A22; --gold: #C4A456;
+      --gold-dim: rgba(196,164,86,0.3); --cream: #F2EDE3;
+      --ivory: #FAFAF5; --charcoal: #1C1C1A; --warm-gray: #6B6B64;
       --font-serif: 'Playfair Display', Georgia, serif;
       --font-sans: 'Inter', system-ui, sans-serif;
     }
@@ -25,34 +26,66 @@
     .nav { background: var(--charcoal); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
     .nav-brand { font-family: var(--font-serif); font-size: 18px; color: #fff; text-decoration: none; }
     .nav-brand span { display: block; font-family: var(--font-sans); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-top: 1px; }
-    .main { flex: 1; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; }
+    .main { flex: 1; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
     .loading { text-align: center; padding: 80px 24px; color: var(--warm-gray); font-size: 15px; }
     .error-card { background: var(--cream); border-radius: 8px; padding: 48px; text-align: center; max-width: 480px; width: 100%; }
-    .section-label { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 16px; display: block; }
-    .ticket-wrapper { width: 100%; max-width: 600px; }
-    .ticket { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 32px rgba(0,0,0,0.12); margin-bottom: 24px; }
-    .ticket-top { background: var(--verde); padding: 32px 36px; }
-    .ticket-brand { font-family: var(--font-serif); font-size: 24px; font-weight: 500; color: var(--gold); margin-bottom: 6px; }
-    .ticket-subtitle { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.45); }
-    .ticket-body { padding: 32px 36px; display: grid; grid-template-columns: 1fr auto; gap: 32px; }
-    .ticket-row { margin-bottom: 18px; }
-    .ticket-row:last-child { margin-bottom: 0; }
-    .ticket-row-label { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 3px; }
-    .ticket-row-value { font-size: 15px; font-weight: 600; color: var(--charcoal); }
-    .ticket-qr { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 4px; }
-    #qrContainer { border: 1px solid rgba(0,0,0,0.08); border-radius: 6px; padding: 8px; background: white; }
-    .ticket-qr-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--warm-gray); }
-    .ticket-footer { background: var(--cream); padding: 14px 36px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.06); }
-    .ticket-footer-text { font-size: 11px; color: var(--warm-gray); }
-    .ticket-ref { font-size: 10px; color: rgba(0,0,0,0.2); font-family: monospace; }
-    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 40px; font-size: 13px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; text-decoration: none; cursor: pointer; border: none; transition: background .2s, opacity .2s; }
+
+    #ticketCard {
+      width: 380px;
+      background: var(--verde);
+      position: relative;
+      padding: 28px 24px 20px;
+      overflow: hidden;
+    }
+    #ticketCard::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 320px; height: 200px;
+      background: radial-gradient(ellipse, rgba(196,164,86,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .t-inner {
+      border: 1px solid rgba(196,164,86,0.28);
+      padding: 24px 22px 20px;
+      position: relative;
+    }
+    .tc { position: absolute; width: 12px; height: 12px; border-color: var(--gold); border-style: solid; opacity: 0.55; }
+    .tc.tl { top: -1px; left: -1px; border-width: 1.5px 0 0 1.5px; }
+    .tc.tr { top: -1px; right: -1px; border-width: 1.5px 1.5px 0 0; }
+    .tc.bl { bottom: -1px; left: -1px; border-width: 0 0 1.5px 1.5px; }
+    .tc.br { bottom: -1px; right: -1px; border-width: 0 1.5px 1.5px 0; }
+
+    .t-ornament { text-align: center; letter-spacing: 10px; color: rgba(196,164,86,0.28); font-size: 9px; margin-bottom: 14px; }
+    .t-brand-sm { text-align: center; font-family: var(--font-serif); font-size: 10px; font-weight: 400; color: rgba(196,164,86,0.55); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 2px; }
+    .t-brand { text-align: center; font-family: var(--font-serif); font-style: italic; font-size: 30px; font-weight: 600; color: var(--gold); line-height: 1.1; margin-bottom: 8px; }
+    .t-sub { text-align: center; font-size: 7.5px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+    .t-branch { display: flex; justify-content: center; margin-bottom: 16px; }
+    .t-sep { border: none; border-top: 1px dashed rgba(196,164,86,0.25); margin: 14px 0; }
+    .t-field { margin-bottom: 13px; }
+    .t-field:last-of-type { margin-bottom: 0; }
+    .t-row { display: flex; gap: 14px; margin-bottom: 13px; }
+    .t-row .t-field { flex: 1; margin-bottom: 0; }
+    .t-lbl { font-size: 7.5px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 3px; font-weight: 500; }
+    .t-val { font-size: 14px; font-weight: 600; color: #fff; line-height: 1.25; }
+    .t-val.name { font-family: var(--font-serif); font-style: italic; font-size: 19px; color: var(--cream); }
+    .t-val.total { font-size: 21px; color: var(--gold); }
+    .t-qr-wrap { display: flex; align-items: center; gap: 14px; }
+    .t-qr-box { background: #fff; padding: 6px; border-radius: 3px; line-height: 0; flex-shrink: 0; }
+    .t-qr-info { flex: 1; }
+    .t-qr-lbl { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 5px; }
+    .t-qr-desc { font-size: 10.5px; color: rgba(255,255,255,0.3); line-height: 1.55; }
+    .t-ref { font-size: 8.5px; color: rgba(196,164,86,0.35); font-family: monospace; margin-top: 7px; letter-spacing: 1px; }
+    .t-footer { text-align: center; margin-top: 16px; font-size: 7.5px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(196,164,86,0.28); }
+
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 40px; font-size: 13px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; text-decoration: none; cursor: pointer; border: none; transition: background .2s, opacity .2s; font-family: var(--font-sans); }
     .btn-primary { background: var(--verde); color: white; }
     .btn-primary:hover { background: var(--verde-mid); }
     .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
-    .btn-secondary { background: transparent; color: var(--terra); border: 1.5px solid var(--terra); }
-    .btn-secondary:hover { background: rgba(139,94,60,.06); }
-    @media (max-width: 540px) { .ticket-body { grid-template-columns: 1fr; } .ticket-qr { align-items: flex-start; } .ticket-footer { flex-direction: column; gap: 4px; align-items: flex-start; } }
+    .btn-secondary { background: transparent; color: #8B5E3C; border: 1.5px solid #8B5E3C; }
+    @media (max-width: 430px) { #ticketCard { width: 100%; max-width: 360px; } }
   </style>
 </head>
 <body>
@@ -65,81 +98,123 @@
     <div class="error-card" id="viewError" style="display:none">
       <p style="font-size:15px;color:var(--warm-gray)">Ticket not found or link expired.<br>Please check your confirmation email.</p>
     </div>
-    <div class="ticket-wrapper" id="viewTicket" style="display:none">
-      <span class="section-label">Your booking ticket</span>
-      <div class="ticket">
-        <div class="ticket-top">
-          <div class="ticket-brand">Tenuta Collebrunacchi</div>
-          <div class="ticket-subtitle">Truffle Hunting Experience · San Miniato, Tuscany</div>
+
+    <div id="ticketCard" style="display:none">
+      <div class="t-inner">
+        <div class="tc tl"></div><div class="tc tr"></div>
+        <div class="tc bl"></div><div class="tc br"></div>
+
+        <div class="t-ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+        <div class="t-brand-sm">Tenuta</div>
+        <div class="t-brand">Collebrunacchi</div>
+        <div class="t-sub">Truffle Hunting Experience</div>
+
+        <div class="t-branch">
+          <svg width="150" height="44" viewBox="0 0 150 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M75 38 C65 28 48 22 32 18" stroke="#C4A456" stroke-width="0.8" stroke-opacity="0.45"/>
+            <path d="M75 38 C85 28 102 22 118 18" stroke="#C4A456" stroke-width="0.8" stroke-opacity="0.45"/>
+            <ellipse cx="38" cy="20" rx="7" ry="2.8" fill="#C4A456" fill-opacity="0.4" transform="rotate(-28 38 20)"/>
+            <ellipse cx="51" cy="16" rx="7" ry="2.8" fill="#C4A456" fill-opacity="0.45" transform="rotate(-18 51 16)"/>
+            <ellipse cx="63" cy="13" rx="7" ry="2.8" fill="#C4A456" fill-opacity="0.5" transform="rotate(-8 63 13)"/>
+            <ellipse cx="112" cy="20" rx="7" ry="2.8" fill="#C4A456" fill-opacity="0.4" transform="rotate(28 112 20)"/>
+            <ellipse cx="99" cy="16" rx="7" ry="2.8" fill="#C4A456" fill-opacity="0.45" transform="rotate(18 99 16)"/>
+            <ellipse cx="87" cy="13" rx="7" ry="2.8" fill="#C4A456" fill-opacity="0.5" transform="rotate(8 87 13)"/>
+            <circle cx="75" cy="38" r="2.5" fill="#C4A456" fill-opacity="0.55"/>
+            <circle cx="75" cy="38" r="1" fill="#C4A456" fill-opacity="0.85"/>
+          </svg>
         </div>
-        <div class="ticket-body">
-          <div id="ticketDetails"></div>
-          <div class="ticket-qr">
-            <div id="qrContainer"></div>
-            <div class="ticket-qr-label">Scan at arrival</div>
+
+        <hr class="t-sep">
+        <div class="t-field">
+          <div class="t-lbl">Guest</div>
+          <div class="t-val name" id="tName">—</div>
+        </div>
+        <hr class="t-sep">
+        <div class="t-row">
+          <div class="t-field"><div class="t-lbl">Date</div><div class="t-val" id="tDate">—</div></div>
+          <div class="t-field"><div class="t-lbl">Time</div><div class="t-val" id="tTime">—</div></div>
+        </div>
+        <div class="t-row">
+          <div class="t-field"><div class="t-lbl">Guests</div><div class="t-val" id="tPersons">—</div></div>
+          <div class="t-field"><div class="t-lbl">Type</div><div class="t-val" id="tType">—</div></div>
+        </div>
+        <div class="t-field">
+          <div class="t-lbl">Total paid</div>
+          <div class="t-val total" id="tTotal">—</div>
+        </div>
+        <hr class="t-sep">
+        <div class="t-qr-wrap">
+          <div class="t-qr-box" id="qrContainer"></div>
+          <div class="t-qr-info">
+            <div class="t-qr-lbl">Scan at arrival</div>
+            <div class="t-qr-desc">Show this ticket to our staff when you arrive at Tenuta Collebrunacchi.</div>
+            <div class="t-ref" id="tRef">—</div>
           </div>
         </div>
-        <div class="ticket-footer">
-          <span class="ticket-footer-text">Valid for one experience · Present upon arrival</span>
-          <span class="ticket-ref" id="ticketRef"></span>
-        </div>
       </div>
-      <div class="actions">
-        <button class="btn btn-primary" id="btnDownload">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Download PDF
-        </button>
-        <a href="index.html" class="btn btn-secondary">← Back to site</a>
-      </div>
+      <div class="t-footer">San Miniato · Tuscany · tenutacollebrunacchi.com</div>
+    </div>
+
+    <div class="actions" id="viewActions" style="display:none">
+      <button class="btn btn-primary" id="btnDownload">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Download PDF
+      </button>
+      <a href="index.html" class="btn btn-secondary">← Back to site</a>
     </div>
   </main>
+
   <script>
-    const SUPABASE_URL = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
+    const SUPABASE_URL     = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
     const { createClient } = supabase
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const db    = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     const token = new URLSearchParams(window.location.search).get('token')
     let bookingData = null
 
     function formatDate(d) {
       if (!d) return '—'
-      return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
     }
-    function formatType(t) {
-      return t && t.toLowerCase().includes('private') ? 'Private Experience' : 'Shared Experience'
-    }
-    function show(id) {
-      ['viewLoading','viewError','viewTicket'].forEach(v =>
-        document.getElementById(v).style.display = v === id ? 'block' : 'none')
-    }
+    function formatType(t) { return t && t.toLowerCase().includes('private') ? 'Private' : 'Shared' }
 
     ;(async () => {
-      if (!token) { show('viewError'); return }
+      if (!token) {
+        document.getElementById('viewLoading').style.display = 'none'
+        document.getElementById('viewError').style.display = 'block'
+        return
+      }
       const { data, error } = await db.from('bookings')
         .select('id,name,email,persons,type,status,amount_eur,payment_method,booking_token,slots(date,time)')
         .eq('booking_token', token).single()
-      if (error || !data || data.status === 'cancelled') { show('viewError'); return }
+
+      document.getElementById('viewLoading').style.display = 'none'
+      if (error || !data || data.status === 'cancelled') {
+        document.getElementById('viewError').style.display = 'block'; return
+      }
       bookingData = data
       const slot = data.slots || {}
-      const rows = [
-        ['Guest',      data.name],
-        ['Date',       formatDate(slot.date)],
-        ['Time',       slot.time ? slot.time.slice(0,5) : '—'],
-        ['Guests',     data.persons + (data.persons === 1 ? ' person' : ' persons')],
-        ['Experience', formatType(data.type)],
-        ['Total paid', data.amount_eur ? '€ ' + Number(data.amount_eur).toFixed(2).replace('.',',') : (data.payment_method === 'arrival' ? 'Pay on arrival' : '—')],
-      ]
-      document.getElementById('ticketDetails').innerHTML = rows.map(([l,v]) =>
-        `<div class="ticket-row"><div class="ticket-row-label">${l}</div><div class="ticket-row-value">${v}</div></div>`
-      ).join('')
-      document.getElementById('ticketRef').textContent = 'REF: ' + token.slice(0,8).toUpperCase()
+
+      document.getElementById('tName').textContent    = data.name
+      document.getElementById('tDate').textContent    = formatDate(slot.date)
+      document.getElementById('tTime').textContent    = slot.time ? slot.time.slice(0,5) : '—'
+      document.getElementById('tPersons').textContent = data.persons + (data.persons === 1 ? ' person' : ' persons')
+      document.getElementById('tType').textContent    = formatType(data.type)
+      document.getElementById('tTotal').textContent   = data.amount_eur
+        ? '€ ' + Number(data.amount_eur).toFixed(2).replace('.', ',')
+        : (data.payment_method === 'arrival' ? 'Pay on arrival' : '—')
+      document.getElementById('tRef').textContent     = 'REF: ' + token.slice(0, 8).toUpperCase()
+
       new QRCode(document.getElementById('qrContainer'), {
         text: 'https://tenutacollebrunacchi.com/staff?token=' + token,
-        width: 120, height: 120,
+        width: 96, height: 96,
         colorDark: '#1A2D15', colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
       })
-      show('viewTicket')
+
+      await document.fonts.ready
+      document.getElementById('ticketCard').style.display = 'block'
+      document.getElementById('viewActions').style.display = 'flex'
     })()
 
     document.getElementById('btnDownload').addEventListener('click', async () => {
@@ -147,66 +222,20 @@
       const btn = document.getElementById('btnDownload')
       btn.textContent = 'Generating…'; btn.disabled = true
       await new Promise(r => setTimeout(r, 400))
-      const { jsPDF } = window.jspdf
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-      const W = 210
-      // Header
-      doc.setFillColor(26, 45, 21)
-      doc.rect(0, 0, W, 68, 'F')
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(24)
-      doc.setTextColor(196, 164, 86)
-      doc.text('Tenuta Collebrunacchi', 18, 32)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8)
-      doc.setTextColor(255, 255, 255)
-      doc.setCharSpace(1.5)
-      doc.text('TRUFFLE HUNTING EXPERIENCE  ·  SAN MINIATO, TUSCANY', 18, 44)
-      doc.setCharSpace(0)
-      // Content
-      doc.setFillColor(250, 250, 245)
-      doc.rect(0, 68, W, 229, 'F')
-      const slot = bookingData.slots || {}
-      const rows = [
-        ['GUEST',      bookingData.name],
-        ['DATE',       formatDate(slot.date)],
-        ['TIME',       slot.time ? slot.time.slice(0,5) : '—'],
-        ['GUESTS',     bookingData.persons + (bookingData.persons === 1 ? ' person' : ' persons')],
-        ['EXPERIENCE', formatType(bookingData.type)],
-        ['TOTAL PAID', bookingData.amount_eur ? '€ ' + Number(bookingData.amount_eur).toFixed(2).replace('.',',') : (bookingData.payment_method === 'arrival' ? 'Pay on arrival' : '—')],
-      ]
-      let y = 90
-      rows.forEach(([label, value]) => {
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(107,107,100)
-        doc.setCharSpace(2); doc.text(label, 18, y); doc.setCharSpace(0)
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(28,28,26)
-        doc.text(value, 18, y + 7); y += 22
-      })
-      // QR
-      const qrCanvas = document.querySelector('#qrContainer canvas')
-      if (qrCanvas) {
-        doc.setFillColor(255,255,255)
-        doc.roundedRect(132, 78, 60, 60, 3, 3, 'F')
-        doc.addImage(qrCanvas.toDataURL('image/png'), 'PNG', 137, 83, 50, 50)
-        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(107,107,100)
-        doc.setCharSpace(1.5)
-        doc.text('SCAN AT ARRIVAL', 162, 148, { align: 'center' })
-        doc.setCharSpace(0)
+      try {
+        const el     = document.getElementById('ticketCard')
+        const canvas = await html2canvas(el, { scale: 3, useCORS: true, allowTaint: false, backgroundColor: '#1A2D15', logging: false })
+        const imgData = canvas.toDataURL('image/png')
+        const { jsPDF } = window.jspdf
+        const pdfW = 150
+        const pdfH = pdfW * canvas.height / canvas.width
+        const doc  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pdfW, pdfH] })
+        doc.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH)
+        doc.save('ticket-tenuta-' + token.slice(0, 8) + '.pdf')
+      } catch (err) {
+        console.error('PDF error:', err)
+        alert('Could not generate PDF. Please try again.')
       }
-      // Divider
-      doc.setDrawColor(200,200,200); doc.setLineWidth(0.3)
-      doc.setLineDashPattern([2,2], 0); doc.line(18, 232, W-18, 232)
-      doc.setLineDashPattern([], 0)
-      // Footer
-      doc.setFillColor(26,45,21)
-      doc.rect(0, 252, W, 45, 'F')
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255)
-      doc.text('Via Collebrunacchi, San Miniato (PI)  ·  tenutacollebrunacchi.com', W/2, 264, { align: 'center' })
-      doc.setFontSize(7); doc.setTextColor(196,164,86)
-      doc.text('Valid for one experience · Please present this ticket upon arrival', W/2, 273, { align: 'center' })
-      doc.setFontSize(6); doc.setTextColor(180,180,180)
-      doc.text('Ref: ' + token.slice(0,8).toUpperCase(), W/2, 282, { align: 'center' })
-      doc.save('ticket-tenuta-' + token.slice(0,8) + '.pdf')
       btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF'
       btn.disabled = false
     })
