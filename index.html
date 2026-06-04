@@ -3403,6 +3403,7 @@
         const navbar = document.querySelector('nav') || document.querySelector('header');
         const navHeight = (navbar && navbar.offsetHeight > 0) ? navbar.offsetHeight : 80;
         const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+        console.log('scroll to', top, 'navHeight', navHeight, 'target', hash);
         window.scrollTo({ top, behavior: 'smooth' });
       });
     });
