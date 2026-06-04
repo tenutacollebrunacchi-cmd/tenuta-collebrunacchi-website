@@ -688,9 +688,11 @@
       <button class="modal-close" data-close="modal-booking">✕</button>
     </div>
     <div id="modal-booking-content"></div>
-    <div class="form-actions" style="margin-top:24px">
+    <div class="form-actions" style="margin-top:24px;flex-wrap:wrap;gap:8px;">
       <button class="btn btn-success btn-sm" id="modal-confirm-btn">Conferma</button>
       <button class="btn btn-danger btn-sm" id="modal-cancel-btn">Cancella</button>
+      <button class="btn btn-danger btn-sm" id="modal-refund-cancel-btn" style="background:#7B2D00;">Rimborsa e cancella</button>
+      <button class="btn btn-warning btn-sm" id="modal-refund-only-btn" style="background:#B7791F;color:white;">Rimborsa solo</button>
     </div>
   </div>
 </div>
@@ -1228,6 +1230,50 @@ document.getElementById('modal-cancel-btn').addEventListener('click', async () =
   closeModal('modal-booking')
   await loadBookings()
   if (calSelectedDate) { await fetchCalendarData(); renderSidebarContent(calSelectedDate) }
+})
+
+document.getElementById('modal-refund-cancel-btn').addEventListener('click', async () => {
+  if (!selectedBookingId) return
+  if (!confirm('Rimborsa e cancella questa prenotazione? Il rimborso verrà processato su Stripe.')) return
+  const btn = document.getElementById('modal-refund-cancel-btn')
+  btn.textContent = 'Elaborazione…'; btn.disabled = true
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/process-refund`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ booking_id: selectedBookingId, cancel: true })
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Errore rimborso')
+    toast('Rimborso effettuato e prenotazione cancellata', 'success')
+    document.getElementById('modal-booking').classList.remove('open')
+    loadBookings()
+  } catch(e) {
+    toast(e.message || 'Errore', 'error')
+  }
+  btn.textContent = 'Rimborsa e cancella'; btn.disabled = false
+})
+
+document.getElementById('modal-refund-only-btn').addEventListener('click', async () => {
+  if (!selectedBookingId) return
+  if (!confirm('Rimborsa questo cliente? Lo status della prenotazione rimarrà invariato.')) return
+  const btn = document.getElementById('modal-refund-only-btn')
+  btn.textContent = 'Elaborazione…'; btn.disabled = true
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/process-refund`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ booking_id: selectedBookingId, cancel: false })
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Errore rimborso')
+    toast('Rimborso effettuato con successo', 'success')
+    document.getElementById('modal-booking').classList.remove('open')
+    loadBookings()
+  } catch(e) {
+    toast(e.message || 'Errore', 'error')
+  }
+  btn.textContent = 'Rimborsa solo'; btn.disabled = false
 })
 
 // ── Prezzi ────────────────────────────────────────────────────
