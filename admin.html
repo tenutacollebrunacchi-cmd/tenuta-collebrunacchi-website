@@ -404,6 +404,9 @@
       <button class="nav-item" data-page="politica">
         <span class="ni">⚖️</span><span>Politica</span>
       </button>
+      <button class="nav-item" data-page="recensioni">
+        <span class="ni">⭐</span><span>Recensioni</span>
+      </button>
     </nav>
     <div class="sidebar-bottom">
       <button class="logout-btn" id="logout-btn">Esci</button>
@@ -636,6 +639,33 @@
         <p class="page-subtitle">Il widget di prenotazione mostrerà un modal "last minute" per le date con meno preavviso di questo valore.</p>
       </div>
     </div>
+
+    <!-- ── Recensioni ── -->
+    <div id="page-recensioni" class="page" style="display:none">
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>Recensioni</h3>
+          <span id="reviewsCount" style="font-size:13px;color:var(--warm-gray)"></span>
+        </div>
+        <div class="table-wrap">
+          <table id="reviewsTable">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Nome</th>
+                <th>Stelle</th>
+                <th>Fonte</th>
+                <th>Testo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="reviewsTbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--warm-gray);padding:32px;">Caricamento…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- ── Calendar Day Sidebar ── -->
@@ -767,6 +797,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
     if (btn.dataset.page === 'prezzi')      loadPrices()
     if (btn.dataset.page === 'sconti')      loadDiscounts()
     if (btn.dataset.page === 'politica')    loadPolicy()
+    if (btn.dataset.page === 'recensioni')  loadReviewsAdmin()
   })
 })
 
@@ -1476,6 +1507,37 @@ function iso(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
 }
 function daysInMonth(y, m) { return new Date(y, m+1, 0).getDate() }
+
+// ── Recensioni ────────────────────────────────────────────────
+async function loadReviewsAdmin() {
+  const tbody = document.getElementById('reviewsTbody')
+  const countEl = document.getElementById('reviewsCount')
+  if (!tbody) return
+  const { data, error } = await db.from('reviews')
+    .select('id,name,rating,body,source,created_at')
+    .order('created_at', { ascending: false })
+  if (error || !data) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#C0392B;padding:24px;">Errore caricamento</td></tr>'; return }
+  if (countEl) countEl.textContent = data.length + ' recensioni'
+  if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--warm-gray);padding:32px;">Nessuna recensione</td></tr>'; return }
+  const sourceLabels = { getyourguide: 'GetYourGuide', viator: 'Viator', airbnb: 'Airbnb', website: 'Sito' }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td>${new Date(r.created_at).toLocaleDateString('it-IT')}</td>
+      <td>${r.name}</td>
+      <td>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
+      <td>${sourceLabels[r.source] || r.source}</td>
+      <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.body || '—'}</td>
+      <td>
+        <button onclick="deleteReview('${r.id}')" style="background:#C0392B;color:white;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Elimina</button>
+      </td>
+    </tr>`).join('')
+}
+
+async function deleteReview(id) {
+  if (!confirm('Eliminare questa recensione?')) return
+  const { error } = await db.from('reviews').delete().eq('id', id)
+  if (!error) loadReviewsAdmin()
+}
 </script>
 </body>
 </html>

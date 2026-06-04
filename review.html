@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Review — Tenuta Collebrunacchi</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --verde: #1A2D15; --verde-mid: #2D4A22; --gold: #C4A456;
+      --cream: #F2EDE3; --ivory: #FAFAF5; --charcoal: #1C1C1A;
+      --warm-gray: #6B6B64; --terra: #8B5E3C;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
+    }
+    body { font-family: var(--font-sans); background: var(--ivory); color: var(--charcoal); min-height: 100svh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+    .nav { background: var(--charcoal); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+    .nav-brand { font-family: var(--font-serif); font-size: 18px; color: #fff; text-decoration: none; }
+    .nav-brand span { display: block; font-family: var(--font-sans); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-top: 1px; }
+    .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 24px; }
+    .card { background: var(--cream); border-radius: 8px; padding: 52px 48px; max-width: 520px; width: 100%; }
+    .loading { text-align: center; padding: 80px 24px; color: var(--warm-gray); }
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--warm-gray); display: block; margin-bottom: 10px; }
+    h1 { font-family: var(--font-serif); font-size: 30px; font-weight: 500; color: var(--charcoal); margin-bottom: 10px; line-height: 1.2; }
+    .intro { font-size: 15px; color: var(--warm-gray); line-height: 1.65; margin-bottom: 32px; }
+    .divider { height: 1px; background: rgba(0,0,0,0.08); margin: 28px 0; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 8px; }
+    .form-control { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; font-size: 15px; font-family: var(--font-sans); background: #fff; color: var(--charcoal); transition: border-color .2s; outline: none; resize: vertical; }
+    .form-control:focus { border-color: var(--verde); }
+    textarea.form-control { min-height: 120px; }
+    .stars { display: flex; gap: 8px; margin-bottom: 4px; }
+    .star { font-size: 36px; cursor: pointer; color: rgba(0,0,0,0.12); transition: color .15s, transform .15s; user-select: none; line-height: 1; }
+    .star.active { color: var(--gold); }
+    .star:hover { transform: scale(1.15); }
+    .star-label { font-size: 12px; color: var(--warm-gray); min-height: 18px; margin-top: 6px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 40px; font-size: 13px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; border: none; cursor: pointer; font-family: var(--font-sans); transition: background .2s, opacity .2s; width: 100%; justify-content: center; }
+    .btn-primary { background: var(--verde); color: white; }
+    .btn-primary:hover { background: var(--verde-mid); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+    .success-icon { font-size: 48px; margin-bottom: 16px; }
+    .success-title { font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-bottom: 10px; }
+    .success-text { font-size: 15px; color: var(--warm-gray); line-height: 1.65; }
+    .error-msg { font-size: 13px; color: #C0392B; margin-top: 10px; display: none; text-align: center; }
+    @media (max-width: 480px) { .card { padding: 36px 24px; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">Tenuta Collebrunacchi<span>Truffle Hunting · San Miniato · Tuscany</span></a>
+    <a href="index.html" style="font-size:12px;color:rgba(255,255,255,.5);text-decoration:none;">← Back to site</a>
+  </nav>
+  <main class="main">
+    <div class="loading" id="viewLoading">Loading…</div>
+
+    <div class="card" id="viewError" style="display:none">
+      <p style="font-size:15px;color:var(--warm-gray);text-align:center;">This link is invalid or has already been used.<br>Thank you for your time!</p>
+    </div>
+
+    <div class="card" id="viewForm" style="display:none">
+      <span class="section-label">Share your experience</span>
+      <h1>How was your truffle hunt?</h1>
+      <p class="intro">Your feedback helps us improve and helps other guests discover this experience. It only takes two minutes.</p>
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <div class="form-label">Your rating *</div>
+        <div class="stars" id="stars">
+          <span class="star" data-v="1">★</span>
+          <span class="star" data-v="2">★</span>
+          <span class="star" data-v="3">★</span>
+          <span class="star" data-v="4">★</span>
+          <span class="star" data-v="5">★</span>
+        </div>
+        <div class="star-label" id="starLabel">Tap a star to rate</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="rvBody">Your review *</label>
+        <textarea class="form-control" id="rvBody" placeholder="Tell us about your experience — the hunt, the truffles, the atmosphere…" maxlength="1200"></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="btnSubmit">Submit Review →</button>
+      <p class="error-msg" id="errMsg">Please select a rating and write a short review.</p>
+    </div>
+
+    <div class="card" id="viewSuccess" style="display:none; text-align:center;">
+      <div class="success-icon">🍄</div>
+      <div class="success-title">Thank you!</div>
+      <p class="success-text">Your review has been published. We really appreciate you taking the time to share your experience at Tenuta Collebrunacchi.</p>
+      <div class="divider"></div>
+      <a href="index.html" style="color:var(--terra);font-size:14px;text-decoration:underline;text-underline-offset:3px;">← Back to site</a>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
+    const { createClient } = supabase
+    const db    = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const token = new URLSearchParams(window.location.search).get('token')
+
+    let rating = 0
+    let bookingId = null
+    let guestName = null
+    const labels = ['','Terrible','Poor','Good','Very good','Excellent']
+
+    function show(id) {
+      ['viewLoading','viewError','viewForm','viewSuccess'].forEach(v =>
+        document.getElementById(v).style.display = v === id ? 'block' : 'none')
+    }
+
+    // Stars interaction
+    const stars = document.querySelectorAll('.star')
+    stars.forEach(s => {
+      s.addEventListener('click', () => {
+        rating = parseInt(s.dataset.v)
+        stars.forEach(x => x.classList.toggle('active', parseInt(x.dataset.v) <= rating))
+        document.getElementById('starLabel').textContent = labels[rating]
+      })
+      s.addEventListener('mouseenter', () => {
+        const v = parseInt(s.dataset.v)
+        stars.forEach(x => x.classList.toggle('active', parseInt(x.dataset.v) <= v))
+      })
+      s.addEventListener('mouseleave', () => {
+        stars.forEach(x => x.classList.toggle('active', parseInt(x.dataset.v) <= rating))
+      })
+    })
+
+    ;(async () => {
+      if (!token) { show('viewError'); return }
+      const { data, error } = await db.from('bookings')
+        .select('id, name, review_request_sent')
+        .eq('booking_token', token)
+        .eq('status', 'confirmed')
+        .single()
+      if (error || !data) { show('viewError'); return }
+      bookingId = data.id
+      guestName = data.name
+      show('viewForm')
+    })()
+
+    document.getElementById('btnSubmit').addEventListener('click', async () => {
+      const body = document.getElementById('rvBody').value.trim()
+      const errEl = document.getElementById('errMsg')
+      if (!rating || !body) { errEl.style.display = 'block'; return }
+      errEl.style.display = 'none'
+      const btn = document.getElementById('btnSubmit')
+      btn.textContent = 'Submitting…'; btn.disabled = true
+      const { error } = await db.from('reviews').insert({
+        booking_id: bookingId,
+        name: guestName,
+        rating,
+        body
+      })
+      if (error) {
+        btn.textContent = 'Submit Review →'; btn.disabled = false
+        errEl.textContent = 'Something went wrong. Please try again.'
+        errEl.style.display = 'block'
+        return
+      }
+      show('viewSuccess')
+    })
+  </script>
+</body>
+</html>

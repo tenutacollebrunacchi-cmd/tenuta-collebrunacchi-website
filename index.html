@@ -2524,7 +2524,7 @@
                  and replace "Verified guest" with the reviewer's
                  username/name as it appears on GetYourGuide.
       ─────────────────────────────────────────────────────────── -->
-      <div class="reviews-grid fade-in">
+      <div class="reviews-grid fade-in" id="reviewsGrid">
         <div class="review-card">
           <div class="review-platform-badge">
             <div class="review-platform-icon gyg">G</div>
@@ -3426,6 +3426,41 @@
         });
       });
     });
+
+;(async function loadReviews() {
+  const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
+  const sourceLabels = { getyourguide: 'GetYourGuide', viator: 'Viator', airbnb: 'Airbnb Experiences', website: 'Direct guest' }
+  const sourceClass  = { getyourguide: 'gyg', viator: 'viator', airbnb: 'airbnb', website: 'website' }
+  try {
+    const res  = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=name,rating,body,source,created_at&order=created_at.desc&limit=9`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+    })
+    const data = await res.json()
+    if (!Array.isArray(data) || data.length === 0) return
+    const grid = document.getElementById('reviewsGrid')
+    if (!grid) return
+    const firstReviewer = document.querySelector('.reviews-first-reviewer')
+    if (firstReviewer) firstReviewer.style.display = 'none'
+    grid.innerHTML = data.map(r => {
+      const stars  = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
+      const date   = new Date(r.created_at).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+      const src    = r.source || 'website'
+      const badge  = `<div class="review-platform-badge">
+        <div class="review-platform-icon ${sourceClass[src]}">${sourceLabels[src][0]}</div>
+        <span class="review-platform-name">Verified on ${sourceLabels[src]}</span>
+      </div>`
+      const quote  = r.body && r.body !== '★★★★★'
+        ? `<p class="review-quote">"${r.body}"</p>` : ''
+      return `<div class="review-card">
+        ${badge}
+        <div class="review-stars">${stars}</div>
+        ${quote}
+        <span class="review-author">${r.name} · ${date}</span>
+      </div>`
+    }).join('')
+  } catch(e) {}
+})()
   </script>
 
 </body>
