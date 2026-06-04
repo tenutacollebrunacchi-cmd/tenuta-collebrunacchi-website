@@ -479,8 +479,19 @@ function showView(id) {
   showView('view-loading')
   // Recovery redirects contain a hash fragment — let onAuthStateChange handle them
   if (window.location.hash.includes('type=recovery')) return
-  const { data: { session } } = await db.auth.getSession()
-  if (session) { await loadDashboard() } else { showView('view-login') }
+  let session = null
+  try {
+    const res = await Promise.race([
+      db.auth.getSession(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))
+    ])
+    session = res?.data?.session
+  } catch { session = null }
+  if (session) {
+    try { await loadDashboard() } catch { showView('view-login') }
+  } else {
+    showView('view-login')
+  }
 })()
 
 db.auth.onAuthStateChange(async (event, session) => {
@@ -616,12 +627,13 @@ async function loadDashboard() {
     ? 'Welcome back, ' + firstName
     : 'My Bookings'
 
-  const { data, error } = await db
-    .from('bookings')
-    .select('id,name,email,persons,type,status,payment_method,amount_eur,created_at,slots(date,time)')
-    .order('created_at', { ascending: false })
-
-  allBookings = (error ? [] : data) || []
+  try {
+    const { data, error } = await db
+      .from('bookings')
+      .select('id,name,email,persons,type,status,payment_method,amount_eur,created_at,slots(date,time)')
+      .order('created_at', { ascending: false })
+    allBookings = (error ? [] : data) || []
+  } catch { allBookings = [] }
   renderBookings()
   showView('view-dashboard')
 }
