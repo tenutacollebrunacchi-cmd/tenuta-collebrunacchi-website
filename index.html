@@ -3393,18 +3393,20 @@
   </script>
 
   <script>
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-      const hash = link.getAttribute('href');
-      if (hash === '#') return;
-      link.addEventListener('click', function(e) {
-        const target = document.getElementById(hash.slice(1));
-        if (!target) return;
-        e.preventDefault();
-        const navbar = document.getElementById('nav') || document.querySelector('nav');
-        const navHeight = (navbar && navbar.offsetHeight > 0) ? navbar.offsetHeight : 80;
-        const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
-        console.log('scroll to', top, 'navHeight', navHeight, 'target', hash);
-        window.scrollTo({ top, behavior: 'smooth' });
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('a[href^="#"]').forEach(link => {
+        const hash = link.getAttribute('href');
+        if (hash === '#') return;
+        link.addEventListener('click', function(e) {
+          const target = document.getElementById(hash.slice(1));
+          if (!target) return;
+          e.preventDefault();
+          const navbar = document.getElementById('nav') || document.querySelector('nav');
+          const navHeight = (navbar && navbar.offsetHeight > 0) ? navbar.offsetHeight : 80;
+          const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+          console.log('scroll to', top, 'navHeight', navHeight, 'target', hash);
+          window.scrollTo({ top, behavior: 'smooth' });
+        });
       });
     });
   </script>
