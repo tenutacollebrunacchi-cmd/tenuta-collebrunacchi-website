@@ -711,7 +711,7 @@
         _ol.innerHTML = '<div class="bw-spin" style="width:40px;height:40px;"></div><p style="font-family:inherit;color:#1C1C1A;font-size:16px;margin:0;letter-spacing:0.3px;">Processing your booking…</p>'
         document.body.appendChild(_ol)
         document.body.style.overflow = 'hidden'
-        window.location.href = data.url
+        setTimeout(() => { window.location.href = data.url }, 100)
       } else {
         throw new Error('No checkout URL in response')
       }
