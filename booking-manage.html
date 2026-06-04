@@ -592,6 +592,7 @@ document.getElementById('btn-cancel').addEventListener('click', async () => {
         body: JSON.stringify({ booking_id: b.id, booking_token: b.booking_token })
       })
       data = await res.json()
+      console.log('process-refund response', res.status, data)
     } catch {
       btn.disabled = false; btn.textContent = 'Cancel booking (free)'
       alert('Errore durante la cancellazione, contatta il supporto via WhatsApp')
