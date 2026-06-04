@@ -71,7 +71,7 @@
       --shadow-lg:    0 12px 48px rgba(0,0,0,0.14);
     }
 
-    html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 80px; }
+    html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 113px; }
 
     body {
       font-family: var(--font-sans);
@@ -3402,9 +3402,8 @@
           if (!target) return;
           e.preventDefault();
           const navbar = document.getElementById('nav') || document.querySelector('nav');
-          const navHeight = (navbar && navbar.offsetHeight > 0) ? navbar.offsetHeight : 80;
+          const navHeight = navbar ? (navbar.classList.contains('scrolled') ? 80 : 113) : 80;
           const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
-          console.log('scroll to', top, 'navHeight', navHeight, 'target', hash);
           window.scrollTo({ top, behavior: 'smooth' });
         });
       });
