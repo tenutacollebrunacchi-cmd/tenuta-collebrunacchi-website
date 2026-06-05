@@ -378,6 +378,13 @@
       <input class="login-inp" id="login-pw" type="password" autocomplete="current-password">
     </div>
     <button class="login-btn" id="login-btn">Accedi</button>
+    <div id="totp-step" style="display:none">
+      <div class="login-fg" style="margin-top:8px">
+        <label class="login-lbl" for="totp-code">Codice autenticatore (6 cifre)</label>
+        <input class="login-inp" id="totp-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+      </div>
+      <button class="login-btn" id="totp-btn" style="margin-top:12px">Verifica</button>
+    </div>
     <p class="login-err" id="login-err"></p>
   </div>
 </div>
@@ -771,12 +778,50 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   err.textContent = ''
   const emailInp = document.getElementById('login-email')
   clearEmailError(emailInp)
-  if (!isValidEmail(email)) { showEmailError(emailInp, 'Inserisci un indirizzo email valido.'); return }
+  if (!isValidEmail(email)) { showEmailError(emailInp, 'Email non valida.'); return }
   const btn = document.getElementById('login-btn')
   btn.textContent = 'Accesso in corso…'; btn.disabled = true
   const { error } = await db.auth.signInWithPassword({ email, password: pw })
   btn.textContent = 'Accedi'; btn.disabled = false
-  if (error) err.textContent = 'Email o password non validi.'
+  if (error) { err.textContent = 'Email o password non corretti.'; return }
+  // Password ok — mostra step TOTP
+  document.getElementById('login-btn').style.display = 'none'
+  document.getElementById('totp-step').style.display = 'block'
+  document.getElementById('totp-code').focus()
+  err.textContent = ''
+})
+
+document.getElementById('totp-btn').addEventListener('click', async () => {
+  const code = document.getElementById('totp-code').value.trim()
+  const err  = document.getElementById('login-err')
+  if (code.length !== 6 || !/^\d+$/.test(code)) { err.textContent = 'Inserisci un codice a 6 cifre.'; return }
+  const btn = document.getElementById('totp-btn')
+  btn.textContent = 'Verifica…'; btn.disabled = true
+  try {
+    const res  = await fetch(`${SUPABASE_URL}/functions/v1/verify-totp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ token: code })
+    })
+    const json = await res.json()
+    if (json.valid) {
+      document.getElementById('login-screen').style.display = 'none'
+      document.getElementById('app').style.display = 'flex'
+      loadDashboard()
+    } else {
+      err.textContent = 'Codice non valido o scaduto. Riprova.'
+      btn.textContent = 'Verifica'; btn.disabled = false
+      document.getElementById('totp-code').value = ''
+      document.getElementById('totp-code').focus()
+    }
+  } catch(e) {
+    err.textContent = 'Errore di rete. Riprova.'
+    btn.textContent = 'Verifica'; btn.disabled = false
+  }
+})
+
+document.getElementById('totp-code').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('totp-btn').click()
 })
 
 document.getElementById('login-pw').addEventListener('keydown', e => {
