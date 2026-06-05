@@ -529,7 +529,6 @@ db.auth.onAuthStateChange(async (event, session) => {
     if (Math.abs(createdAt - lastSignIn) < 5000) {
       toast('Welcome! Your account has been created successfully.', 'success')
     }
-    await loadDashboard()
   }
 })
 
