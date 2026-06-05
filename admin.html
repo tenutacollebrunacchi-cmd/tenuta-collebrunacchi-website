@@ -745,6 +745,7 @@ let calBlocked   = {}
 let calMinimums  = {}
 let calSelectedDate = null
 let selectedBookingId = null
+let totpVerified = false
 
 // ── Init ──────────────────────────────────────────────────────
 const { createClient } = window.supabase
@@ -756,7 +757,8 @@ db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
   db.auth.onAuthStateChange((_ev, s) => {
     session = s
-    if (s) showApp(); else showLogin()
+    if (s && totpVerified) showApp()
+    else if (!s) { totpVerified = false; showLogin() }
   })
 })()
 
@@ -805,6 +807,7 @@ document.getElementById('totp-btn').addEventListener('click', async () => {
     })
     const json = await res.json()
     if (json.valid) {
+      totpVerified = true
       document.getElementById('login-screen').style.display = 'none'
       document.getElementById('app').style.display = 'flex'
       loadDashboard()
