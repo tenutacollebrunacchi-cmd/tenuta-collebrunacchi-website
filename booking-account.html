@@ -495,7 +495,23 @@ function showView(id) {
   }
 })()
 
+let lastActivity = Date.now()
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const inactive = Date.now() - lastActivity
+    if (inactive > 30 * 60 * 1000) {
+      showView('view-loading')
+      db.auth.getSession().then(({ data: { session } }) => {
+        if (session) loadDashboard(); else showView('view-login')
+      })
+    }
+  } else {
+    lastActivity = Date.now()
+  }
+})
+
 db.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'TOKEN_REFRESHED') return
   if (event === 'PASSWORD_RECOVERY') {
     recoveryMode = true
     showView('view-set-password')
