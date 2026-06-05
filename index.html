@@ -2693,7 +2693,7 @@
       <div class="pricing-header fade-in">
         <span class="section-label">Choose your experience</span>
         <h2 class="section-title">Two ways to join</h2>
-        <p>Best price when you pay online — or reserve now and pay on arrival for €10 more per person.</p>
+        <p id="pricing-subtitle">Best price when you pay online — or reserve now and pay on arrival.</p>
       </div>
 
       <!-- Book direct banner -->
@@ -3459,6 +3459,27 @@
         <span class="review-author">${r.name} · ${date}</span>
       </div>`
     }).join('')
+  } catch(e) {}
+})()
+
+;(async function updatePricingSubtitle() {
+  try {
+    const res = await fetch('https://ioyjhvlbamgiiqdtgutk.supabase.co/rest/v1/price_settings?select=key,value_eur&key=in.(shared_online,shared_arrival)', {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
+      }
+    })
+    const data = await res.json()
+    if (!Array.isArray(data)) return
+    const map = {}
+    data.forEach(r => { map[r.key] = r.value_eur })
+    const online  = map['shared_online']
+    const arrival = map['shared_arrival']
+    if (!online || !arrival) return
+    const diff = Math.round(arrival - online)
+    const el = document.getElementById('pricing-subtitle')
+    if (el && diff > 0) el.textContent = `Best price when you pay online — or reserve now and pay on arrival for €${diff} more per person.`
   } catch(e) {}
 })()
   </script>
