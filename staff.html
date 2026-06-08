@@ -55,9 +55,7 @@
         document.getElementById('viewError').style.display = 'block'
         return
       }
-      const { data, error } = await db.from('bookings')
-        .select('name, email, persons, type, status, amount_eur, payment_method, slots(date, time)')
-        .eq('booking_token', token).single()
+      const { data, error } = await db.rpc('get_booking_by_token', { p_token: token })
       document.getElementById('viewLoading').style.display = 'none'
       if (error || !data) { document.getElementById('viewError').style.display = 'block'; return }
       const statusMap = {

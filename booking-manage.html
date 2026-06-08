@@ -437,14 +437,9 @@ let booking = null
     return
   }
 
-  const { data, error } = await db
-    .from('bookings')
-    .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,booking_token,created_at,slots(date,time)')
-    .eq('id', id)
-    .eq('booking_token', token)
-    .single()
+  const { data, error } = await db.rpc('get_booking_by_token', { p_token: token })
 
-  if (error || !data) {
+  if (error || !data || data.id !== id) {
     showError('Booking not found. The link may have expired or is invalid.')
     return
   }

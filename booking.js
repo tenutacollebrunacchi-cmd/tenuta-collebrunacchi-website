@@ -422,6 +422,10 @@
           <textarea class="bw-inp bw-ta" id="bwNotes" name="notes"
             placeholder="Dietary requirements, accessibility, special occasions…"></textarea>
         </div>
+        <label class="bw-consent" style="display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.4;margin:4px 0 12px;">
+          <input type="checkbox" id="bwConsent" style="margin-top:2px;flex-shrink:0;">
+          <span>I have read and accept the <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Cancellation Policy</a> and the <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+        </label>
         ${S.error ? `<p class="bw-err">${sanitize(S.error)}</p>` : ''}
         <button type="submit" class="bw-submit">${submitLabel}</button>
         <p class="bw-fnote">${submitNote}</p>
@@ -625,6 +629,11 @@
     const bwEmailEl = document.getElementById('bwEmail')
     if (bwEmailEl && email && !isValidEmail(email)) {
       showEmailError(bwEmailEl, 'Please enter a valid email address.')
+      ok = false
+    }
+    const consentEl = document.getElementById('bwConsent')
+    if (!consentEl || !consentEl.checked) {
+      if (consentEl) consentEl.parentElement.style.color = '#C0392B'
       ok = false
     }
     if (!ok) return

@@ -135,12 +135,9 @@
 
     ;(async () => {
       if (!token) { show('viewError'); return }
-      const { data, error } = await db.from('bookings')
-        .select('id, name, review_request_sent')
-        .eq('booking_token', token)
-        .eq('status', 'confirmed')
-        .single()
+      const { data, error } = await db.rpc('get_booking_by_token', { p_token: token })
       if (error || !data) { show('viewError'); return }
+      if (data.status !== 'confirmed') { show('viewError'); return }
       bookingId = data.id
       guestName = data.name
       show('viewForm')
@@ -153,12 +150,7 @@
       errEl.style.display = 'none'
       const btn = document.getElementById('btnSubmit')
       btn.textContent = 'Submitting…'; btn.disabled = true
-      const { error } = await db.from('reviews').insert({
-        booking_id: bookingId,
-        name: guestName,
-        rating,
-        body
-      })
+      const { error } = await db.rpc('submit_review', { p_token: token, p_rating: rating, p_body: body })
       if (error) {
         btn.textContent = 'Submit Review →'; btn.disabled = false
         errEl.textContent = 'Something went wrong. Please try again.'
