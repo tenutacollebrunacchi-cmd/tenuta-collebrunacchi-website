@@ -10,7 +10,12 @@
   <meta property="og:title" content="Tenuta Collebrunacchi – Truffle Hunting in Tuscany">
   <meta property="og:description" content="Book a private truffle hunting experience in San Miniato, Tuscany.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/img/10_DJI_0851-12.jpg">
+  <meta property="og:image" content="https://tenutacollebrunacchi.com/assets/img/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tenutacollebrunacchi.com/assets/img/og-image.jpg">
   <meta property="og:url" content="https://tenutacollebrunacchi.com">
 
   <script type="application/ld+json">
@@ -2751,7 +2756,7 @@
             <li><span class="feat-icon">✓</span> Private transfer available on request — contact Eleonora for a personalised quote</li>
             <li><span class="feat-icon">✓</span> Free cancellation 48h</li>
           </ul>
-          <a href="mailto:grazianocristian.33@gmail.com?subject=Private%20Experience%20Booking%20-%20Truffle%20San%20Miniato" class="btn btn-gold" style="width:100%; justify-content:center;">Request Availability →</a>
+          <a href="mailto:tenutacollebrunacchi@gmail.com?subject=Private%20Experience%20Booking%20-%20Truffle%20San%20Miniato" class="btn btn-gold" style="width:100%; justify-content:center;">Request Availability →</a>
         </div>
       </div>
 
@@ -2908,7 +2913,7 @@
               Something went wrong — please try again or contact us on WhatsApp.
             </p>
             <p class="form-note">
-              We reply within 24 hours. We will never share your data with third parties.
+              We reply within 24 hours. Your data is processed only to handle your request and never sold for marketing purposes.
               <a href="privacy-policy.html" style="color:var(--terra);text-underline-offset:3px;text-decoration:underline;">Privacy Policy</a>
             </p>
           </div>
@@ -2980,7 +2985,7 @@
           <ul>
             <li><a href="#pricing">Pricing</a></li>
             <li><a href="#faq">FAQ</a></li>
-            <li><a href="mailto:grazianocristian.33@gmail.com">Email Us</a></li>
+            <li><a href="mailto:tenutacollebrunacchi@gmail.com">Email Us</a></li>
             <li><a href="#reviews">Reviews</a></li>
           </ul>
         </div>
@@ -3009,6 +3014,7 @@
             <a href="privacy-policy.html" id="footerPrivacyLink">Privacy Policy</a>
             <a href="cookie-policy.html" id="footerCookieLink">Cookie Policy</a>
             <a href="terms.html" id="footerTermsLink">Terms &amp; Conditions</a>
+            <a href="#" id="footerCookieSettings">Cookie settings</a>
           </div>
         </div>
         <p style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.15);">
@@ -3253,6 +3259,18 @@
         localStorage.setItem(COOKIE_KEY, 'essential');
         hideBanner();
       });
+
+      // Footer "Cookie settings": clear stored choice and reopen the banner
+      var cookieSettingsLink = document.getElementById('footerCookieSettings');
+      if (cookieSettingsLink) {
+        cookieSettingsLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          localStorage.removeItem(COOKIE_KEY);
+          banner.removeAttribute('aria-hidden');
+          banner.classList.remove('hidden');
+          banner.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        });
+      }
     })();
 
     // ─── Contact Form (Formspree fetch) ──────────────────────
