@@ -424,10 +424,15 @@ const { createClient } = window.supabase
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 let booking = null
+let freeCancelHours = 48
 
 // ── Boot ──────────────────────────────────────────────────────
 ;(async () => {
   show('state-loading')
+  try {
+    const { data: pol } = await db.from('cancellation_policies').select('hours').order('created_at', { ascending: false }).limit(1).single()
+    if (pol && pol.hours != null) freeCancelHours = pol.hours
+  } catch (e) {}
   const params = new URLSearchParams(window.location.search)
   const id     = params.get('id')
   const token  = params.get('token')
@@ -493,7 +498,7 @@ function renderBooking() {
 
   // < 48h warning
   const now      = new Date()
-  const expTime  = dObj ? new Date(dObj.getTime() - 48 * 3600 * 1000) : null
+  const expTime  = dObj ? new Date(dObj.getTime() - freeCancelHours * 3600 * 1000) : null
   const isLast48 = expTime && now > expTime
   if (isLast48) document.getElementById('warning-lastminute').style.display = 'flex'
 
@@ -577,7 +582,7 @@ document.getElementById('btn-cancel').addEventListener('click', async () => {
   const b   = booking
   const now = new Date()
   const dObj = b.slots?.date ? new Date(b.slots.date + 'T12:00:00') : null
-  const isLast48 = dObj && now > new Date(dObj.getTime() - 48 * 3600 * 1000)
+  const isLast48 = dObj && now > new Date(dObj.getTime() - freeCancelHours * 3600 * 1000)
 
   const confirmMsg = isLast48
     ? 'Your experience is in less than 48 hours. Cancelling now means you will not receive a refund. Are you sure?'
