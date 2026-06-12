@@ -2424,7 +2424,7 @@
             </div>
             <div class="credential">
               <span class="cred-icon">🤝</span>
-              <span>Member of the Tuscan Truffle Hunters Association</span>
+              <span>Member of the "Associazione Tartufai delle Colline Sanminiatesi" — the San Miniato Hills Truffle Hunters Association</span>
             </div>
             <div class="credential">
               <span class="cred-icon">⭐</span>
@@ -3454,10 +3454,10 @@
 ;(async function loadReviews() {
   const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
-  const sourceLabels = { getyourguide: 'GetYourGuide', viator: 'Viator', airbnb: 'Airbnb Experiences', website: 'Direct guest' }
-  const sourceClass  = { getyourguide: 'gyg', viator: 'viator', airbnb: 'airbnb', website: 'website' }
+  const sourceLabels = { getyourguide: 'GetYourGuide', viator: 'Viator', airbnb: 'Airbnb Experiences', website: 'Direct guest', guest: 'Tenuta Collebrunacchi' }
+  const sourceClass  = { getyourguide: 'gyg', viator: 'viator', airbnb: 'airbnb', website: 'website', guest: 'website' }
   try {
-    const res  = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=name,rating,body,source,created_at&order=created_at.desc&limit=9`, {
+    const res  = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=name,rating,body,source,created_at,photo_urls&order=created_at.desc&limit=9`, {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
     })
     const data = await res.json()
@@ -3480,6 +3480,7 @@
         ${badge}
         <div class="review-stars">${stars}</div>
         ${quote}
+          ${(Array.isArray(r.photo_urls) && r.photo_urls.length) ? `<div class="review-photos" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px">${r.photo_urls.map(u=>`<a href="${u}" target="_blank" rel="noopener"><img src="${u}" loading="lazy" alt="Guest photo" style="width:72px;height:72px;object-fit:cover;border-radius:8px"></a>`).join('')}</div>` : ''}
         <span class="review-author">${r.name} · ${date}</span>
       </div>`
     }).join('')

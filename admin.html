@@ -1609,30 +1609,43 @@ async function loadReviewsAdmin() {
   const countEl = document.getElementById('reviewsCount')
   if (!tbody) return
   const { data, error } = await db.from('reviews')
-    .select('id,name,rating,body,source,created_at')
+    .select('id,name,rating,body,source,created_at,status,photo_urls,experience_date,origin')
     .order('created_at', { ascending: false })
   if (error || !data) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#C0392B;padding:24px;">Errore caricamento</td></tr>'; return }
   if (countEl) countEl.textContent = data.length + ' recensioni'
   if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--warm-gray);padding:32px;">Nessuna recensione</td></tr>'; return }
   const sourceLabels = { getyourguide: 'GetYourGuide', viator: 'Viator', airbnb: 'Airbnb', website: 'Sito' }
+  data.sort((a,b) => (a.status==='pending'?0:1) - (b.status==='pending'?0:1));
   tbody.innerHTML = data.map(r => `
     <tr>
       <td>${new Date(r.created_at).toLocaleDateString('it-IT')}</td>
       <td>${r.name}</td>
       <td>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
       <td>${sourceLabels[r.source] || r.source}</td>
-      <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.body || '—'}</td>
+      <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.body || '—'}${(Array.isArray(r.photo_urls)&&r.photo_urls.length)?`<div style="display:flex;gap:6px;margin-top:6px">${r.photo_urls.map(u=>`<a href="${u}" target="_blank"><img src="${u}" style="width:48px;height:48px;object-fit:cover;border-radius:6px"></a>`).join('')}</div>`:''}</td>
       <td>
+        ${r.status !== 'approved' ? `<button onclick="approveReview('${r.id}')" class="btn btn-sm btn-verde">Approva</button> ` : ''}
+        <span class="badge" style="font-size:11px;color:${r.status==='approved'?'#4a7a4a':'#a4442f'}">${r.status}</span><br>
         <button onclick="deleteReview('${r.id}')" style="background:#C0392B;color:white;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Elimina</button>
       </td>
     </tr>`).join('')
 }
 
-async function deleteReview(id) {
-  if (!confirm('Eliminare questa recensione?')) return
-  const { error } = await db.from('reviews').delete().eq('id', id)
-  if (!error) loadReviewsAdmin()
-}
+async function deleteReview(id){
+    if (!confirm('Eliminare questa recensione?')) return;
+    const { data: row } = await db.from('reviews').select('photo_urls').eq('id', id).single();
+    if (row && Array.isArray(row.photo_urls) && row.photo_urls.length){
+      const paths = row.photo_urls.map(u => u.split('/review-photos/')[1]).filter(Boolean);
+      if (paths.length) await db.storage.from('review-photos').remove(paths);
+    }
+    const { error } = await db.from('reviews').delete().eq('id', id);
+    if (!error) loadReviewsAdmin();
+  }
+
+  async function approveReview(id){
+    const { error } = await db.from('reviews').update({ status:'approved' }).eq('id', id);
+    if (!error) loadReviewsAdmin(); else alert('Errore approvazione');
+  }
 </script>
 </body>
 </html>
