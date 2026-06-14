@@ -3523,11 +3523,14 @@
         ? `<div class="review-photos">${r.photo_urls.map((u,i)=>`<img src="${u}" loading="lazy" alt="Guest photo" class="review-photo" data-photos='${JSON.stringify(r.photo_urls).replace(/'/g,"&#39;")}' data-index="${i}">`).join('')}</div>`
         : ''
       return `<div class="review-card">
+        <div class="review-author-head" style="margin-bottom:18px">
+          <div style="font-size:17px;font-weight:600;letter-spacing:.3px;color:#fff;font-family:var(--font-serif)">${r.name}</div>
+          <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:3px">${r.origin ? r.origin + ' · ' : ''}${date}</div>
+        </div>
+        <div class="review-stars" style="margin-bottom:18px">${stars}</div>
         ${badge}
-        <div class="review-stars">${stars}</div>
         ${quote}
         ${photos}
-        <span class="review-author">${r.name}${origin} · ${date}</span>
       </div>`
     }).join('')
 
