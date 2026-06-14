@@ -3537,20 +3537,22 @@
       </div>`
     }).join('')
 
-    // Carosello: frecce, scorrimento di una card esatta
+    // Carosello: frecce, scorre all'inizio della card adiacente
     const prev = document.getElementById('revPrev')
     const next = document.getElementById('revNext')
-    function cardStep(){
-      const card = grid.querySelector('.review-card')
-      if (!card) return grid.clientWidth
-      const styles = getComputedStyle(grid)
-      const gap = parseFloat(styles.columnGap || styles.gap) || 0
-      return card.getBoundingClientRect().width + gap
-    }
     function goTo(dir){
-      const s = cardStep()
-      const target = Math.round((grid.scrollLeft + dir * s) / s) * s
-      grid.scrollTo({ left: target, behavior: 'smooth' })
+      const cards = [...grid.querySelectorAll('.review-card')]
+      if (!cards.length) return
+      const gridLeft = grid.getBoundingClientRect().left
+      // card il cui bordo sinistro è più vicino al bordo sinistro della griglia
+      let idx = 0, best = Infinity
+      cards.forEach((c,i) => {
+        const d = Math.abs(c.getBoundingClientRect().left - gridLeft)
+        if (d < best){ best = d; idx = i }
+      })
+      let target = Math.max(0, Math.min(cards.length - 1, idx + dir))
+      const delta = cards[target].getBoundingClientRect().left - gridLeft
+      grid.scrollBy({ left: delta, behavior: 'smooth' })
     }
     if (prev) prev.addEventListener('click', () => goTo(-1))
     if (next) next.addEventListener('click', () => goTo(1))
