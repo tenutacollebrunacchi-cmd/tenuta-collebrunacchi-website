@@ -3537,12 +3537,23 @@
       </div>`
     }).join('')
 
-    // Carosello: frecce + swipe
+    // Carosello: frecce, scorrimento di una card esatta
     const prev = document.getElementById('revPrev')
     const next = document.getElementById('revNext')
-    const step = () => Math.min(grid.clientWidth * 0.9, 760)
-    if (prev) prev.addEventListener('click', () => grid.scrollBy({ left: -step(), behavior: 'smooth' }))
-    if (next) next.addEventListener('click', () => grid.scrollBy({ left:  step(), behavior: 'smooth' }))
+    function cardStep(){
+      const card = grid.querySelector('.review-card')
+      if (!card) return grid.clientWidth
+      const styles = getComputedStyle(grid)
+      const gap = parseFloat(styles.columnGap || styles.gap) || 0
+      return card.getBoundingClientRect().width + gap
+    }
+    function goTo(dir){
+      const s = cardStep()
+      const target = Math.round((grid.scrollLeft + dir * s) / s) * s
+      grid.scrollTo({ left: target, behavior: 'smooth' })
+    }
+    if (prev) prev.addEventListener('click', () => goTo(-1))
+    if (next) next.addEventListener('click', () => goTo(1))
 
     // Lightbox
     const lb = document.getElementById('revLightbox')
