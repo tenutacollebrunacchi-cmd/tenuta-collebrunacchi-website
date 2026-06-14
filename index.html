@@ -3544,13 +3544,25 @@
       const cards = [...grid.querySelectorAll('.review-card')]
       if (!cards.length) return
       const gridLeft = grid.getBoundingClientRect().left
-      // card il cui bordo sinistro è più vicino al bordo sinistro della griglia
+      const TOL = 12 // px: scarti minori sono considerati "stessa posizione"
+      // indice della card attualmente allineata a sinistra
       let idx = 0, best = Infinity
       cards.forEach((c,i) => {
-        const d = Math.abs(c.getBoundingClientRect().left - gridLeft)
-        if (d < best){ best = d; idx = i }
+        const d = c.getBoundingClientRect().left - gridLeft
+        if (Math.abs(d) < best){ best = Math.abs(d); idx = i }
       })
-      let target = Math.max(0, Math.min(cards.length - 1, idx + dir))
+      const curOffset = cards[idx].getBoundingClientRect().left - gridLeft
+      // se sto andando avanti e la card corrente è già un po' oltre il bordo (offset negativo entro tolleranza), resta idx; altrimenti muovi
+      let target = idx + dir
+      // se il disallineamento residuo è entro la tolleranza, NON sprecare il click: vai davvero alla card adiacente
+      if (Math.abs(curOffset) <= TOL){
+        target = idx + dir
+      } else {
+        // sono in mezzo: il primo click allinea alla card più vicina nella direzione scelta
+        target = dir > 0 ? idx + 1 : idx
+        if (curOffset > TOL && dir < 0) target = idx // card spostata a destra, torno al suo inizio
+      }
+      target = Math.max(0, Math.min(cards.length - 1, target))
       const delta = cards[target].getBoundingClientRect().left - gridLeft
       grid.scrollBy({ left: delta, behavior: 'smooth' })
     }
