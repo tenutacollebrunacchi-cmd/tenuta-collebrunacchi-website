@@ -33,12 +33,14 @@
     .stars span{color:#d9cfc0;transition:color .12s,transform .12s}
     .stars span:hover{transform:scale(1.08)}
     .stars span.on{color:var(--gold)}
-    .photo-input{display:block}
-    .photo-cta{border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center;
-      cursor:pointer;transition:border-color .15s,background .15s;background:#fff}
-    .photo-cta:hover{border-color:var(--gold);background:#fffdf8}
-    .photo-cta strong{display:block;color:var(--terra);font-size:14px;margin-bottom:4px}
-    .photo-cta span{font-size:13px;color:var(--muted)}
+    .photo-input{display:none}
+    .photo-add{display:inline-flex;align-items:center;gap:10px;cursor:pointer;
+      border:1.5px dashed var(--line);border-radius:12px;padding:14px 20px;background:#fff;
+      transition:border-color .15s,background .15s}
+    .photo-add:hover{border-color:var(--gold);background:#fffdf8}
+    .photo-plus{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+      border-radius:50%;background:var(--terra);color:#fff;font-size:20px;line-height:1;font-weight:600}
+    .photo-add-text{font-size:14px;font-weight:600;color:var(--terra)}
     .thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     .thumb{position:relative;width:74px;height:74px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
     .thumb img{width:100%;height:100%;object-fit:cover;display:block}
@@ -95,7 +97,8 @@
 
         <div class="form-group">
           <label class="form-label" for="origin">Where are you from? <span class="req">*</span></label>
-          <input class="form-control" type="text" id="origin" placeholder="City, Country" maxlength="120" required />
+          <input class="form-control" type="text" id="origin" list="countries" placeholder="Type or select your country" maxlength="120" autocomplete="off" required />
+          <datalist id="countries"></datalist>
         </div>
 
         <div class="form-group">
@@ -111,10 +114,11 @@
 
         <div class="form-group">
           <label class="form-label">Add photos</label>
-          <label class="photo-cta" for="photos">
-            <strong>📷 Upload a photo or two</strong>
-            <span>They help future guests picture what it's really like to search for truffles in our woods.</span>
+          <label class="photo-add" for="photos">
+            <span class="photo-plus">+</span>
+            <span class="photo-add-text">Add a photo</span>
           </label>
+          <p class="hint">They help future guests picture what it's really like to search for truffles in our woods.</p>
           <input class="photo-input" type="file" id="photos" accept="image/*" multiple hidden />
           <div class="thumbs" id="thumbs"></div>
         </div>
@@ -146,6 +150,11 @@
     const MAX_PHOTOS = 3, MAX_DIM = 1600, QUALITY = 0.85;
     const MAX_BYTES = 3 * 1024 * 1024;
     function dataUrlBytes(u){ const b64 = (u.split(",")[1] || ""); return Math.floor(b64.length * 3 / 4); }
+    const COUNTRIES = ["Italy","United States","United Kingdom","Germany","France","Spain","Netherlands","Belgium","Switzerland","Austria","Ireland","Portugal","Denmark","Sweden","Norway","Finland","Iceland","Poland","Czech Republic","Slovakia","Hungary","Romania","Bulgaria","Greece","Croatia","Slovenia","Serbia","Estonia","Latvia","Lithuania","Luxembourg","Malta","Cyprus","Canada","Mexico","Brazil","Argentina","Chile","Colombia","Peru","Uruguay","Australia","New Zealand","Japan","China","South Korea","Singapore","Hong Kong","Taiwan","Thailand","Vietnam","Philippines","Indonesia","Malaysia","India","United Arab Emirates","Saudi Arabia","Qatar","Israel","Turkey","Egypt","Morocco","South Africa","Kenya","Nigeria","Russia","Ukraine","Other"];
+    (function fillCountries(){
+      const dl = document.getElementById("countries");
+      dl.innerHTML = COUNTRIES.map(c => `<option value="${c}"></option>`).join("");
+    })();
 
     const starsEl = document.getElementById("stars");
     const ratingEl = document.getElementById("rating");
