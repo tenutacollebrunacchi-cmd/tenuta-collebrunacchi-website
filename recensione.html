@@ -167,7 +167,7 @@
 
   <script>
     const ENDPOINT = "https://ioyjhvlbamgiiqdtgutk.supabase.co/functions/v1/submit-review";
-    const MAX_PHOTOS = 3, MAX_DIM = 1600, QUALITY = 0.85;
+    const MAX_PHOTOS = 5, MAX_DIM = 1600, QUALITY = 0.85;
     const MAX_BYTES = 3 * 1024 * 1024;
     function dataUrlBytes(u){ const b64 = (u.split(",")[1] || ""); return Math.floor(b64.length * 3 / 4); }
 
@@ -223,7 +223,7 @@
 
     photosInput.addEventListener("change", async () => {
       for (const file of [...photosInput.files]) {
-        if (photoData.length >= MAX_PHOTOS){ showMsg("You can add up to 3 photos.", false); break; }
+        if (photoData.length >= MAX_PHOTOS){ showMsg("You can add up to 5 photos.", false); break; }
         if (!file.type.startsWith("image/")) continue;
         try {
           const url = await resizeToWebp(file);
