@@ -1624,8 +1624,8 @@ async function loadReviewsAdmin() {
       <td>${sourceLabels[r.source] || r.source}</td>
       <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.body || '—'}${(Array.isArray(r.photo_urls)&&r.photo_urls.length)?`<div style="display:flex;gap:6px;margin-top:6px">${r.photo_urls.map(u=>`<a href="${u}" target="_blank"><img src="${u}" style="width:48px;height:48px;object-fit:cover;border-radius:6px"></a>`).join('')}</div>`:''}</td>
       <td>
-        ${r.status !== 'approved' ? `<button onclick="approveReview('${r.id}')" class="btn btn-sm btn-verde">Approva</button> ` : ''}
-        <span class="badge" style="font-size:11px;color:${r.status==='approved'?'#4a7a4a':'#a4442f'}">${r.status}</span><br>
+        ${r.status !== 'approved' ? `<button onclick="approveReview('${r.id}')" class="btn btn-sm btn-success">Approva</button> ` : ''}
+        <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:${r.status==='approved'?'rgba(39,174,96,.15)':'rgba(192,57,43,.12)'};color:${r.status==='approved'?'#27AE60':'#C0392B'}">${r.status}</span><br>
         <button onclick="deleteReview('${r.id}')" style="background:#C0392B;color:white;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Elimina</button>
       </td>
     </tr>`).join('')
