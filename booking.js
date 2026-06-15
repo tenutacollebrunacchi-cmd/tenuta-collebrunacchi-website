@@ -76,8 +76,6 @@
     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     injectCSS()
     await Promise.all([loadPrices(), loadCancellationPolicy(), loadLeadTime()])
-    // Deep-link from the "Book Private" pricing CTA: pre-select Private (only consumed at the form step)
-    try { if (sessionStorage.getItem('tcPreferPrivate') === '1') { S.bookingType = 'private'; sessionStorage.removeItem('tcPreferPrivate') } } catch(e) {}
     render()
     fetchMonthSlots()
 
@@ -1227,6 +1225,16 @@
 }
 `
     document.head.appendChild(s)
+  }
+
+  // ── Public hook: pre-select Private from the pricing CTA (live state, no reload) ─
+  // The Shared/Private toggle only appears at the form step, so this preselection
+  // becomes visible once a date + slot are chosen (and only if the slot allows Private).
+  window.tcBooking = window.tcBooking || {}
+  window.tcBooking.selectPrivate = function () {
+    if (!document.getElementById('bw-root')) return
+    S.bookingType = 'private'
+    render()
   }
 
   // ── Init on DOM ready ─────────────────────────────────────────
