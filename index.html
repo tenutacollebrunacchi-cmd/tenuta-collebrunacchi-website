@@ -2538,7 +2538,7 @@
       </div>
       <div class="gallery-item" data-index="5">
         <img src="assets/img/08_DSC_9886-63.webp" alt="Francesca grating fresh truffle over pasta" loading="lazy" decoding="async">
-        <div class="gallery-caption">Brunello and fresh truffle. No further explanation needed.</div>
+        <div class="gallery-caption">Our own Tuscan wine and fresh truffle. No further explanation needed.</div>
       </div>
       <div class="gallery-item" data-index="6">
         <img src="assets/img/17_DSC_9836-51.webp" alt="Guests dining in the historic villa sala" loading="lazy" decoding="async">
@@ -2660,11 +2660,11 @@
             </li>
             <li>
               <div class="check-icon">✓</div>
-              Estate extra-virgin olive oil tasting
+              Our estate olive oil, served at the table
             </li>
             <li>
               <div class="check-icon">✓</div>
-              Curated Tuscan wine tasting
+              Tuscan wines to accompany your lunch
             </li>
             <li>
               <div class="check-icon">✓</div>
@@ -2770,39 +2770,39 @@
           <span class="price-tag">Most popular</span>
           <h3 class="price-name">Small Group</h3>
           <p class="price-capacity">Maximum 10 guests</p>
-          <div class="price-amount">€159 <span style="font-size:12px;font-weight:400;color:var(--warm-gray);">VAT incl.</span></div>
+          <div class="price-amount"><span class="price-num" data-price="shared_online">€159</span> <span style="font-size:12px;font-weight:400;color:var(--warm-gray);">VAT incl.</span></div>
           <div class="price-unit">per person · <span style="color:var(--verde-light);font-weight:600;">online price</span></div>
           <div class="price-divider"></div>
           <ul class="price-features">
             <li><span class="feat-icon">✓</span> Guided truffle hunt</li>
             <li><span class="feat-icon">✓</span> Truffle masterclass</li>
-            <li><span class="feat-icon">✓</span> Lunch with fresh truffle &amp; olive oil</li>
-            <li><span class="feat-icon">✓</span> Tuscan wine tasting</li>
-            <li><span class="feat-icon">✓</span> Cooking lesson</li>
+            <li><span class="feat-icon">✓</span> Lunch with fresh truffle &amp; our estate olive oil</li>
+            <li><span class="feat-icon">✓</span> Tuscan wines to accompany the meal</li>
             <li><span class="feat-icon">✓</span> English &amp; Italian hosting</li>
             <li><span class="feat-icon">✓</span> Free cancellation 48h</li>
           </ul>
           <a href="#booking" class="btn btn-verde" style="width:100%; justify-content:center;">Book Now →</a>
+          <p class="price-crosssell" style="margin-top:12px;font-size:13px;text-align:center;color:var(--warm-gray);">Prefer the forest to yourselves? <a href="#private-card" style="color:var(--terra);font-weight:600;text-decoration:underline;text-underline-offset:2px;">See the Private experience →</a></p>
         </div>
 
         <!-- Tier 2: Private -->
-        <div class="price-card featured fade-in delay-2">
+        <div class="price-card featured fade-in delay-2" id="private-card">
           <span class="price-tag">🏆 Premium</span>
           <h3 class="price-name">Private Experience</h3>
           <p class="price-capacity">Exclusive for your group</p>
-          <div class="price-amount">€259 <span style="font-size:12px;font-weight:400;color:var(--warm-gray);">VAT incl.</span></div>
+          <div class="price-amount"><span class="price-num" data-price="private_online">€259</span> <span style="font-size:12px;font-weight:400;color:var(--warm-gray);">VAT incl.</span></div>
           <div class="price-unit">per person · <span style="color:var(--gold);">online price</span></div>
           <div class="price-divider"></div>
           <ul class="price-features">
             <li><span class="feat-icon">✓</span> Everything in Small Group</li>
             <li><span class="feat-icon">✓</span> <span class="bold-feat">Exclusive private forest access</span></li>
             <li><span class="feat-icon">✓</span> <span class="bold-feat">Flexible timing — your schedule</span></li>
-            <li><span class="feat-icon">✓</span> <span class="bold-feat">Personalized menu</span> (white or black truffle)</li>
-            <li><span class="feat-icon">✓</span> <span class="bold-feat">Guided estate olive oil tasting</span></li>
+            <li><span class="feat-icon">✓</span> <span class="bold-feat">Personalized menu on request</span> — price supplement based on the request</li>
             <li><span class="feat-icon">✓</span> Private transfer available on request — contact Eleonora for a personalised quote</li>
             <li><span class="feat-icon">✓</span> Free cancellation 48h</li>
+            <li><span class="feat-icon">✓</span> <span class="bold-feat">Groups larger than 10?</span> <a href="https://wa.me/393311682664?text=Hi%2C%20we%20are%20a%20group%20larger%20than%2010%20and%20would%20like%20to%20book%20the%20private%20truffle%20experience%20at%20Tenuta%20Collebrunacchi." target="_blank" rel="noopener noreferrer" style="color:var(--gold);font-weight:600;text-decoration:underline;text-underline-offset:2px;">Contact us</a></li>
           </ul>
-          <a href="mailto:tenutacollebrunacchi@gmail.com?subject=Private%20Experience%20Booking%20-%20Truffle%20San%20Miniato" class="btn btn-gold" style="width:100%; justify-content:center;">Request Availability →</a>
+          <a href="#booking" class="btn btn-gold" style="width:100%; justify-content:center;" onclick="try{sessionStorage.setItem('tcPreferPrivate','1')}catch(e){}">Book Private →</a>
         </div>
       </div>
 
@@ -3579,7 +3579,7 @@
 
 ;(async function updatePricingSubtitle() {
   try {
-    const res = await fetch('https://ioyjhvlbamgiiqdtgutk.supabase.co/rest/v1/price_settings?select=key,value_eur&key=in.(shared_online,shared_arrival)', {
+    const res = await fetch('https://ioyjhvlbamgiiqdtgutk.supabase.co/rest/v1/price_settings?select=key,value_eur&key=in.(shared_online,shared_arrival,private_online)', {
       headers: {
         'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko',
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
@@ -3589,6 +3589,11 @@
     if (!Array.isArray(data)) return
     const map = {}
     data.forEach(r => { map[r.key] = r.value_eur })
+    // Keep the headline pricing cards in sync with admin-set prices (fallback: static markup if missing)
+    document.querySelectorAll('.price-num[data-price]').forEach(elp => {
+      const v = map[elp.dataset.price]
+      if (v) elp.textContent = '€' + Math.round(v)
+    })
     const online  = map['shared_online']
     const arrival = map['shared_arrival']
     if (!online || !arrival) return
