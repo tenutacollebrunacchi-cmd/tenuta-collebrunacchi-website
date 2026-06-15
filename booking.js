@@ -257,8 +257,8 @@
     const btns = TIME_SLOTS.map(t => {
       const sl = S.dateSlots.find(s => s.time.slice(0,5) === t)
       if (!sl)                            return slotBtn(t,'Unavailable','bw-sl--none',  true)
-      if (sl.is_private_blocked)          return slotBtn(t,'Private',   'bw-sl--priv',  true)
-      if (Number(sl.capacity_left) === 0) return slotBtn(t,'Full',      'bw-sl--full',  true)
+      if (sl.is_private_blocked)          return slotBtn(t,'Booked',    'bw-sl--priv',  false, null, slotAskUrl(t))
+      if (Number(sl.capacity_left) === 0) return slotBtn(t,'Full',      'bw-sl--full',  false, null, slotAskUrl(t))
       const isSlotEmpty = Number(sl.capacity_left) === MAX_GUESTS
       const slMin = isSlotEmpty ? (S.slotMinimums[t] || 1) : 1
       const lbl = slMin > 1
@@ -274,7 +274,21 @@
       <div class="bw-sl-grid">${btns}</div>`
   }
 
-  function slotBtn (time, label, cls, disabled, slotId) {
+  function slotAskUrl (time) {
+    const d = S.selectedDate
+    const human = d ? new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) : ''
+    const msg = `Hi, I'm interested in the truffle experience on ${human} at ${time}, but it shows as already booked. Is there any chance you could arrange it for us?`
+    return 'https://wa.me/393311682664?text=' + encodeURIComponent(msg)
+  }
+
+  function slotBtn (time, label, cls, disabled, slotId, askUrl) {
+    if (askUrl) {
+      return `<a class="bw-sl ${cls} bw-sl--booked" href="${askUrl}" target="_blank" rel="noopener noreferrer">
+      <span class="bw-sl-time">${time}</span>
+      <span class="bw-sl-lbl">${label}</span>
+      <span class="bw-sl-ask">Ask us →</span>
+    </a>`
+    }
     return `<button class="bw-sl ${cls}" type="button"
       ${slotId ? `data-slot="${slotId}"` : ''} ${disabled ? 'disabled' : ''}>
       <span class="bw-sl-time">${time}</span>
@@ -942,6 +956,9 @@
 .bw-sl-lbl  { font-size:11px; color:var(--warm-gray,#6B6B64); }
 .bw-sl--avail:not([disabled]):hover { border-color:var(--terra,#8B5E3C); background:var(--cream,#F2EDE3); }
 .bw-sl--avail:not([disabled]):hover .bw-sl-time { color:var(--terra,#8B5E3C); }
+.bw-sl--booked { opacity:.6; text-decoration:none; cursor:pointer; }
+.bw-sl--booked:hover { opacity:1; border-color:var(--terra,#8B5E3C); background:var(--cream,#F2EDE3); }
+.bw-sl-ask { font-size:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--terra,#8B5E3C); margin-top:2px; }
 
 /* Booking summary header */
 .bw-booking-hd {
