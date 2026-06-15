@@ -166,7 +166,7 @@
       slots:         renderSlots,
       form:          renderForm,
       submitting:    S.paymentMethod === 'arrival'
-                       ? renderBusy('Sending your request…')
+                       ? renderBusy('Confirming your booking…')
                        : renderBusy('Creating your booking…'),
       redirecting:   renderBusy('Redirecting to secure payment…'),
       arrival_sent:  renderArrivalSent,
@@ -483,17 +483,24 @@
     const fmtDate   = dObj.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
     const fmtTime   = sl.time.slice(0, 5)
     const typeLabel = S.bookingType === 'private' ? 'Private Experience' : 'Small Group'
+    const ticketBtn = S.arrivalToken
+      ? `<a href="ticket.html?token=${encodeURIComponent(S.arrivalToken)}" target="_blank" rel="noopener noreferrer"
+            style="display:inline-block;margin-top:20px;background:var(--forest,#1A2D15);color:#fff;text-decoration:none;padding:13px 28px;border-radius:40px;font-size:13px;font-weight:600;letter-spacing:.5px;">
+           Download Ticket →
+         </a>`
+      : ''
     return `
       <div class="bw-arrival-ok">
         <div class="bw-arrival-icon">✓</div>
-        <h3>Request received.</h3>
-        <p>We'll confirm your booking within 24 hours.</p>
+        <h3>Booking confirmed.</h3>
+        <p>Your spot is reserved — <strong>payment on arrival</strong>.</p>
         <p style="margin-top:12px;font-size:13px;color:var(--charcoal,#1C1C1A);font-weight:600;">
           ${fmtDate} · ${fmtTime}<br>
           <span style="font-weight:400;color:var(--warm-gray,#6B6B64);">${S.persons} ${S.persons === 1 ? 'person' : 'people'} · ${typeLabel}</span>
         </p>
+        ${ticketBtn}
         <p style="margin-top:16px;font-size:12px;">
-          Check your inbox for a copy of your request.
+          We've emailed you the confirmation and ticket.
           Questions? <a href="${WA_URL}" style="color:var(--terra,#8B5E3C);">Message us on WhatsApp</a>.
         </p>
         <button id="bwBookAgain" type="button" style="margin-top:24px;background:none;border:1.5px solid var(--border,#E0D8CC);border-radius:4px;padding:10px 20px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--warm-gray,#6B6B64);cursor:pointer;">
@@ -701,6 +708,7 @@
         }
 
         _submitLock = false
+        S.arrivalToken = data.token || null
         S.step = 'arrival_sent'
         render()
       } catch (err) {

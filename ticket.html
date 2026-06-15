@@ -139,7 +139,7 @@
           <div class="t-field"><div class="t-lbl">Type</div><div class="t-val" id="tType">—</div></div>
         </div>
         <div class="t-field">
-          <div class="t-lbl">Total paid</div>
+          <div class="t-lbl" id="tTotalLbl">Total paid</div>
           <div class="t-val total" id="tTotal">—</div>
         </div>
         <hr class="t-sep">
@@ -198,9 +198,11 @@
       document.getElementById('tTime').textContent    = slot.time ? slot.time.slice(0,5) : '—'
       document.getElementById('tPersons').textContent = data.persons + (data.persons === 1 ? ' person' : ' persons')
       document.getElementById('tType').textContent    = formatType(data.type)
+      const isArrival = data.payment_method === 'arrival'
+      document.getElementById('tTotalLbl').textContent = isArrival ? 'To pay on arrival' : 'Total paid'
       document.getElementById('tTotal').textContent   = data.amount_eur
         ? '€ ' + Number(data.amount_eur).toFixed(2).replace('.', ',')
-        : (data.payment_method === 'arrival' ? 'Pay on arrival' : '—')
+        : (isArrival ? 'Pay on arrival' : '—')
       document.getElementById('tRef').textContent     = 'REF: ' + token.slice(0, 8).toUpperCase()
 
       new QRCode(document.getElementById('qrContainer'), {
