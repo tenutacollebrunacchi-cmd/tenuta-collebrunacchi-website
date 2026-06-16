@@ -39,7 +39,6 @@
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; border: none; background: none; font-family: inherit; }
 
-    /* ── Header ── */
     .header {
       background: var(--verde); padding: 18px 24px;
       display: flex; align-items: center; justify-content: space-between;
@@ -58,13 +57,10 @@
     }
     .header-back:hover { color: var(--white); }
 
-    /* ── Container ── */
     .container { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
 
-    /* ── Views — all hidden by default ── */
     .view { display: none; }
 
-    /* ── Loading ── */
     .loading-wrap {
       display: flex; flex-direction: column; align-items: center;
       gap: 20px; padding: 80px 24px; color: var(--warm-gray);
@@ -76,7 +72,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Auth card (login, forgot, set-password) ── */
     .auth-card {
       background: var(--white); border: 1.5px solid var(--border);
       border-radius: 8px; padding: 36px; max-width: 420px; margin: 0 auto;
@@ -103,7 +98,6 @@
       content: ''; flex: 1; height: 1px; background: var(--border);
     }
 
-    /* ── Form elements ── */
     .fg { margin-bottom: 16px; }
     .lbl {
       display: block; font-size: 11px; font-weight: 600; letter-spacing: 2px;
@@ -122,7 +116,6 @@
     .form-msg.ok  { color: var(--success); }
     .form-msg.err { color: var(--danger); }
 
-    /* ── Buttons ── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 13px 28px; font-size: 13px; font-weight: 600; letter-spacing: 1.2px;
@@ -158,7 +151,6 @@
     }
     .btn-text-muted:hover { color: var(--charcoal); }
 
-    /* ── Result / success wraps ── */
     .result-wrap { text-align: center; padding: 60px 24px; }
     .result-icon {
       width: 64px; height: 64px; border-radius: 50%;
@@ -170,7 +162,6 @@
     .result-title { font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-bottom: 12px; }
     .result-body  { font-size: 15px; color: var(--warm-gray); line-height: 1.7; max-width: 440px; margin: 0 auto 28px; }
 
-    /* ── Dashboard header ── */
     .dash-hdr {
       display: flex; align-items: flex-start; justify-content: space-between;
       gap: 16px; margin-bottom: 32px; flex-wrap: wrap;
@@ -178,13 +169,11 @@
     .page-title { font-family: var(--font-serif); font-size: clamp(24px, 5vw, 34px); font-weight: 500; line-height: 1.2; margin-bottom: 4px; }
     .page-sub   { font-size: 13px; color: var(--warm-gray); margin-bottom: 2px; }
 
-    /* ── Section label ── */
     .section-lbl {
       font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
       color: var(--terra); margin-bottom: 14px; display: block;
     }
 
-    /* ── Booking card ── */
     .booking-card {
       background: var(--white); border: 1.5px solid var(--border);
       border-radius: 8px; overflow: hidden; margin-bottom: 20px;
@@ -204,7 +193,6 @@
     .booking-card-title p  { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
     .booking-card-body { padding: 24px 28px; }
 
-    /* ── Status badge ── */
     .status-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 4px 12px; border-radius: 40px; font-size: 10px; font-weight: 700;
@@ -218,7 +206,6 @@
     .status-cancelled { background: #F8D7DA; color: #721C24; }
     .status-cancelled .dot { background: #721C24; }
 
-    /* ── Detail rows ── */
     .detail-row {
       display: flex; align-items: flex-start; justify-content: space-between;
       padding: 9px 0; border-bottom: 1px solid var(--border);
@@ -228,7 +215,6 @@
     .detail-label { color: var(--warm-gray); flex-shrink: 0; }
     .detail-value { font-weight: 500; text-align: right; }
 
-    /* ── Payment box ── */
     .payment-box { border-radius: 6px; padding: 14px 18px; margin-top: 14px; display: flex; align-items: center; gap: 12px; }
     .payment-box.online  { background: #D1ECF1; border: 1px solid #BEE5EB; }
     .payment-box.arrival { background: var(--cream); border: 1px solid var(--border); }
@@ -236,7 +222,6 @@
     .payment-box-text strong { display: block; font-size: 13px; color: var(--charcoal); margin-bottom: 2px; }
     .payment-box-text span   { font-size: 12px; color: var(--warm-gray); }
 
-    /* ── Warning box ── */
     .warning-box {
       background: #FFF3CD; border: 1.5px solid #FFEAA7;
       border-radius: 6px; padding: 14px 18px; margin-top: 14px;
@@ -245,10 +230,8 @@
     .warning-box .wi { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
     .warning-box p { font-size: 13px; color: #856404; line-height: 1.6; }
 
-    /* ── Card actions ── */
     .card-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
 
-    /* ── Modify form ── */
     .modify-form {
       background: var(--ivory); border: 1.5px solid var(--border);
       border-radius: 6px; padding: 22px; margin-top: 14px; display: none;
@@ -256,13 +239,11 @@
     .modify-form.open { display: block; }
     .modify-form h3 { font-family: var(--font-serif); font-size: 18px; font-weight: 500; margin-bottom: 14px; }
 
-    /* ── Empty state ── */
     .empty-state { text-align: center; padding: 60px 24px; }
     .empty-icon  { font-size: 48px; margin-bottom: 16px; }
     .empty-title { font-family: var(--font-serif); font-size: 22px; font-weight: 500; margin-bottom: 8px; }
     .empty-body  { font-size: 14px; color: var(--warm-gray); line-height: 1.65; margin-bottom: 28px; }
 
-    /* ── Toast ── */
     #toast {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
       background: var(--charcoal); color: #fff; padding: 12px 20px;
@@ -274,13 +255,11 @@
     #toast.toast-success { background: var(--success); }
     #toast.toast-error   { background: var(--danger); }
 
-    /* ── Page footer ── */
     .page-footer { text-align: center; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); }
     .page-footer p { font-size: 13px; color: var(--warm-gray); line-height: 1.65; }
     .page-footer a { color: var(--terra); }
     .page-footer a:hover { text-decoration: underline; }
 
-    /* ── Cancel confirmation modal ── */
     .cancel-backdrop {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.55); z-index: 800;
@@ -322,7 +301,6 @@
 
 <div class="container">
 
-  <!-- ── Loading ── -->
   <div class="view" id="view-loading">
     <div class="loading-wrap">
       <div class="spinner"></div>
@@ -330,7 +308,6 @@
     </div>
   </div>
 
-  <!-- ── Login ── -->
   <div class="view" id="view-login">
     <div class="auth-card">
       <h1 class="auth-card-title">My Bookings</h1>
@@ -361,7 +338,6 @@
     </div>
   </div>
 
-  <!-- ── Forgot password ── -->
   <div class="view" id="view-forgot">
     <div class="auth-card">
       <h2 class="auth-card-title">Reset your password</h2>
@@ -378,7 +354,6 @@
     </div>
   </div>
 
-  <!-- ── Reset email sent ── -->
   <div class="view" id="view-reset-sent">
     <div class="result-wrap">
       <div class="result-icon terra">✉️</div>
@@ -388,7 +363,6 @@
     </div>
   </div>
 
-  <!-- ── Set password (recovery link flow) ── -->
   <div class="view" id="view-set-password">
     <div class="auth-card">
       <h2 class="auth-card-title">Set your password</h2>
@@ -406,7 +380,6 @@
     </div>
   </div>
 
-  <!-- ── Dashboard ── -->
   <div class="view" id="view-dashboard">
     <div class="dash-hdr">
       <div>
@@ -427,7 +400,6 @@
 
 </div>
 
-<!-- ── Cancel confirmation modal ── -->
 <div class="cancel-backdrop" id="cancel-backdrop">
   <div class="cancel-modal">
     <div class="cm-icon" id="cm-icon"></div>
@@ -442,7 +414,6 @@
 
 <div id="toast"></div>
 
-<!-- Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   window.BOOKING_CONFIG = {
@@ -452,7 +423,6 @@
 </script>
 
 <script>
-// ── Config ─────────────────────────────────────────────────────
 const CFG           = window.BOOKING_CONFIG || {}
 const SUPABASE_URL  = CFG.supabaseUrl      || ''
 const SUPABASE_ANON = CFG.supabaseAnonKey  || ''
@@ -465,20 +435,17 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON)
 
 let currentUser  = null
 let allBookings  = []
-let recoveryMode = false  // true while PASSWORD_RECOVERY flow is active
+let recoveryMode = false
 let isLoadingDashboard = false
 
-// ── View manager ───────────────────────────────────────────────
 function showView(id) {
   document.querySelectorAll('.view').forEach(el => { el.style.display = 'none' })
   const el = document.getElementById(id)
   if (el) el.style.display = 'block'
 }
 
-// ── Init ───────────────────────────────────────────────────────
 ;(async () => {
   showView('view-loading')
-  // Recovery redirects contain a hash fragment — let onAuthStateChange handle them
   if (window.location.hash.includes('type=recovery')) return
   let session = null
   try {
@@ -495,22 +462,7 @@ function showView(id) {
   }
 })()
 
-let lastActivity = Date.now()
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    const inactive = Date.now() - lastActivity
-    if (inactive > 30 * 60 * 1000) {
-      showView('view-loading')
-      db.auth.getSession().then(({ data: { session } }) => {
-        if (session) loadDashboard(); else showView('view-login')
-      })
-    }
-  } else {
-    lastActivity = Date.now()
-  }
-})
-
-db.auth.onAuthStateChange(async (event, session) => {
+db.auth.onAuthStateChange((event, session) => {
   if (event === 'TOKEN_REFRESHED') return
   if (event === 'PASSWORD_RECOVERY') {
     recoveryMode = true
@@ -522,23 +474,12 @@ db.auth.onAuthStateChange(async (event, session) => {
     showView('view-login')
     return
   }
-  // SIGNED_IN fires after login AND after updateUser — skip during recovery
-  if (event === 'SIGNED_IN' && !recoveryMode && session) {
-    const createdAt  = new Date(session.user.created_at).getTime()
-    const lastSignIn = new Date(session.user.last_sign_in_at).getTime()
-  if (Math.abs(createdAt - lastSignIn) < 5000) {
-      toast('Welcome! Your account has been created successfully.', 'success')
-    }
-  try { await loadDashboard() } catch { showView('view-login') }
-  }
 })
 
-// ── Google OAuth ───────────────────────────────────────────────
 document.getElementById('btn-google-login').addEventListener('click', async () => {
   await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/booking-account.html' } })
 })
 
-// ── Login ──────────────────────────────────────────────────────
 document.getElementById('btn-login').addEventListener('click', login)
 document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') login() })
 
@@ -570,7 +511,6 @@ async function login() {
   try { await loadDashboard() } catch { showView('view-login') }
 }
 
-// ── Forgot password ────────────────────────────────────────────
 document.getElementById('btn-goto-forgot').addEventListener('click', () => showView('view-forgot'))
 document.getElementById('btn-back-to-login').addEventListener('click', () => showView('view-login'))
 document.getElementById('btn-back-login-2').addEventListener('click', () => showView('view-login'))
@@ -597,7 +537,6 @@ document.getElementById('btn-send-reset').addEventListener('click', async () => 
   showView('view-reset-sent')
 })
 
-// ── Set password (recovery flow) ───────────────────────────────
 document.getElementById('btn-set-pw').addEventListener('click', async () => {
   const pw    = document.getElementById('new-pw').value
   const pw2   = document.getElementById('new-pw-confirm').value
@@ -618,19 +557,16 @@ document.getElementById('btn-set-pw').addEventListener('click', async () => {
     return
   }
 
-  // Clear recovery hash from URL bar
   history.replaceState(null, '', window.location.pathname)
   recoveryMode = false
   toast('Password set successfully!', 'success')
-  await loadDashboard()
+  try { await loadDashboard() } catch { showView('view-login') }
 })
 
-// ── Sign out ───────────────────────────────────────────────────
 document.getElementById('btn-signout').addEventListener('click', async () => {
   await db.auth.signOut()
 })
 
-// ── Dashboard ──────────────────────────────────────────────────
 async function loadDashboard() {
   if (isLoadingDashboard) return
   isLoadingDashboard = true
@@ -638,8 +574,9 @@ async function loadDashboard() {
   if (loginEl) loginEl.style.display = 'none'
   showView('view-loading')
 
-  const { data: { user }, error: userErr } = await db.auth.getUser()
-  if (userErr || !user) { isLoadingDashboard = false; showView('view-login'); return }
+  const { data: { session }, error: sessErr } = await db.auth.getSession()
+  const user = session?.user
+  if (sessErr || !user) { isLoadingDashboard = false; showView('view-login'); return }
   currentUser = user
 
   const firstName = user.user_metadata?.full_name?.split(' ')[0] || null
@@ -698,7 +635,6 @@ function renderBookings() {
 
   list.innerHTML = html
 
-  // Wire up events after DOM insertion
   list.querySelectorAll('[data-action="modify-toggle"]').forEach(el => {
     el.addEventListener('click', () => {
       const form = document.getElementById('mf-' + el.dataset.id)
@@ -786,7 +722,6 @@ function bookingCardHtml(b) {
     </div>`
 }
 
-// ── Cancel modal ───────────────────────────────────────────────
 let _cmResolve = null
 
 function showCancelModal(isLast48, amount) {
@@ -820,7 +755,6 @@ document.getElementById('cancel-backdrop').addEventListener('click', e => {
   if (e.target.id === 'cancel-backdrop') _closeCancelModal(false)
 })
 
-// ── Cancel booking ─────────────────────────────────────────────
 async function cancelBooking(id, date, payMethod) {
   const b        = allBookings.find(x => x.id === id)
   const dObj     = date ? new Date(date + 'T12:00:00') : null
@@ -834,7 +768,6 @@ async function cancelBooking(id, date, payMethod) {
 
   if (error) { toast('Something went wrong. Please contact us directly.', 'error'); return }
 
-  // Notify admin (fire-and-forget, non-blocking)
   fetch(FORMSPREE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -852,12 +785,10 @@ async function cancelBooking(id, date, payMethod) {
 
   toast(isLast48 ? 'Booking cancelled (no refund applies).' : 'Booking cancelled successfully.', 'success')
 
-  // Update local state and re-render without a full network round-trip
   allBookings = allBookings.map(x => x.id === id ? { ...x, status: 'cancelled' } : x)
   renderBookings()
 }
 
-// ── Modify request ─────────────────────────────────────────────
 async function sendModifyRequest(id) {
   const b   = allBookings.find(x => x.id === id)
   const msg = document.getElementById('mm-' + id)?.value?.trim()
@@ -893,7 +824,6 @@ async function sendModifyRequest(id) {
   btn.textContent = 'Send request'; btn.disabled = false
 }
 
-// ── Helpers ────────────────────────────────────────────────────
 function statusBadgeHtml(s) {
   const map = {
     confirmed: ['status-confirmed', 'Confirmed'],
@@ -912,26 +842,6 @@ function toast(msg, type = '') {
   clearTimeout(_toastTimer)
   _toastTimer = setTimeout(() => { el.className = '' }, 3500)
 }
-
-document.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState !== 'visible') return
-  const loading = document.getElementById('view-loading')
-  if (!loading || loading.style.display === 'none') return
-  // Pagina tornata in focus con spinner attivo — resetta
-  try {
-    const { data: { session } } = await Promise.race([
-      db.auth.getSession(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 2000))
-    ])
-    if (session) {
-      try { await loadDashboard() } catch { showView('view-login') }
-    } else {
-      showView('view-login')
-    }
-  } catch {
-    showView('view-login')
-  }
-})
 </script>
 </body>
 </html>
