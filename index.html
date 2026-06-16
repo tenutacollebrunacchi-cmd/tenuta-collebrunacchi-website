@@ -99,6 +99,66 @@
     button { cursor: pointer; border: none; background: none; font-family: inherit; }
 
     /* =============================================
+       PRELOADER / CURTAIN
+    ============================================= */
+    #curtain {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: var(--verde);
+      color: var(--cream);
+      transition: transform 1.2s cubic-bezier(0.76, 0, 0.24, 1), opacity 1.2s ease;
+      will-change: transform, opacity;
+    }
+    #curtain.lift {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .curtain-number {
+      font-family: var(--font-serif);
+      font-size: clamp(56px, 12vw, 120px);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: var(--gold-light);
+    }
+    .curtain-bar {
+      width: 0;
+      height: 2.5px;
+      background: var(--gold);
+      box-shadow: 0 0 14px rgba(196,164,86,0.7);
+      opacity: 0;
+      animation: curtainBarGrow 1.05s cubic-bezier(0.2,0.7,0.2,1) 0.45s forwards;
+    }
+    @keyframes curtainBarGrow {
+      0%   { width: 0; opacity: 0; }
+      12%  { opacity: 1; }
+      100% { width: min(260px, 46vw); opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .curtain-bar { animation: none; width: min(260px,46vw); opacity: 1; }
+    }
+    .curtain-name {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0.85;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #curtain { transition: opacity 0.4s ease; }
+      #curtain.lift { transform: none; }
+    }
+
+    /* =============================================
        UTILITIES
     ============================================= */
     .container {
@@ -461,6 +521,27 @@
       animation: heroFade 1s 0.9s forwards;
     }
 
+    .hero-reviews-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: -28px 0 32px;
+      font-size: 13px;
+      letter-spacing: .3px;
+      color: rgba(255, 255, 255, 0.62);
+      text-decoration: none;
+      opacity: 0;
+      animation: heroFade 1s 1s forwards;
+      transition: color .3s ease, opacity .3s ease;
+    }
+    .hero-reviews-badge::before {
+      content: "★★★★★";
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+    .hero-reviews-badge strong { color: rgba(255, 255, 255, 0.9); font-weight: 600; }
+    .hero-reviews-badge:hover { color: rgba(255, 255, 255, 0.92); }
+
     .hero-trust {
       display: flex;
       gap: 28px;
@@ -476,9 +557,19 @@
       font-size: 12px;
       color: rgba(255,255,255,0.78);
       font-weight: 400;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.25s ease, opacity 0.25s ease;
+    }
+    .trust-badge:hover {
+      color: rgba(255,255,255,1);
+    }
+    .trust-badge:hover .icon {
+      color: var(--gold);
     }
     .trust-badge .icon {
       font-size: 14px;
+      transition: color 0.25s ease;
     }
 
     @keyframes heroFade {
@@ -537,22 +628,40 @@
     }
 
     .pillar {
+      position: relative;
       background: var(--cream);
       padding: 44px 32px;
-      transition: background 0.25s, transform 0.25s;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.2,0.7,0.2,1);
     }
-    .pillar:hover {
+    .pillar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
       background: var(--verde-mid);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+      pointer-events: none;
     }
+    .pillar:hover::before,
+    .pillar.wave::before { opacity: 1; }
+    .pillar > * { position: relative; z-index: 1; }
+    .pillar:hover { transform: translateY(-4px); }
     .pillar:hover .pillar-title,
-    .pillar:hover .pillar-text { color: var(--white); }
-    .pillar:hover .pillar-icon { color: var(--gold); }
+    .pillar:hover .pillar-text,
+    .pillar.wave .pillar-title,
+    .pillar.wave .pillar-text { color: var(--white); }
+    .pillar:hover .pillar-icon,
+    .pillar.wave .pillar-icon { color: var(--gold); }
+    .pillar:hover .pillar-num,
+    .pillar.wave .pillar-num { color: var(--gold-light); }
 
     .pillar-icon {
       font-size: 28px;
       margin-bottom: 20px;
       color: var(--terra);
-      transition: color 0.25s;
+      transition: color 0.45s ease;
       line-height: 1;
     }
 
@@ -564,9 +673,8 @@
       color: var(--terra-light);
       margin-bottom: 10px;
       display: block;
-      transition: color 0.25s;
+      transition: color 0.45s ease;
     }
-    .pillar:hover .pillar-num { color: var(--gold-light); }
 
     .pillar-title {
       font-family: var(--font-serif);
@@ -574,14 +682,14 @@
       font-weight: 500;
       color: var(--charcoal);
       margin-bottom: 12px;
-      transition: color 0.25s;
+      transition: color 0.45s ease;
     }
 
     .pillar-text {
       font-size: 14px;
       color: var(--warm-gray);
       line-height: 1.7;
-      transition: color 0.25s;
+      transition: color 0.45s ease;
     }
 
     /* =============================================
@@ -916,8 +1024,12 @@
       font-size: 13px;
       color: rgba(255,255,255,0.55);
       margin-top: 6px;
+      text-align: center;
+      margin-bottom: 40px;
     }
     .reviews-aggregate strong { color: var(--gold); }
+    .reviews-aggregate-stars { color: var(--gold); font-size: 15px; }
+    .reviews-aggregate-note { display: block; font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 4px; }
 
     /* Single featured review */
     .reviews-grid {
@@ -959,6 +1071,15 @@
       background: #FF6C2F;
       color: #fff;
     }
+    .review-platform-icon.viator {
+      background: #189B62;
+      color: #fff;
+    }
+    .review-card--verify { display: flex; flex-direction: column; gap: 12px; }
+    .review-verify-text { font-size: 14px; color: rgba(255,255,255,0.65); margin: 0; }
+    .review-verify-links { display: flex; flex-direction: column; gap: 8px; }
+    .review-verify-links a { color: var(--gold); font-size: 13px; font-weight: 600; text-decoration: none; }
+    .review-verify-links a:hover { text-decoration: underline; }
 
     .review-platform-name {
       font-size: 11px;
@@ -1715,7 +1836,7 @@
       .gallery-item:hover::after { opacity: 0; }
       .step-img:hover img      { transform: none; }
       .price-card:hover        { transform: none; box-shadow: none; }
-      .pillar:hover            { background: var(--cream); }
+      .pillar:hover::before    { opacity: 0; }
       .pillar:hover .pillar-title { color: var(--charcoal); }
       .pillar:hover .pillar-text  { color: var(--warm-gray); }
       .pillar:hover .pillar-icon  { color: var(--terra); }
@@ -2198,6 +2319,15 @@
 <body>
 
   <!-- ============================================================
+       PRELOADER / CURTAIN
+  ============================================================ -->
+  <div id="curtain" role="presentation" aria-hidden="true">
+    <span class="curtain-number">1316</span>
+    <span class="curtain-bar"></span>
+    <span class="curtain-name">Tenuta Collebrunacchi</span>
+  </div>
+
+  <!-- ============================================================
        COOKIE BANNER — Garante Privacy (Linee guida 2021)
   ============================================================ -->
   <div class="cookie-banner hidden" id="cookieBanner" role="dialog" aria-label="Cookie consent">
@@ -2289,19 +2419,20 @@
           <a href="#experience" class="btn btn-primary">Discover the Experience</a>
           <a href="#booking" class="btn btn-outline-light">Check Availability →</a>
         </div>
+        <a href="#reviews" class="hero-reviews-badge"><strong>500+</strong> verified reviews · <strong>4.9</strong>/5</a>
         <div class="hero-trust">
-          <div class="trust-badge">
+          <a class="trust-badge" href="#reviews">
             <span class="icon">⭐</span>
             <span>5.0 on GetYourGuide</span>
-          </div>
-          <div class="trust-badge">
+          </a>
+          <a class="trust-badge" href="#dog">
             <span class="icon">🐾</span>
             <span>Levante &amp; Ares — Certified Lagotto Romagnolo</span>
-          </div>
-          <div class="trust-badge">
+          </a>
+          <a class="trust-badge" href="#faq">
             <span class="icon">✓</span>
             <span>Free cancellation · 48h</span>
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -2570,6 +2701,12 @@
         <h2 class="section-title light">After their morning in the forest</h2>
       </div>
 
+      <div class="reviews-aggregate fade-in">
+        <span class="reviews-aggregate-stars">★★★★★</span>
+        <strong>500+</strong> verified reviews · <strong>4.9</strong>/5 average
+        <span class="reviews-aggregate-note">across Francesca's truffle-hunting experiences on partner platforms</span>
+      </div>
+
       <!-- ★ SINGLE VERIFIED REVIEW ───────────────────────────────
            SOURCE: GetYourGuide · 5 stars · United States · March 2026
            TODO: paste the exact review text inside the <p> below,
@@ -2579,6 +2716,18 @@
     <div class="reviews-carousel fade-in">
       <button class="rev-nav rev-prev" id="revPrev" aria-label="Previous">‹</button>
       <div class="reviews-grid" id="reviewsGrid">
+        <div class="review-card review-card--verify">
+          <div class="review-platform-badge">
+            <div class="review-platform-icon viator">V</div>
+            <span class="review-platform-name">Verified on Viator</span>
+          </div>
+          <div class="review-stars">★★★★★ · 4.9/5 · 500+ reviews</div>
+          <p class="review-verify-text">Read all verified guest reviews of Francesca's truffle experience directly on Viator.</p>
+          <div class="review-verify-links">
+            <a href="https://www.viator.com/it-IT/tours/Florence/Truffles-Stroll-With-Lunch/d519-127122P1" target="_blank" rel="noopener noreferrer">Truffle experience reviews · 386 reviews →</a>
+            <a href="https://www.viator.com/it-IT/tours/Florence/Small-Group-Truffle-Hunting-and-Wine-Experience-from-Florence-with-Lunch/d519-7428TRUFFLE" target="_blank" rel="noopener noreferrer">Truffle experience reviews · transport included · 138 reviews →</a>
+          </div>
+        </div>
         <div class="review-card">
           <div class="review-platform-badge">
             <div class="review-platform-icon gyg">G</div>
@@ -3107,6 +3256,41 @@
       }
     })();
 
+    // ─── Preloader Curtain (min 1500ms, max 2500ms) ───────────
+    (function () {
+      const curtain = document.getElementById('curtain');
+      if (!curtain) return;
+
+      const startTime = Date.now();
+      const MIN = 1500, MAX = 2500;
+      let lifted = false;
+
+      // Idempotent: animate the curtain up, then remove from flow.
+      function lift() {
+        if (lifted) return;
+        lifted = true;
+        curtain.classList.add('lift');
+        setTimeout(() => { curtain.style.display = 'none'; }, 1200);
+      }
+
+      // Lift as soon as the video is ready, but never before MIN.
+      function requestLift() {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= MIN) lift();
+        else setTimeout(lift, MIN - elapsed);
+      }
+
+      const video = document.getElementById('heroVideo');
+      if (video) {
+        video.addEventListener('playing', requestLift, { once: true });
+        video.addEventListener('canplay', requestLift, { once: true });
+        video.addEventListener('error',   requestLift, { once: true });
+      }
+
+      // Absolute ceiling: call lift() directly so 2500ms is never exceeded.
+      setTimeout(lift, MAX);
+    })();
+
     // ─── Sticky Nav (rAF-throttled, no layout thrash) ─────────
     const nav = document.getElementById('nav');
     let navTicking = false;
@@ -3171,6 +3355,27 @@
       }
       observer.observe(el);
     });
+
+    // ─── Hook pillars — one-shot "wave" highlight on first view ──
+    if (!prefersReducedMotion) {
+      const hookSection = document.getElementById('hook');
+      if (hookSection) {
+        const pillars = hookSection.querySelectorAll('.pillar');
+        const waveObserver = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            pillars.forEach((pillar, i) => {
+              setTimeout(() => {
+                pillar.classList.add('wave');               // verde acceso
+                setTimeout(() => pillar.classList.remove('wave'), 900); // si spegne dolcemente
+              }, i * 120);                                   // onda sx → dx
+            });
+            obs.unobserve(entry.target);                     // one-shot
+          });
+        }, { threshold: 0.35 });
+        waveObserver.observe(hookSection);
+      }
+    }
 
     // ─── Gallery Lightbox ─────────────────────────────────────
     const galleryItems = document.querySelectorAll('.gallery-item');
@@ -3511,7 +3716,9 @@
     if (!grid) return
     const firstReviewer = document.querySelector('.reviews-first-reviewer')
     if (firstReviewer) firstReviewer.style.display = 'none'
-    grid.innerHTML = data.map(r => {
+    const verifyCard = grid.querySelector('.review-card--verify')
+    const verifyHTML = verifyCard ? verifyCard.outerHTML : ''
+    grid.innerHTML = verifyHTML + data.map(r => {
       const stars  = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
       const date   = new Date(r.created_at).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
       const src    = r.source || 'website'
