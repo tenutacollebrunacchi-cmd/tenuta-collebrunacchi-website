@@ -134,7 +134,10 @@
       background: var(--gold);
       box-shadow: 0 0 14px rgba(196,164,86,0.7);
       opacity: 0;
-      animation: curtainBarGrow 1.05s cubic-bezier(0.2,0.7,0.2,1) 0.45s forwards;
+      /* animazione avviata via JS quando la tenda parte */
+    }
+    #curtain.go .curtain-bar {
+      animation: curtainBarGrow 1.05s cubic-bezier(0.2,0.7,0.2,1) 0.15s forwards;
     }
     @keyframes curtainBarGrow {
       0%   { width: 0; opacity: 0; }
@@ -142,7 +145,7 @@
       100% { width: min(260px, 46vw); opacity: 1; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .curtain-bar { animation: none; width: min(260px,46vw); opacity: 1; }
+      #curtain.go .curtain-bar, .curtain-bar { animation: none; width: min(260px,46vw); opacity: 1; }
     }
     .curtain-name {
       font-family: var(--font-sans);
@@ -3262,7 +3265,8 @@
       if (!curtain) return;
 
       const startTime = Date.now();
-      const MIN = 1500, MAX = 2500;
+      requestAnimationFrame(() => curtain.classList.add('go'));
+      const MIN = 1600, MAX = 2500;
       let lifted = false;
 
       // Idempotent: animate the curtain up, then remove from flow.
