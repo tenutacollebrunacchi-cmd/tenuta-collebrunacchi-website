@@ -526,9 +526,10 @@ db.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && !recoveryMode && session) {
     const createdAt  = new Date(session.user.created_at).getTime()
     const lastSignIn = new Date(session.user.last_sign_in_at).getTime()
-    if (Math.abs(createdAt - lastSignIn) < 5000) {
+  if (Math.abs(createdAt - lastSignIn) < 5000) {
       toast('Welcome! Your account has been created successfully.', 'success')
     }
+  try { await loadDashboard() } catch { showView('view-login') }
   }
 })
 
