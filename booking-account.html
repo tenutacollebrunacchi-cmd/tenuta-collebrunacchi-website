@@ -649,6 +649,7 @@ async function loadDashboard() {
     const { data, error } = await db
       .from('bookings')
       .select('id,name,email,persons,type,status,payment_method,amount_eur,booking_token,created_at,slots(date,time)')
+      .eq('email', (user.email || '').toLowerCase())
       .order('created_at', { ascending: false })
     allBookings = (error ? [] : data) || []
   } catch { allBookings = [] }

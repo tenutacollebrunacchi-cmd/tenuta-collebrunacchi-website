@@ -257,8 +257,8 @@
     const btns = TIME_SLOTS.map(t => {
       const sl = S.dateSlots.find(s => s.time.slice(0,5) === t)
       if (!sl)                            return slotBtn(t,'Unavailable','bw-sl--none',  true)
-      if (sl.is_private_blocked)          return slotBtn(t,'Booked',    'bw-sl--priv',  false, null, slotAskUrl(t))
-      if (Number(sl.capacity_left) === 0) return slotBtn(t,'Full',      'bw-sl--full',  false, null, slotAskUrl(t))
+      if (sl.is_private_blocked)          return slotBtn(t,'Sold out',  'bw-sl--priv',  false, null, slotAskUrl(t))
+      if (Number(sl.capacity_left) === 0) return slotBtn(t,'Sold out',  'bw-sl--full',  false, null, slotAskUrl(t))
       const isSlotEmpty = Number(sl.capacity_left) === MAX_GUESTS
       const slMin = isSlotEmpty ? (S.slotMinimums[t] || 1) : 1
       const lbl = slMin > 1
