@@ -564,8 +564,10 @@ async function login() {
     errEl.textContent = (error.message.includes('Invalid login') || error.message.includes('credentials'))
       ? 'Email or password incorrect. Try "Forgot password" if you haven\'t set one yet.'
       : error.message
+    return
   }
-  // On success: onAuthStateChange SIGNED_IN fires → loadDashboard
+  recoveryMode = false
+  try { await loadDashboard() } catch { showView('view-login') }
 }
 
 // ── Forgot password ────────────────────────────────────────────
