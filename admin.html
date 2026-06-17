@@ -1639,7 +1639,7 @@ async function deleteReview(id){
       if (paths.length) await db.storage.from('review-photos').remove(paths);
     }
     const { error } = await db.from('reviews').delete().eq('id', id);
-    if (!error) loadReviewsAdmin();
+    if (!error) { loadReviewsAdmin(); } else { alert('Errore eliminazione: ' + error.message); }
   }
 
   async function approveReview(id){
