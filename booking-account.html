@@ -173,6 +173,8 @@
       font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
       color: var(--terra); margin-bottom: 14px; display: block;
     }
+    .section-lbl--sep { margin-top: 38px; padding-top: 26px; border-top: 1px solid var(--border); }
+    .booking-card--muted { opacity: .78; }
 
     .booking-card {
       background: var(--white); border: 1.5px solid var(--border);
@@ -614,24 +616,29 @@ function renderBookings() {
 
   const now = new Date(); now.setHours(0,0,0,0)
 
+  const isClosed = s => s === 'cancelled' || s === 'refunded'
+
   const upcoming = allBookings.filter(b => {
     const d = b.slots?.date ? new Date(b.slots.date + 'T00:00:00') : null
-    return d && d >= now && b.status !== 'cancelled'
+    return d && d >= now && !isClosed(b.status)
   })
-  const past = allBookings.filter(b => {
+  const completed = allBookings.filter(b => {
     const d = b.slots?.date ? new Date(b.slots.date + 'T00:00:00') : null
-    return !d || d < now || b.status === 'cancelled'
+    return (!d || d < now) && !isClosed(b.status)
   })
+  const cancelled = allBookings.filter(b => isClosed(b.status))
 
   let html = ''
-  if (upcoming.length) {
-    html += `<span class="section-lbl">Upcoming</span>`
-    upcoming.forEach(b => { html += bookingCardHtml(b) })
+  let first = true
+  const addSection = (label, items, muted) => {
+    if (!items.length) return
+    html += `<span class="section-lbl${first ? '' : ' section-lbl--sep'}">${label}</span>`
+    first = false
+    items.forEach(b => { html += bookingCardHtml(b, muted) })
   }
-  if (past.length) {
-    html += `<span class="section-lbl" style="margin-top:${upcoming.length ? '28px' : '0'}">Past &amp; Cancelled</span>`
-    past.forEach(b => { html += bookingCardHtml(b) })
-  }
+  addSection('Upcoming', upcoming, false)
+  addSection('Completed', completed, false)
+  addSection('Cancelled', cancelled, true)
 
   list.innerHTML = html
 
@@ -649,7 +656,7 @@ function renderBookings() {
   })
 }
 
-function bookingCardHtml(b) {
+function bookingCardHtml(b, muted) {
   const date    = b.slots?.date?.slice(0,10) || ''
   const time    = b.slots?.time?.slice(0,5)  || '—'
   const dObj    = date ? new Date(date + 'T12:00:00') : null
@@ -697,7 +704,7 @@ function bookingCardHtml(b) {
     </div>` : ''
 
   return `
-    <div class="booking-card">
+    <div class="booking-card${muted ? ' booking-card--muted' : ''}">
       <div class="booking-card-header">
         <div class="booking-date-badge">
           <div class="day">${day}</div>
@@ -829,6 +836,7 @@ function statusBadgeHtml(s) {
     confirmed: ['status-confirmed', 'Confirmed'],
     pending:   ['status-pending',   'Pending'],
     cancelled: ['status-cancelled', 'Cancelled'],
+    refunded:  ['status-cancelled', 'Refunded'],
   }
   const [cls, label] = map[s] || ['', s]
   return `<span class="status-badge ${cls}" style="align-self:flex-start"><span class="dot"></span>${label}</span>`
