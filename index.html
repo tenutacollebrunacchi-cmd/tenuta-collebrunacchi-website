@@ -18,6 +18,30 @@
   <meta name="twitter:image" content="https://tenutacollebrunacchi.com/assets/img/og-image.jpg">
   <meta property="og:url" content="https://tenutacollebrunacchi.com">
 
+  <!-- Google Consent Mode v2 — default DENIED (must run before any other script) -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    window.gtag = gtag;
+    gtag('consent', 'default', {
+      ad_storage:        'denied',
+      analytics_storage: 'denied',
+      ad_user_data:      'denied',
+      ad_personalization:'denied',
+      wait_for_update:   500
+    });
+    try {
+      if (localStorage.getItem('hts_cookie_consent') === 'all') {
+        gtag('consent', 'update', {
+          ad_storage:        'granted',
+          analytics_storage: 'granted',
+          ad_user_data:      'granted',
+          ad_personalization:'granted'
+        });
+      }
+    } catch (e) { /* localStorage unavailable — keep denied default */ }
+  </script>
+
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -3511,6 +3535,12 @@
 
       accept.addEventListener('click', () => {
         localStorage.setItem(COOKIE_KEY, 'all');
+        window.gtag && window.gtag('consent', 'update', {
+          ad_storage:        'granted',
+          analytics_storage: 'granted',
+          ad_user_data:      'granted',
+          ad_personalization:'granted'
+        });
         loadAnalytics();
         hideBanner();
       });
@@ -3597,6 +3627,11 @@
           });
 
           if (response.ok) {
+            try {
+              window.gtag && window.gtag('event', 'Contact', {
+                event_category: 'contact_form'
+              });
+            } catch (e) { /* tracking non disponibile */ }
             // Hide form, show success message
             form.style.display = 'none';
             successEl.style.display = 'block';

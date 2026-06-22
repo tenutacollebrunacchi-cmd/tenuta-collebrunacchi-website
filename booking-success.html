@@ -6,6 +6,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prenotazione Confermata — Tenuta Collebrunacchi</title>
   <meta name="robots" content="noindex, nofollow">
+  <!-- Google Consent Mode v2 + GA4 purchase (thank-you page) -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    window.gtag = gtag;
+    gtag('consent', 'default', {
+      ad_storage:'denied', analytics_storage:'denied',
+      ad_user_data:'denied', ad_personalization:'denied',
+      wait_for_update:500
+    });
+    try {
+      if (localStorage.getItem('hts_cookie_consent') === 'all') {
+        gtag('consent','update', {
+          ad_storage:'granted', analytics_storage:'granted',
+          ad_user_data:'granted', ad_personalization:'granted'
+        });
+        var gaScript = document.createElement('script');
+        gaScript.async = true;
+        gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HQBJQC0L1';
+        document.head.appendChild(gaScript);
+        gtag('js', new Date());
+        gtag('config', 'G-1HQBJQC0L1');
+        var purchaseParams = new URLSearchParams(window.location.search);
+        var purchaseValue = parseFloat(purchaseParams.get('importo'));
+        gtag('event', 'purchase', {
+          transaction_id: purchaseParams.get('token') || undefined,
+          value: isNaN(purchaseValue) ? undefined : purchaseValue,
+          currency: 'EUR'
+        });
+      }
+    } catch (e) { /* consenso non concesso o localStorage non disponibile */ }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">

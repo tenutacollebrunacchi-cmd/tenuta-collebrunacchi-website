@@ -710,6 +710,15 @@
         _submitLock = false
         S.arrivalToken = data.token || null
         S.step = 'arrival_sent'
+        try {
+          var leadPrice = (PRICES[S.bookingType] && PRICES[S.bookingType].arrival) || 0;
+          var leadValue = leadPrice * S.persons;
+          window.gtag && window.gtag('event', 'generate_lead', {
+            value: leadValue || undefined,
+            currency: 'EUR',
+            booking_type: S.bookingType
+          });
+        } catch (e) { /* tracking non disponibile */ }
         render()
       } catch (err) {
         console.error('Arrival booking error:', err)
@@ -754,6 +763,15 @@
       }
 
       if (data.url) {
+        try {
+          var coPrice = (PRICES[S.bookingType] && PRICES[S.bookingType].online) || 0;
+          var coValue = coPrice * S.persons;
+          window.gtag && window.gtag('event', 'begin_checkout', {
+            value: coValue || undefined,
+            currency: 'EUR',
+            booking_type: S.bookingType
+          });
+        } catch (e) { /* tracking non disponibile */ }
         S.step = 'redirecting'; render()
         const _ol = document.createElement('div')
         _ol.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(242,237,227,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;'
