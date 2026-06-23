@@ -105,7 +105,7 @@
       --shadow-lg:    0 12px 48px rgba(0,0,0,0.14);
     }
 
-    html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 113px; }
+    html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 88px; }
 
     body {
       font-family: var(--font-sans);
@@ -3735,25 +3735,6 @@
   </script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('a[href^="#"]').forEach(link => {
-        const hash = link.getAttribute('href');
-        if (hash === '#') return;
-        link.addEventListener('click', function(e) {
-          const target = document.getElementById(hash.slice(1));
-          if (!target) return;
-          e.preventDefault();
-          const doScroll = () => {
-            const navbar = document.getElementById('nav') || document.querySelector('nav');
-            const navHeight = navbar ? (navbar.classList.contains('scrolled') ? 80 : 113) : 80;
-            const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
-            window.scrollTo({ top, behavior: 'smooth' });
-          };
-          doScroll();
-          setTimeout(doScroll, 450);
-        });
-      });
-    });
 
 ;(async function loadReviews() {
   const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
