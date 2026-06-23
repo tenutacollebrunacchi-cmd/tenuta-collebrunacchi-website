@@ -1388,6 +1388,7 @@
       .direct-banner-inner    { flex-wrap: wrap; gap: 12px; }
       .direct-banner-badge    { order: -1; }
       .direct-banner-copy strong { font-size: 14px; }
+      #contactForm #cfSubmitBtn { width: 100%; padding-top: 15px; padding-bottom: 15px; }
     }
 
     .pricing-grid {
@@ -2043,7 +2044,7 @@
       width: 100%;
       padding: 13px 16px;
       font-family: var(--font-sans);
-      font-size: 14px;
+      font-size: 16px;
       color: var(--charcoal);
       background: var(--white);
       border: 1.5px solid var(--border);
@@ -3588,17 +3589,26 @@
       // Inline validation: highlight required empty fields
       function validate() {
         let valid = true;
+        let firstInvalid = null;
         ['cf-name', 'cf-email', 'cf-message'].forEach(id => {
           const el = document.getElementById(id);
           if (!el.value.trim()) {
             el.style.borderColor = '#C0392B';
             valid = false;
+            if (!firstInvalid) firstInvalid = el;
           }
         });
         const cfEmailEl = document.getElementById('cf-email');
         if (cfEmailEl && cfEmailEl.value.trim() && !isValidEmail(cfEmailEl.value.trim())) {
           showEmailError(cfEmailEl, 'Please enter a valid email address.');
           valid = false;
+          if (!firstInvalid) firstInvalid = cfEmailEl;
+        }
+        if (!valid && firstInvalid) {
+          try {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus({ preventScroll: true });
+          } catch (e) { firstInvalid.focus(); }
         }
         return valid;
       }
