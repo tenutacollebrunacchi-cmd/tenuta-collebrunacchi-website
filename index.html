@@ -3735,6 +3735,31 @@
   </script>
 
   <script>
+    (function() {
+      document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+        var hash = link.getAttribute('href');
+        if (hash === '#' || hash.length < 2) return;
+        link.addEventListener('click', function(e) {
+          var target = document.getElementById(hash.slice(1));
+          if (!target) return;
+          e.preventDefault();
+          var scrollToTarget = function() {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+          scrollToTarget();
+          // Re-aggancia il bersaglio mentre il layout si assesta (font swap, immagini)
+          var tries = 0;
+          var iv = setInterval(function() {
+            scrollToTarget();
+            tries++;
+            if (tries >= 6) clearInterval(iv);
+          }, 120);
+          if (history.replaceState) history.replaceState(null, '', hash);
+        });
+      });
+    })();
+  </script>
+  <script>
 
 ;(async function loadReviews() {
   const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
