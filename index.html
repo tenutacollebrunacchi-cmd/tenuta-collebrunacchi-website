@@ -468,6 +468,81 @@
       to   { transform: scale(1.07); }
     }
 
+    /* ─── Video Section (lazy YouTube embed) ─── */
+    .video-section {
+      background: var(--ivory);
+      padding: 20px 0 100px;
+    }
+    .video-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .video-wrapper {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      cursor: pointer;
+      background: #000;
+    }
+    .video-wrapper img.video-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .6s ease, opacity .4s ease;
+    }
+    .video-wrapper:hover img.video-thumb {
+      transform: scale(1.04);
+    }
+    .video-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(rgba(15,20,12,0.15), rgba(15,20,12,0.35));
+      transition: background .3s ease;
+    }
+    .video-wrapper:hover .video-play-overlay {
+      background: linear-gradient(rgba(15,20,12,0.05), rgba(15,20,12,0.25));
+    }
+    .video-play-btn {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.4);
+      transition: transform .3s cubic-bezier(0.16,1,0.3,1), background .3s ease;
+    }
+    .video-wrapper:hover .video-play-btn {
+      transform: scale(1.08);
+      background: var(--gold-light);
+    }
+    .video-play-btn svg {
+      width: 32px;
+      height: 32px;
+      margin-left: 4px;
+      fill: var(--charcoal);
+    }
+    .video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    @media (max-width: 600px) {
+      .video-section { padding: 64px 0; }
+      .video-play-btn { width: 64px; height: 64px; }
+      .video-play-btn svg { width: 24px; height: 24px; }
+    }
+
     .hero-overlay {
       position: absolute;
       inset: 0;
@@ -2574,6 +2649,26 @@
   </section>
 
   <!-- ============================================================
+       VIDEO — Tenuta presentation
+  ============================================================ -->
+  <section class="video-section" id="video">
+    <div class="container">
+      <div class="video-header fade-in">
+        <span class="section-label">Watch</span>
+        <h2 class="section-title">Step into our world</h2>
+      </div>
+      <div class="video-wrapper fade-in" id="videoWrapper" data-video-id="DXXdr802Oqw">
+        <img class="video-thumb" src="https://img.youtube.com/vi/DXXdr802Oqw/maxresdefault.jpg" alt="Tenuta di Collebrunacchi — video" loading="lazy" decoding="async">
+        <div class="video-play-overlay">
+          <div class="video-play-btn" role="button" aria-label="Play video">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
        HOST — FRANCESCA
   ============================================================ -->
   <section class="host" id="host">
@@ -3679,6 +3774,23 @@
   </script>
 
   <script>
+      (function() {
+        var wrapper = document.getElementById('videoWrapper');
+        if (!wrapper) return;
+        wrapper.addEventListener('click', function() {
+          var id = wrapper.getAttribute('data-video-id');
+          if (!id) return;
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('src', 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1');
+          iframe.setAttribute('title', 'Tenuta di Collebrunacchi');
+          iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+          iframe.setAttribute('allowfullscreen', '');
+          wrapper.innerHTML = '';
+          wrapper.appendChild(iframe);
+          wrapper.style.cursor = 'default';
+        }, { once: true });
+      })();
+
     (function() {
       document.querySelectorAll('a[href^="#"]').forEach(function(link) {
         var hash = link.getAttribute('href');
