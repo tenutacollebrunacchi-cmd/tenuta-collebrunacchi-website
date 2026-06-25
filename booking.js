@@ -99,19 +99,26 @@
       .gte('date', first).lte('date', last)
       .order('date').order('time')
     console.log('slots response:', data, error)
-    if (!error && data) { S.monthSlots = data; render() }
+    if (!error && data) { S.monthSlots = data }
+    const { data: blk } = await db.from('blocked_slots').select('date,time').gte('date', first).lte('date', last)
+    S.monthBlocked = blk || []
+    if (!error && data) { render() }
   }
 
   async function fetchDateSlots (date) {
-    const [slotsRes, minimumsRes] = await Promise.all([
+    const [slotsRes, minimumsRes, blockedRes] = await Promise.all([
       db.from('slots')
         .select('id,date,time,capacity_left,is_private_blocked')
         .eq('date', date).order('time'),
       db.from('slot_minimums')
         .select('time,min_persons')
+        .eq('date', date),
+      db.from('blocked_slots')
+        .select('date,time')
         .eq('date', date)
     ])
     if (!slotsRes.error && slotsRes.data) S.dateSlots = slotsRes.data
+    S.dateBlocked = blockedRes.data || []
     S.slotMinimums = {}
     ;(minimumsRes.data || []).forEach(m => {
       S.slotMinimums[m.time.slice(0,5)] = m.min_persons
@@ -256,7 +263,9 @@
 
     const btns = TIME_SLOTS.map(t => {
       const sl = S.dateSlots.find(s => s.time.slice(0,5) === t)
+      const isBlocked = (S.dateBlocked || []).some(b => b.time == null || (b.time || '').slice(0,5) === t)
       if (!sl)                            return slotBtn(t,'Unavailable','bw-sl--none',  true)
+      if (isBlocked)                      return slotBtn(t,'Sold out',  'bw-sl--full',  false, null, slotAskUrl(t))
       if (sl.is_private_blocked)          return slotBtn(t,'Sold out',  'bw-sl--priv',  false, null, slotAskUrl(t))
       if (Number(sl.capacity_left) === 0) return slotBtn(t,'Sold out',  'bw-sl--full',  false, null, slotAskUrl(t))
       const isSlotEmpty = Number(sl.capacity_left) === MAX_GUESTS
@@ -806,9 +815,15 @@
   function dayAvail (dateStr) {
     const slots = S.monthSlots.filter(s => (s.date ?? '').slice(0, 10) === dateStr)
     if (!slots.length) return 'none'
+    const blk = (S.monthBlocked || []).filter(b => (b.date ?? '').slice(0,10) === dateStr)
+    const dayFullyBlocked = blk.some(b => b.time == null)
+    if (dayFullyBlocked) return 'full'
+    const blockedTimes = new Set(blk.map(b => (b.time || '').slice(0,5)))
+    const free = slots.filter(s => !blockedTimes.has((s.time || '').slice(0,5)))
+    if (!free.length) return 'full'
     const needed = S.groupFilter < 10 ? S.groupFilter : 1
-    if (slots.some(s => !s.is_private_blocked && Number(s.capacity_left) >= needed)) return 'available'
-    if (slots.some(s => !s.is_private_blocked && Number(s.capacity_left) > 0)) return 'full'
+    if (free.some(s => !s.is_private_blocked && Number(s.capacity_left) >= needed)) return 'available'
+    if (free.some(s => !s.is_private_blocked && Number(s.capacity_left) > 0)) return 'full'
     return 'full'
   }
 
