@@ -2394,6 +2394,10 @@
 .review-photo{width:72px;height:72px;object-fit:cover;border-radius:6px;cursor:pointer;
   transition:transform .15s,opacity .15s}
 .review-photo:hover{transform:scale(1.05);opacity:.9}
+    .review-quote.clamped{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px}
+    .review-more{background:none;border:0;padding:0;cursor:pointer;font-family:inherit;color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:18px}
+    .review-more:hover{text-decoration:underline}
+    .review-more[hidden]{display:none}
 .rev-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(15,12,8,0.92);
   display:none;align-items:center;justify-content:center}
 .rev-lightbox.open{display:flex}
@@ -3844,7 +3848,7 @@
         <span class="review-platform-name">Verified on ${sourceLabels[src]}</span>
       </div>`
       const quote  = r.body && r.body !== '★★★★★'
-        ? `<p class="review-quote">"${r.body}"</p>` : ''
+        ? `<p class="review-quote clamped">"${r.body}"</p><button class="review-more" type="button" hidden>Read more</button>` : ''
       const photos = (Array.isArray(r.photo_urls) && r.photo_urls.length)
         ? `<div class="review-photos">${r.photo_urls.map((u,i)=>`<img src="${u}" loading="lazy" alt="Guest photo" class="review-photo" data-photos='${JSON.stringify(r.photo_urls).replace(/'/g,"&#39;")}' data-index="${i}">`).join('')}</div>`
         : ''
@@ -3859,6 +3863,25 @@
         ${photos}
       </div>`
     }).join('')
+
+    // Read more / show less su recensioni lunghe
+    const wireReadMore = () => {
+      grid.querySelectorAll('.review-quote.clamped').forEach(q => {
+        const btn = q.nextElementSibling
+        if (!btn || !btn.classList.contains('review-more')) return
+        const overflowing = q.scrollHeight - 2 > q.clientHeight
+        btn.hidden = !overflowing
+        if (!overflowing) q.classList.remove('clamped')
+        if (!btn.dataset.bound) {
+          btn.dataset.bound = '1'
+          btn.addEventListener('click', () => {
+            btn.textContent = q.classList.toggle('clamped') ? 'Read more' : 'Show less'
+          })
+        }
+      })
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(wireReadMore)
+    else wireReadMore()
 
     // Carosello: indice esplicito, scroll JS senza snap
     const prev = document.getElementById('revPrev')
