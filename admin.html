@@ -855,12 +855,15 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
 // ── Dashboard ─────────────────────────────────────────────────
 async function loadDashboard() {
   const { data: bookings } = await db.from('bookings')
-    .select('id,status,amount_eur,created_at,payment_method')
+    .select('id,status,amount_eur,created_at,payment_method,created_by')
     .order('created_at', { ascending: true })
 
   if (!bookings) return
 
-  const confirmed = bookings.filter(b => b.status === 'confirmed')
+  // Le prenotazioni inserite manualmente dal calendario staff (created_by valorizzato)
+  // non entrano nel fatturato ne' nelle statistiche: qui si misura solo il sito.
+  const siteBookings = bookings.filter(b => !b.created_by)
+  const confirmed = siteBookings.filter(b => b.status === 'confirmed')
   const totalRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
 
   const now = new Date()
