@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tenuta Collebrunacchi · Calendario prenotazioni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --ink:#1d231a; --ink-2:#2b3326;
+  --moss:#4a5a3d; --moss-soft:#6b7d5a;
+  --paper:#efece2; --paper-2:#e6e2d5;
+  --card:#faf8f1; --card-2:#f3efe4;
+  --line:#d8d3c4; --line-soft:#e6e1d3;
+  --ochre:#b07d2b; --ochre-soft:#d9b877; --ochre-tint:#f3e7cd;
+  --text:#292920; --text-soft:#6f6a5c; --text-faint:#9c9789;
+  --ok:#4d7c4d; --ok-bg:#e6efe0;
+  --wait:#b07d2b; --wait-bg:#f4e9cf;
+  --pending:#8a8576; --pending-bg:#eae6db;
+  --refund:#a6543e; --refund-bg:#f2e0d8;
+  --shadow:0 1px 2px rgba(29,35,26,.06), 0 8px 24px rgba(29,35,26,.07);
+  --radius:14px;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Inter',system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:15px}
+
+/* ---------- Login ---------- */
+#login-screen{
+  position:fixed;inset:0;background:var(--paper);z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.login-box{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:34px 32px;width:100%;max-width:380px;text-align:center;
+}
+.login-box .eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ochre);font-weight:700}
+.login-box h1{font-family:var(--serif);font-weight:500;font-size:30px;margin:4px 0 22px}
+.login-field{text-align:left;margin-bottom:14px}
+.login-field label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-soft);margin-bottom:6px}
+.login-field input{
+  width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);
+}
+.login-field input:focus{outline:none;border-color:var(--ochre);box-shadow:0 0 0 3px var(--ochre-tint)}
+.login-btn{
+  width:100%;margin-top:6px;background:var(--ochre);color:#fff;border:none;
+  padding:13px;border-radius:999px;font-weight:600;font-size:15px;
+  box-shadow:0 4px 14px rgba(176,125,43,.32);transition:background .15s ease;
+}
+.login-btn:hover{background:#9c6c22}
+.login-btn:disabled{opacity:.6;cursor:wait}
+.login-err{color:var(--refund);font-size:13px;margin-top:12px;min-height:18px}
+.login-note{font-size:12px;color:var(--text-faint);margin-top:16px}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  background:var(--ink);
+  color:#f1eee4;
+  padding:18px clamp(16px,4vw,40px);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;
+}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand .eyebrow{
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ochre-soft);font-weight:600;
+}
+.brand h1{
+  font-family:var(--serif);font-weight:500;
+  font-size:clamp(26px,4vw,34px);line-height:1;margin:0;letter-spacing:.01em;
+}
+.brand-row{display:flex;align-items:center;gap:12px}
+.live-chip{
+  font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:#dfe9d5;background:rgba(77,124,77,.35);border:1px solid rgba(140,180,130,.5);
+  padding:4px 9px;border-radius:999px;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;
+}
+.live-chip .dot-live{width:7px;height:7px;border-radius:50%;background:#7fbf7f;box-shadow:0 0 6px #7fbf7f}
+.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn-primary{
+  background:var(--ochre);color:#fff;border:none;
+  padding:12px 20px;border-radius:999px;font-weight:600;font-size:14px;
+  display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 14px rgba(176,125,43,.32);
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn-primary:hover{background:#9c6c22;transform:translateY(-1px);box-shadow:0 6px 18px rgba(176,125,43,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary .plus{font-size:18px;line-height:1}
+.btn-top-ghost{
+  background:transparent;color:#cfc9b8;border:1px solid #4a5142;
+  padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;
+}
+.btn-top-ghost:hover{color:#fff;border-color:#8a917f}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(16px,3vw,28px) clamp(16px,4vw,40px) 64px}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.segmented{display:inline-flex;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:4px}
+.segmented button{
+  border:none;background:transparent;color:var(--text-soft);
+  padding:9px 20px;border-radius:999px;font-weight:600;font-size:14px;
+  transition:all .15s ease;
+}
+.segmented button.active{background:var(--ink);color:#f1eee4;box-shadow:var(--shadow)}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--text-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--ok)} .dot.wait{background:var(--wait)}
+.dot.pending{background:var(--pending)} .dot.refund{background:var(--refund)}
+
+/* ---------- Privacy bar ---------- */
+.privacy-bar{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--card-2);border:1px solid var(--line-soft);border-radius:12px;
+  padding:10px 14px;margin-bottom:20px;font-size:12.5px;color:var(--text-soft);
+}
+.privacy-bar .pv-title{font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px;color:var(--text-faint);display:inline-flex;align-items:center;gap:6px}
+.privacy-bar label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-weight:500}
+.privacy-bar input[type=checkbox]{accent-color:var(--ochre);width:15px;height:15px;cursor:pointer}
+.privacy-bar .pv-hint{margin-left:auto;color:var(--text-faint);font-size:11.5px;font-style:italic}
+.masked{filter:none;letter-spacing:.05em}
+
+/* ---------- Calendar ---------- */
+.cal-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:22px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px}
+.cal-month{font-family:var(--serif);font-size:26px;font-weight:600;text-transform:capitalize;letter-spacing:.01em}
+.nav-btn{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--moss);font-size:18px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s ease;
+}
+.nav-btn:hover{background:var(--card-2);color:var(--ink)}
+.today-link{margin-left:8px;border:none;background:transparent;color:var(--ochre);font-weight:600;font-size:13px}
+.today-link:hover{text-decoration:underline}
+
+.weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 14px 0;gap:6px}
+.weekdays div{text-align:center;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:8px 14px 18px}
+.day{
+  position:relative;border:1px solid transparent;border-radius:10px;
+  min-height:74px;padding:7px 8px;background:var(--card-2);
+  text-align:left;color:var(--text);transition:all .14s ease;display:flex;flex-direction:column;gap:6px;
+}
+.day:hover{border-color:var(--ochre-soft);background:#fff;transform:translateY(-1px)}
+.day.out{background:transparent;color:var(--text-faint);opacity:.55}
+.day.out:hover{transform:none;border-color:var(--line-soft)}
+.day.selected{border-color:var(--ochre);background:#fff;box-shadow:0 0 0 2px var(--ochre-tint)}
+.day .num{font-size:14px;font-weight:600}
+.day.today .num{
+  background:var(--ochre);color:#fff;width:24px;height:24px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;
+}
+.day .marks{display:flex;gap:3px;flex-wrap:wrap;margin-top:auto}
+.day .count{
+  font-size:11px;font-weight:700;color:var(--moss);background:var(--ok-bg);
+  border-radius:6px;padding:1px 6px;align-self:flex-start;
+}
+.truffle{width:7px;height:7px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%}
+
+/* ---------- Day panel ---------- */
+.day-panel{padding:20px;min-height:300px}
+.day-panel .empty-pane{color:var(--text-faint);text-align:center;padding:48px 12px}
+.day-panel .empty-pane .ico{font-size:30px;opacity:.5;margin-bottom:8px}
+.dp-date{font-family:var(--serif);font-size:24px;font-weight:600;line-height:1.1;text-transform:capitalize}
+.dp-sub{color:var(--text-soft);font-size:13px;margin-top:2px;margin-bottom:16px}
+.slot{border-top:1px solid var(--line-soft);padding:14px 0}
+.slot:first-of-type{border-top:none}
+.slot-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.slot-time{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:var(--ink)}
+.slot-time .tag{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)}
+.slot-time .cap{font-size:10px;font-weight:700;color:var(--moss);background:var(--ok-bg);border-radius:6px;padding:1px 6px}
+.slot-time .cap.full{color:var(--refund);background:var(--refund-bg)}
+.slot-add{border:1px dashed var(--line);background:transparent;color:var(--moss);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600}
+.slot-add:hover{border-color:var(--ochre);color:var(--ochre)}
+.slot .free{color:var(--text-faint);font-size:13px;font-style:italic}
+
+.bcard{
+  background:var(--card-2);border:1px solid var(--line-soft);border-radius:10px;
+  padding:11px 12px;margin-bottom:8px;width:100%;text-align:left;transition:all .14s ease;
+  display:flex;flex-direction:column;gap:6px;
+}
+.bcard:hover{border-color:var(--ochre-soft);background:#fff}
+.bcard-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bcard .nm{font-weight:600;font-size:14.5px}
+.bcard .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--text-soft)}
+.pill{font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.wait{background:var(--wait-bg);color:var(--wait)}
+.pill.pending{background:var(--pending-bg);color:var(--pending)}
+.pill.refund{background:var(--refund-bg);color:var(--refund)}
+.type-tag{font-size:11px;font-weight:600;color:var(--moss);text-transform:uppercase;letter-spacing:.06em}
+.origin-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:1px 7px;white-space:nowrap}
+.origin-tag.mine{color:var(--moss);background:var(--ok-bg);border:1px solid #cfdec5}
+.origin-tag.site{color:var(--text-faint);background:var(--paper-2);border:1px solid var(--line-soft)}
+.note-row{font-size:12.5px;color:var(--text-soft);display:flex;gap:6px}
+.note-row b{color:var(--moss);font-weight:600;white-space:nowrap}
+
+/* ---------- Blocks ---------- */
+.day.blocked{background:repeating-linear-gradient(45deg,#e7e3d6,#e7e3d6 7px,#ddd8c8 7px,#ddd8c8 14px)}
+.day.blocked:hover{border-color:#b9b29f;background:repeating-linear-gradient(45deg,#ece8db,#ece8db 7px,#e0dbcb 7px,#e0dbcb 14px)}
+.day.blocked.selected{box-shadow:0 0 0 2px #cfc8b4}
+.lock-badge{font-size:10px;font-weight:700;color:#6c6657;background:#e3dece;border:1px solid #cfc8b3;border-radius:6px;padding:1px 6px}
+.lock-mini{font-size:9px;line-height:1;filter:grayscale(.3)}
+.dp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.block-day-btn{border:1px solid var(--line);background:var(--card-2);color:var(--text-soft);border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.block-day-btn:hover{border-color:#b9b29f;color:var(--text)}
+.block-day-btn.on{background:#3a352c;color:#efe9da;border-color:#3a352c}
+.block-banner{background:#ece7d8;border:1px solid #cfc8b3;color:#5c5648;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+.slot.blocked .slot-time{color:#9c9686}
+.slot-actions{display:flex;gap:8px;align-items:center}
+.slot-block{border:1px solid var(--line);background:transparent;color:var(--text-soft);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600}
+.slot-block:hover{border-color:#9c9686;color:var(--text)}
+.slot-block.on{background:#3a352c;color:#efe9da;border-color:#3a352c}
+.blocked-note{font-size:12.5px;font-weight:600;color:#7a7464;background:#ece7d8;border-radius:8px;padding:7px 10px;margin-bottom:6px}
+
+/* ---------- List view ---------- */
+.search{position:relative;margin-bottom:14px}
+.search input{
+  width:100%;padding:14px 16px 14px 44px;border:1px solid var(--line);
+  border-radius:12px;background:var(--card);color:var(--text);
+}
+.search input:focus{outline:none;border-color:var(--ochre);box-shadow:0 0 0 3px var(--ochre-tint)}
+.search .ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:16px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.filters select{
+  padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);
+}
+.filters select:focus{outline:none;border-color:var(--ochre)}
+.filters .result-count{margin-left:auto;color:var(--text-faint);font-size:13px}
+.clear-link{border:none;background:transparent;color:var(--ochre);font-weight:600;font-size:13px}
+.clear-link:hover{text-decoration:underline}
+
+.list-day{margin-bottom:8px;margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+.list-day:first-child{margin-top:0}
+.list-empty{text-align:center;color:var(--text-faint);padding:60px 20px}
+.list-empty .ico{font-size:34px;opacity:.5;margin-bottom:10px}
+
+.lcard{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;width:100%;text-align:left;
+  display:grid;grid-template-columns:54px 1fr auto;gap:14px;align-items:center;
+  transition:all .14s ease;box-shadow:0 1px 2px rgba(29,35,26,.04);
+}
+.lcard:hover{border-color:var(--ochre-soft);transform:translateY(-1px);box-shadow:var(--shadow)}
+.lcard .when{text-align:center}
+.lcard .when .d{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1}
+.lcard .when .m{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+.lcard .when .t{font-size:12px;font-weight:600;color:var(--moss);margin-top:3px}
+.lcard .body .nm{font-weight:600;font-size:15.5px}
+.lcard .body .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--text-soft);margin-top:3px}
+.lcard .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.lcard .price{font-weight:700;font-size:15px}
+
+/* ---------- Modal ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(29,35,26,.42);backdrop-filter:blur(2px);
+  display:none;align-items:flex-start;justify-content:center;padding:24px 16px;z-index:50;overflow-y:auto;
+}
+.overlay.open{display:flex;animation:fade .18s ease}
+.modal{
+  background:var(--card);border-radius:18px;width:100%;max-width:560px;
+  box-shadow:0 24px 60px rgba(29,35,26,.3);overflow:hidden;margin:auto;
+  animation:rise .22s cubic-bezier(.2,.8,.2,1);
+}
+.modal-head{background:var(--ink);color:#f1eee4;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.modal-head h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:0}
+.modal-head .x{background:transparent;border:none;color:#cfc9b8;font-size:24px;line-height:1;padding:4px}
+.modal-head .x:hover{color:#fff}
+.modal-body{padding:22px 24px;max-height:64vh;overflow-y:auto}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-soft);margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ochre);box-shadow:0 0 0 3px var(--ochre-tint)}
+.field input:disabled,.field select:disabled{background:var(--card-2);color:var(--text-faint);cursor:not-allowed}
+.field textarea{resize:vertical;min-height:60px}
+.field .hint{font-size:11.5px;color:var(--text-faint);margin-top:4px}
+.field.invalid input,.field.invalid select{border-color:var(--refund)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.section-label{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--moss);margin:20px 0 10px;padding-top:6px;border-top:1px solid var(--line-soft)}
+.section-label:first-child{border-top:none;padding-top:0;margin-top:0}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card-2)}
+.btn-ghost{border:1px solid var(--line);background:transparent;color:var(--text-soft);padding:11px 18px;border-radius:999px;font-weight:600}
+.btn-ghost:hover{border-color:var(--text-soft);color:var(--text)}
+.btn-danger{border:none;background:transparent;color:var(--refund);font-weight:600;font-size:13px;padding:8px 4px}
+.btn-danger:hover{text-decoration:underline}
+.foot-right{display:flex;gap:10px;align-items:center}
+
+/* ---------- Toast & footer ---------- */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#f1eee4;padding:12px 22px;border-radius:999px;
+  font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(29,35,26,.35);
+  opacity:0;pointer-events:none;transition:all .25s ease;z-index:60;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.error{background:#7a3324}
+.foot-bar{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 40px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--text-faint);font-size:12.5px}
+.foot-bar a{color:var(--text-faint)}
+
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+
+/* ---------- Responsive ---------- */
+@media(max-width:860px){
+  .cal-layout{grid-template-columns:1fr}
+  .day{min-height:58px}
+}
+@media(max-width:560px){
+  .row{grid-template-columns:1fr}
+  .lcard{grid-template-columns:48px 1fr;gap:10px}
+  .lcard .right{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;border-top:1px solid var(--line-soft);padding-top:10px}
+  .day .count{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <span class="eyebrow">Area riservata · Gestione prenotazioni</span>
+    <h1>Tenuta Collebrunacchi</h1>
+    <div id="login-step-pw">
+      <div class="login-field">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" autocomplete="email" placeholder="nome@esempio.it">
+      </div>
+      <div class="login-field">
+        <label for="login-pw">Password</label>
+        <input id="login-pw" type="password" autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="login-btn">Accedi</button>
+    </div>
+    <p class="login-err" id="login-err"></p>
+    <p class="login-note">Accesso riservato al personale.</p>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app" style="display:none">
+<header class="topbar">
+  <div class="brand-row">
+    <div class="brand">
+      <span class="eyebrow">Caccia al tartufo &amp; degustazione · San Miniato</span>
+      <h1>Calendario prenotazioni</h1>
+    </div>
+    <span class="live-chip"><i class="dot-live"></i> Dati live</span>
+  </div>
+  <div class="top-actions">
+    <button class="btn-top-ghost" id="logout-btn">Esci</button>
+    <button class="btn-primary" onclick="openModal()"><span class="plus">+</span> Nuova prenotazione</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="toolbar">
+    <div class="segmented" role="tablist">
+      <button id="tab-cal" class="active" onclick="setView('calendar')">Calendario</button>
+      <button id="tab-list" onclick="setView('list')">Lista prenotazioni</button>
+    </div>
+    <div class="legend">
+      <span><i class="dot ok"></i> Pagato online</span>
+      <span><i class="dot wait"></i> All'arrivo</span>
+      <span><i class="dot pending"></i> In attesa</span>
+      <span><i class="dot refund"></i> Rimborsato</span>
+      <span>🔒 Bloccato</span>
+    </div>
+  </div>
+
+  <!-- Privacy: spunta i dati che vuoi MOSTRARE; quelli senza spunta vengono oscurati -->
+  <div class="privacy-bar" id="privacyBar">
+    <span class="pv-title">👁 Mostra dati</span>
+    <label><input type="checkbox" id="pv-name" checked onchange="onPrivacyChange()"> Nomi</label>
+    <label><input type="checkbox" id="pv-contact" checked onchange="onPrivacyChange()"> Telefono &amp; email</label>
+    <label><input type="checkbox" id="pv-price" checked onchange="onPrivacyChange()"> Prezzi</label>
+    <label><input type="checkbox" id="pv-notes" checked onchange="onPrivacyChange()"> Note</label>
+    <span class="pv-hint">I campi senza spunta vengono oscurati sullo schermo (es. per condividere il monitor)</span>
+  </div>
+
+  <div id="setupBanner" class="block-banner" style="display:none">
+    ⚙️ <b>Configurazione database mancante:</b> esegui lo script <i>setup-calendario.sql</i> su Supabase (SQL Editor) per attivare l'inserimento e la modifica delle prenotazioni da questo calendario. Fino ad allora la pagina è in sola lettura.
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <section id="view-calendar">
+    <div class="cal-layout">
+      <div class="panel">
+        <div class="cal-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="cal-month" id="calMonth"></span>
+            <button class="today-link" onclick="goToday()">Oggi</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="nav-btn" onclick="changeMonth(-1)" aria-label="Mese precedente">‹</button>
+            <button class="nav-btn" onclick="changeMonth(1)" aria-label="Mese successivo">›</button>
+          </div>
+        </div>
+        <div class="weekdays"><div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div></div>
+        <div class="grid" id="calGrid"></div>
+      </div>
+      <div class="panel day-panel" id="dayPanel"></div>
+    </div>
+  </section>
+
+  <!-- LIST VIEW -->
+  <section id="view-list" style="display:none">
+    <div class="search">
+      <span class="ico">⌕</span>
+      <input id="searchInput" type="search" placeholder="Cerca per nome, email o telefono…" oninput="onFilterChange()">
+    </div>
+    <div class="filters">
+      <select id="filterStatus" onchange="onFilterChange()">
+        <option value="">Tutti i pagamenti</option>
+        <option value="ok">Pagato online</option>
+        <option value="wait">Da pagare all'arrivo</option>
+        <option value="pending">In attesa</option>
+        <option value="refund">Rimborsato</option>
+      </select>
+      <select id="filterType" onchange="onFilterChange()">
+        <option value="">Tutte le esperienze</option>
+        <option value="shared">Condivisa</option>
+        <option value="private">Privata</option>
+      </select>
+      <select id="filterSlot" onchange="onFilterChange()">
+        <option value="">Tutte le fasce</option>
+      </select>
+      <select id="filterWhen" onchange="onFilterChange()">
+        <option value="upcoming">Da oggi in poi</option>
+        <option value="all">Tutte le date</option>
+        <option value="past">Passate</option>
+      </select>
+      <button class="clear-link" onclick="clearFilters()">Azzera filtri</button>
+      <span class="result-count" id="resultCount"></span>
+    </div>
+    <div id="listResults"></div>
+  </section>
+</main>
+
+<div class="foot-bar">
+  <span>Collegato al sito · si modificano solo le prenotazioni inserite da questo calendario ("Tua"); quelle del sito sono in sola lettura</span>
+</div>
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Nuova prenotazione</h2>
+      <button class="x" onclick="closeModal()" aria-label="Chiudi">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="section-label">Dettagli esperienza</div>
+      <div class="row">
+        <div class="field" id="f-date"><label>Data</label><input type="date" id="in-date"></div>
+        <div class="field" id="f-slot"><label>Fascia oraria</label><select id="in-slot"></select></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Tipo esperienza</label>
+          <select id="in-type" onchange="suggestPrice()">
+            <option value="shared">Condivisa</option>
+            <option value="private">Privata</option>
+          </select>
+        </div>
+        <div class="field"><label>N° ospiti</label><input type="number" id="in-guests" min="1" value="2" onchange="suggestPrice()"></div>
+      </div>
+      <div class="hint" id="edit-move-hint" style="display:none;font-size:11.5px;color:var(--text-faint);margin:-6px 0 10px">
+        Per spostare data o fascia: elimina e ricrea la prenotazione (la capacità degli slot è gestita dal sistema).
+      </div>
+
+      <div class="section-label">Ospite</div>
+      <div class="field" id="f-name"><label>Nome e cognome</label><input type="text" id="in-name"></div>
+      <div class="row">
+        <div class="field"><label>Telefono</label><input type="tel" id="in-phone" placeholder="+39…"></div>
+        <div class="field"><label>Email</label><input type="email" id="in-email" placeholder="email@esempio.it"></div>
+      </div>
+
+      <div class="section-label">Pagamento</div>
+      <div class="row">
+        <div class="field"><label>Prezzo totale (€)</label><input type="number" id="in-price" min="0" step="1"></div>
+        <div class="field"><label>Stato</label>
+          <select id="in-status"></select>
+        </div>
+      </div>
+      <div class="hint" id="status-hint" style="font-size:11.5px;color:var(--text-faint);margin:-6px 0 10px"></div>
+
+      <div class="section-label">Note per l'esperienza</div>
+      <div class="field"><label>Intolleranze, allergie, richieste speciali</label>
+        <textarea id="in-notes" placeholder="Es. senza glutine · anniversario · accesso passeggino…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-danger" id="deleteBtn" style="display:none" onclick="deleteCurrent()">Cancella prenotazione</button>
+      <div class="foot-right">
+        <button class="btn-ghost" onclick="closeModal()">Annulla</button>
+        <button class="btn-primary" id="saveBtn" onclick="saveBooking()">Salva prenotazione</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Calendario prenotazioni — collegato a Supabase (stesso backend
+   di tenutacollebrunacchi.com: booking.js / admin.html)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ============ Configuration ============ */
+const SUPABASE_URL      = 'https://ioyjhvlbamgiiqdtgutk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko';
+
+// Fasce orarie mostrate (stesse del pannello admin)
+const SLOT_TIMES = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+const slotLabel  = t => Number(t.slice(0,2)) < 13 ? 'Mattina' : 'Pomeriggio';
+const MAX_SHARED = 10;
+
+// Prezzi a persona (caricati da price_settings, con fallback)
+let PRICES = { shared:{online:159,arrival:169}, private:{online:259,arrival:269} };
+
+// Stati "vista" (pill) derivati da status + payment_method reali
+const STATUS_LABEL = { ok:"Pagato online", wait:"Da pagare all'arrivo", pending:"In attesa", refund:"Rimborsato" };
+const TYPE_LABEL   = { shared:'Condivisa', private:'Privata' };
+const MONTHS = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+const WD = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+const PRIVACY_KEY = 'tc_cal_privacy_v1';
+
+/* ============ Supabase client & Auth ============ */
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let session = null;
+
+(async () => {
+  const { data: { session: s } } = await db.auth.getSession();
+  if (s) { session = s; showApp(); }
+  db.auth.onAuthStateChange((_ev, s) => {
+    session = s;
+    if (!s) showLogin();
+  });
+})();
+
+function showLogin(){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-step-pw').style.display = 'block';
+  document.getElementById('login-err').textContent = '';
+}
+async function showApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadPrivacy();
+  await loadPrices();
+  await refreshMonth();
+  render();
+}
+
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-pw').value;
+  const err   = document.getElementById('login-err');
+  err.textContent = '';
+  if (!email || !pw) { err.textContent = 'Inserisci email e password.'; return; }
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Accesso…'; btn.disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email, password: pw });
+  btn.textContent = 'Accedi'; btn.disabled = false;
+  if (error) { err.textContent = 'Email o password non corretti.'; return; }
+  showApp();
+});
+document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-btn').click(); });
+document.getElementById('logout-btn').addEventListener('click', () => db.auth.signOut());
+
+/* ============ State ============ */
+let monthRows = [];      // prenotazioni (view-model) del mese visualizzato
+let allRows = null;      // tutte le prenotazioni (lista) — caricate al bisogno
+let blocks = [];         // blocked_slots del mese { date, time|null, reason }
+let slotCaps = {};       // capacità: { 'YYYY-MM-DD': { 'HH:MM': {id,capacity_left,is_private_blocked} } }
+let view = 'calendar';
+let viewMonth = startOfMonth(new Date());
+let selectedDate = dateKey(new Date());
+let editingId = null;
+
+/* ============ Helpers ============ */
+function pad(n){return String(n).padStart(2,'0')}
+function dateKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function startOfMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
+function parseKey(k){const[y,m,dd]=k.split('-').map(Number);return new Date(y,m-1,dd)}
+function fmtLong(k){const d=parseKey(k);return WD[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()}
+function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function todayKey(){return dateKey(new Date())}
+function monthRange(){
+  const first = dateKey(viewMonth);
+  const last  = dateKey(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1, 0));
+  return { first, last };
+}
+// status+payment_method reali → stato "vista"
+function payState(b){
+  if (b.status === 'refunded') return 'refund';
+  if (b.status === 'pending')  return 'pending';
+  if (b.payment_method === 'arrival') return 'wait';
+  return 'ok';
+}
+// riga DB → view-model usato dalle viste
+function rowToVM(b){
+  const date = b.slots?.date ? b.slots.date.slice(0,10) : null;
+  const slot = b.slots?.time ? b.slots.time.slice(0,5)  : null;
+  const uid  = session?.user?.id || null;
+  return {
+    id: b.id, date, slot,
+    type: b.type === 'private' ? 'private' : 'shared',
+    guests: Number(b.persons)||1,
+    name: b.name || '—',
+    phone: b.phone || '', email: b.email || '',
+    price: Number(b.amount_eur)||0,
+    state: payState(b),
+    rawStatus: b.status, rawPayment: b.payment_method,
+    notes: b.notes || '',
+    // proprietà: modificabile solo da chi l'ha creata in questo calendario
+    mine: !!(uid && b.created_by && b.created_by === uid),
+  };
+}
+
+/* ============ Privacy (oscuramento campi) ============ */
+let privacy = { name:true, contact:true, price:true, notes:true };
+function loadPrivacy(){
+  try{ const v = JSON.parse(localStorage.getItem(PRIVACY_KEY)); if(v) privacy = {...privacy, ...v}; }catch(e){}
+  document.getElementById('pv-name').checked    = privacy.name;
+  document.getElementById('pv-contact').checked = privacy.contact;
+  document.getElementById('pv-price').checked   = privacy.price;
+  document.getElementById('pv-notes').checked   = privacy.notes;
+}
+function onPrivacyChange(){
+  privacy = {
+    name:    document.getElementById('pv-name').checked,
+    contact: document.getElementById('pv-contact').checked,
+    price:   document.getElementById('pv-price').checked,
+    notes:   document.getElementById('pv-notes').checked,
+  };
+  try{ localStorage.setItem(PRIVACY_KEY, JSON.stringify(privacy)); }catch(e){}
+  render();
+}
+function mName(s){
+  if (privacy.name) return escapeHtml(s);
+  const initials = String(s||'').split(/\s+/).filter(Boolean).map(w=>w[0].toUpperCase()+'.').join(' ');
+  return '<span class="masked">'+escapeHtml(initials||'•••')+'</span>';
+}
+function mContact(s){ return privacy.contact ? escapeHtml(s) : '<span class="masked">•••</span>'; }
+function mPrice(n){ return privacy.price ? '€'+escapeHtml(n) : '<span class="masked">€•••</span>'; }
+function mNotes(s){ return privacy.notes ? escapeHtml(s) : '<span class="masked">•••</span>'; }
+
+/* ============ Data loading ============ */
+async function loadPrices(){
+  try{
+    const { data } = await db.from('price_settings').select('key,value_eur');
+    if (data?.length){
+      const map = {}; data.forEach(r => map[r.key] = Number(r.value_eur));
+      PRICES = {
+        shared:  { online: map.shared_online  ?? PRICES.shared.online,  arrival: map.shared_arrival  ?? PRICES.shared.arrival  },
+        private: { online: map.private_online ?? PRICES.private.online, arrival: map.private_arrival ?? PRICES.private.arrival },
+      };
+    }
+  }catch(e){}
+}
+
+// true quando il database ha la colonna created_by (script SQL eseguito)
+let ownershipReady = true;
+const BK_COLS      = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,slots!inner(date,time)';
+const BK_COLS_BASE = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,slots!inner(date,time)';
+
+async function fetchBookings(applyRange){
+  let cols = ownershipReady ? BK_COLS : BK_COLS_BASE;
+  let q = db.from('bookings').select(cols).neq('status','cancelled');
+  if (applyRange){ const { first, last } = monthRange(); q = q.gte('slots.date', first).lte('slots.date', last); }
+  let { data, error } = await q;
+  // fallback: colonna created_by non ancora creata → sola lettura
+  if (error && ownershipReady && /created_by/.test(error.message||'')){
+    ownershipReady = false;
+    document.getElementById('setupBanner').style.display = 'block';
+    return fetchBookings(applyRange);
+  }
+  if (error) { toast('Errore caricamento prenotazioni: '+error.message, true); return []; }
+  if (ownershipReady) document.getElementById('setupBanner').style.display = 'none';
+  return data||[];
+}
+
+async function refreshMonth(){
+  const { first, last } = monthRange();
+  const [bkData, bl, sl] = await Promise.all([
+    fetchBookings(true),
+    db.from('blocked_slots').select('date,time,reason').gte('date', first).lte('date', last),
+    db.from('slots').select('id,date,time,capacity_left,is_private_blocked').gte('date', first).lte('date', last),
+  ]);
+  monthRows = bkData.map(rowToVM).filter(v=>v.date && v.slot);
+  blocks    = (bl.data||[]);
+  slotCaps  = {};
+  (sl.data||[]).forEach(s=>{
+    const d = s.date.slice(0,10), t = s.time.slice(0,5);
+    (slotCaps[d]=slotCaps[d]||{})[t] = s;
+  });
+}
+
+async function loadAllBookings(){
+  const data = await fetchBookings(false);
+  allRows = data.map(rowToVM).filter(v=>v.date && v.slot)
+    .sort((a,b)=> a.date.localeCompare(b.date) || a.slot.localeCompare(b.slot));
+}
+
+/* ============ View switching ============ */
+async function setView(v){
+  view = v;
+  document.getElementById('view-calendar').style.display = v==='calendar'?'block':'none';
+  document.getElementById('view-list').style.display = v==='list'?'block':'none';
+  document.getElementById('tab-cal').classList.toggle('active', v==='calendar');
+  document.getElementById('tab-list').classList.toggle('active', v==='list');
+  if (v==='list' && allRows===null) { await loadAllBookings(); }
+  render();
+}
+function render(){ if(view==='calendar'){renderCalendar();renderDayPanel();} else {renderList();} }
+
+/* ============ Blocchi (giornata / fascia) ============ */
+function dayBlock(k){ return blocks.find(b=>b.date===k && !b.time) || null; }
+function slotOnlyBlock(k,t){ return blocks.find(b=>b.date===k && b.time && b.time.slice(0,5)===t) || null; }
+function hasPartialBlock(k){ return !dayBlock(k) && blocks.some(b=>b.date===k && b.time); }
+
+async function toggleDayBlock(){
+  const existing = dayBlock(selectedDate);
+  if(existing){
+    const { error } = await db.from('blocked_slots').delete().eq('date', selectedDate).is('time', null);
+    if (error) { toast('Errore: '+error.message, true); return; }
+    toast('Giornata sbloccata');
+  } else {
+    const r = prompt('Motivo del blocco (facoltativo):','Chiuso');
+    if(r===null) return;
+    const { error } = await db.from('blocked_slots').insert({ date:selectedDate, time:null, reason:(r.trim()||null) });
+    if (error) { toast('Errore: '+error.message, true); return; }
+    toast('Giornata bloccata');
+  }
+  await refreshMonth(); render();
+}
+async function toggleSlotBlock(t){
+  const existing = slotOnlyBlock(selectedDate,t);
+  if(existing){
+    const { error } = await db.from('blocked_slots').delete().eq('date', selectedDate).eq('time', existing.time);
+    if (error) { toast('Errore: '+error.message, true); return; }
+    toast('Fascia sbloccata');
+  } else {
+    const r = prompt('Motivo del blocco (facoltativo):','Non disponibile');
+    if(r===null) return;
+    const { error } = await db.from('blocked_slots').insert({ date:selectedDate, time:t+':00', reason:(r.trim()||null) });
+    if (error) { toast('Errore: '+error.message, true); return; }
+    toast('Fascia bloccata');
+  }
+  await refreshMonth(); render();
+}
+
+/* ============ Calendar ============ */
+function bookingsByDay(){
+  const map = {};
+  monthRows.forEach(b=>{ (map[b.date]=map[b.date]||[]).push(b); });
+  return map;
+}
+function renderCalendar(){
+  document.getElementById('calMonth').textContent = MONTHS[viewMonth.getMonth()]+' '+viewMonth.getFullYear();
+  const map = bookingsByDay();
+  const first = new Date(viewMonth);
+  const offset = (first.getDay()+6)%7; // lunedì-first
+  const grid = document.getElementById('calGrid');
+  let html='';
+  for(let i=0;i<42;i++){
+    const d = new Date(first); d.setDate(1 - offset + i);
+    const k = dateKey(d);
+    const inMonth = d.getMonth()===viewMonth.getMonth();
+    const dayB = (map[k]||[]).slice().sort(slotSort);
+    const isToday = k===todayKey();
+    const isSel = k===selectedDate;
+    const dbk = dayBlock(k);
+    const partial = hasPartialBlock(k);
+    let marks='';
+    if(dbk){
+      marks = `<div class="marks"><span class="lock-badge">🔒 Bloccato</span></div>`;
+    } else {
+      if(dayB.length){
+        const shown = dayB.slice(0,5).map(b=>`<i class="truffle" style="background:var(--${b.state})"></i>`).join('');
+        marks = `<div class="marks">${shown}${partial?'<i class="lock-mini">🔒</i>':''}</div><span class="count">${dayB.length}</span>`;
+      } else if(partial){
+        marks = `<div class="marks"><i class="lock-mini">🔒</i></div>`;
+      }
+    }
+    html += `<button class="day ${inMonth?'':'out'} ${isToday?'today':''} ${isSel?'selected':''} ${dbk?'blocked':''}" onclick="selectDay('${k}')">
+      <span class="num">${d.getDate()}</span>${marks}</button>`;
+  }
+  grid.innerHTML = html;
+}
+function slotSort(a,b){ return a.slot.localeCompare(b.slot) || a.name.localeCompare(b.name); }
+function selectDay(k){ selectedDate=k; renderCalendar(); renderDayPanel(); }
+async function changeMonth(delta){
+  viewMonth = new Date(viewMonth.getFullYear(),viewMonth.getMonth()+delta,1);
+  await refreshMonth();
+  renderCalendar(); renderDayPanel();
+}
+async function goToday(){
+  viewMonth=startOfMonth(new Date()); selectedDate=todayKey();
+  await refreshMonth();
+  renderCalendar(); renderDayPanel();
+}
+
+function renderDayPanel(){
+  const panel = document.getElementById('dayPanel');
+  if(!selectedDate){ panel.innerHTML = `<div class="empty-pane"><div class="ico">🗓️</div>Seleziona un giorno per vederne le fasce orarie.</div>`; return; }
+  const dayB = monthRows.filter(b=>b.date===selectedDate);
+  const dbk = dayBlock(selectedDate);
+  let html = `<div class="dp-head">
+      <div>
+        <div class="dp-date">${fmtLong(selectedDate)}</div>
+        <div class="dp-sub">${dayB.length?dayB.length+' prenotazion'+(dayB.length===1?'e':'i'):'Nessuna prenotazione'} in questa giornata</div>
+      </div>
+      <button class="block-day-btn ${dbk?'on':''}" onclick="toggleDayBlock()">${dbk?'🔓 Sblocca giornata':'🔒 Blocca giornata'}</button>
+    </div>`;
+  if(dbk){
+    html += `<div class="block-banner">🔒 <b>Giornata bloccata</b>${dbk.reason?' · '+escapeHtml(dbk.reason):''} — nessuna nuova prenotazione dal sito.</div>`;
+  }
+  SLOT_TIMES.forEach(t=>{
+    const list = dayB.filter(b=>b.slot===t).sort((a,b)=>a.name.localeCompare(b.name));
+    const sBlock = slotOnlyBlock(selectedDate,t);
+    const blocked = dbk || sBlock;
+    const cap = slotCaps[selectedDate]?.[t];
+    let capHtml = '';
+    if (cap && !blocked){
+      const taken = list.reduce((s,b)=>s+b.guests,0);
+      const isPriv = list.some(b=>b.type==='private') || cap.is_private_blocked;
+      capHtml = isPriv
+        ? `<span class="cap full">Privata</span>`
+        : `<span class="cap ${cap.capacity_left<=0?'full':''}">${cap.capacity_left} liber${cap.capacity_left===1?'o':'i'} su ${MAX_SHARED}</span>`;
+    }
+    html += `<div class="slot ${blocked?'blocked':''}">
+      <div class="slot-head">
+        <span class="slot-time">${t} <span class="tag">${slotLabel(t)}</span> ${capHtml}</span>
+        <div class="slot-actions">
+          ${ dbk ? '' : `<button class="slot-block ${sBlock?'on':''}" onclick="toggleSlotBlock('${t}')">${sBlock?'Sblocca':'Blocca'}</button>` }
+          ${ blocked ? '' : `<button class="slot-add" onclick="openModal(null,'${selectedDate}','${t}')">+ Aggiungi</button>` }
+        </div>
+      </div>`;
+    if(sBlock && !dbk){ html += `<div class="blocked-note">🔒 Fascia bloccata${sBlock.reason?' · '+escapeHtml(sBlock.reason):''}</div>`; }
+    if(list.length){ list.forEach(b=> html += bookingCard(b)); }
+    else if(!blocked){ html += `<div class="free">Fascia libera</div>`; }
+    html += `</div>`;
+  });
+  panel.innerHTML = html;
+}
+function bookingCard(b){
+  const notes = [];
+  if(b.phone || b.email) notes.push(`<div class="note-row"><b>Contatti:</b> <span>${mContact([b.phone,b.email].filter(Boolean).join(' · '))}</span></div>`);
+  if(b.notes) notes.push(`<div class="note-row"><b>Note:</b> <span>${mNotes(b.notes)}</span></div>`);
+  return `<button class="bcard" onclick="openModal('${b.id}')">
+    <div class="bcard-top">
+      <span class="nm">${mName(b.name)}</span>
+      <span class="pill ${b.state}">${STATUS_LABEL[b.state]}</span>
+    </div>
+    <div class="meta">
+      <span class="origin-tag ${b.mine?'mine':'site'}">${b.mine?'Tua':'Sito'}</span>
+      <span class="type-tag">${TYPE_LABEL[b.type]}</span>
+      <span>· ${b.guests} osp.</span>
+      <span>· ${mPrice(b.price)}</span>
+    </div>
+    ${notes.join('')}
+  </button>`;
+}
+
+/* ============ List view ============ */
+function onFilterChange(){ renderList(); }
+function clearFilters(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('filterStatus').value='';
+  document.getElementById('filterType').value='';
+  document.getElementById('filterSlot').value='';
+  document.getElementById('filterWhen').value='upcoming';
+  renderList();
+}
+function renderList(){
+  const rows = allRows || [];
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const fs = document.getElementById('filterStatus').value;
+  const ft = document.getElementById('filterType').value;
+  const fsl = document.getElementById('filterSlot').value;
+  const fw = document.getElementById('filterWhen').value;
+  const tk = todayKey();
+
+  let res = rows.filter(b=>{
+    if(q){
+      const hay = (b.name+' '+(b.email||'')+' '+(b.phone||'')).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    if(fs && b.state!==fs) return false;
+    if(ft && b.type!==ft) return false;
+    if(fsl && b.slot!==fsl) return false;
+    if(fw==='upcoming' && b.date<tk) return false;
+    if(fw==='past' && b.date>=tk) return false;
+    return true;
+  }).sort((a,b)=> a.date.localeCompare(b.date) || a.slot.localeCompare(b.slot) || a.name.localeCompare(b.name));
+
+  document.getElementById('resultCount').textContent = res.length+' risultat'+(res.length===1?'o':'i');
+
+  const box = document.getElementById('listResults');
+  if(!res.length){
+    box.innerHTML = `<div class="list-empty"><div class="ico">⌕</div>Nessuna prenotazione trovata con questi criteri.</div>`;
+    return;
+  }
+  let html='', curDay=null;
+  res.forEach(b=>{
+    if(b.date!==curDay){ curDay=b.date; html += `<div class="list-day">${fmtLong(b.date)}</div>`; }
+    html += listCard(b);
+  });
+  box.innerHTML = html;
+}
+function listCard(b){
+  const d = parseKey(b.date);
+  const meta=[];
+  if(b.phone) meta.push(mContact(b.phone));
+  if(b.notes) meta.push('✦ '+mNotes(b.notes));
+  return `<button class="lcard" onclick="openModal('${b.id}')">
+    <div class="when">
+      <div class="d">${d.getDate()}</div>
+      <div class="m">${MONTHS[d.getMonth()].slice(0,3)}</div>
+      <div class="t">${b.slot}</div>
+    </div>
+    <div class="body">
+      <div class="nm">${mName(b.name)}</div>
+      <div class="meta">
+        <span class="origin-tag ${b.mine?'mine':'site'}">${b.mine?'Tua':'Sito'}</span>
+        <span class="type-tag">${TYPE_LABEL[b.type]}</span>
+        <span>${b.guests} ospiti</span>
+        ${meta.length?'<span>'+meta.join(' · ')+'</span>':''}
+      </div>
+    </div>
+    <div class="right">
+      <span class="pill ${b.state}">${STATUS_LABEL[b.state]}</span>
+      <span class="price">${mPrice(b.price)}</span>
+    </div>
+  </button>`;
+}
+
+/* ============ Modal / CRUD ============ */
+function populateSlotSelects(){
+  const opts = SLOT_TIMES.map(t=>`<option value="${t}">${t} · ${slotLabel(t)}</option>`).join('');
+  document.getElementById('in-slot').innerHTML = opts;
+  document.getElementById('filterSlot').innerHTML = '<option value="">Tutte le fasce</option>'+
+    SLOT_TIMES.map(t=>`<option value="${t}">${t} · ${slotLabel(t)}</option>`).join('');
+}
+populateSlotSelects();
+
+function findVM(id){ return monthRows.find(x=>x.id===id) || (allRows||[]).find(x=>x.id===id); }
+
+const MODAL_INPUTS = ['in-date','in-slot','in-type','in-guests','in-name','in-phone','in-email','in-price','in-status','in-notes'];
+function setModalReadOnly(ro){
+  MODAL_INPUTS.forEach(i=>{ document.getElementById(i).disabled = ro; });
+  document.getElementById('saveBtn').style.display = ro ? 'none' : 'inline-flex';
+}
+
+function openModal(id=null, presetDate=null, presetSlot=null){
+  editingId = id;
+  const title = document.getElementById('modalTitle');
+  const delBtn = document.getElementById('deleteBtn');
+  const statusSel = document.getElementById('in-status');
+  const statusHint = document.getElementById('status-hint');
+  clearInvalid();
+  document.getElementById('edit-move-hint').style.display = 'none';
+  if(id){
+    const b = findVM(id);
+    if(!b){ toast('Prenotazione non trovata', true); return; }
+    const editable = b.mine && ownershipReady;
+    title.textContent = editable ? 'Modifica prenotazione' : 'Dettagli prenotazione';
+    setVal('in-date',b.date); setVal('in-slot',b.slot); setVal('in-type',b.type);
+    setVal('in-guests',b.guests); setVal('in-name',b.name);
+    setVal('in-phone',b.phone); setVal('in-email',b.email); setVal('in-price',b.price);
+    setVal('in-notes',b.notes);
+    statusSel.innerHTML = `<option value="wait">Confermata · paga all'arrivo</option><option value="pending">In attesa</option><option value="ok">Pagato online</option><option value="refund">Rimborsato</option>`;
+    setVal('in-status', b.state);
+    if (editable){
+      setModalReadOnly(false);
+      // data/fascia/tipo non modificabili dopo la creazione (i posti sono gestiti dal sistema)
+      document.getElementById('in-date').disabled = true;
+      document.getElementById('in-slot').disabled = true;
+      document.getElementById('in-type').disabled = true;
+      document.getElementById('edit-move-hint').style.display = 'block';
+      statusSel.innerHTML = `<option value="wait">Confermata · paga all'arrivo</option><option value="pending">In attesa</option>`;
+      setVal('in-status', b.state==='pending' ? 'pending' : 'wait');
+      statusHint.textContent = '';
+      delBtn.style.display = 'inline-block';
+    } else {
+      setModalReadOnly(true);
+      statusHint.textContent = b.mine
+        ? 'Configurazione database mancante: pagina in sola lettura.'
+        : 'Prenotazione dal sito o dall\'amministrazione — sola lettura.';
+      delBtn.style.display = 'none';
+    }
+  } else {
+    if (!ownershipReady){ toast('Prima esegui lo script di configurazione del database (setup-calendario.sql)', true); return; }
+    title.textContent = 'Nuova prenotazione';
+    setModalReadOnly(false);
+    delBtn.style.display='none';
+    setVal('in-date', presetDate || selectedDate || todayKey());
+    setVal('in-slot', presetSlot || SLOT_TIMES[0]);
+    setVal('in-type','shared'); setVal('in-guests',2);
+    setVal('in-name',''); setVal('in-phone',''); setVal('in-email','');
+    setVal('in-notes','');
+    statusSel.innerHTML = `<option value="wait">Confermata · paga all'arrivo</option><option value="pending">In attesa</option>`;
+    setVal('in-status','wait');
+    statusHint.textContent = 'Le prenotazioni manuali risultano "da pagare all\'arrivo". Nessuna email automatica al cliente.';
+    suggestPrice(true);
+  }
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('in-name').focus(),60);
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); editingId=null; }
+function setVal(id,v){ document.getElementById(id).value = (v===undefined||v===null)?'':v; }
+function getVal(id){ return document.getElementById(id).value.trim(); }
+function suggestPrice(force=false){
+  const t = getVal('in-type');
+  const n = Number(getVal('in-guests'))||1;
+  const suggested = (PRICES[t]?.arrival ?? 0) * n;
+  const cur = Number(getVal('in-price'));
+  // suggerisce solo in creazione, o se il campo è vuoto
+  if (force || (!editingId && (!cur || cur===0)) || (!editingId && document.activeElement?.id!=='in-price')) {
+    setVal('in-price', suggested);
+  }
+}
+function clearInvalid(){ document.querySelectorAll('.field.invalid').forEach(f=>f.classList.remove('invalid')); }
+function markInvalid(fid){ document.getElementById(fid).classList.add('invalid'); }
+
+async function saveBooking(){
+  clearInvalid();
+  const saveBtn = document.getElementById('saveBtn');
+  const data = {
+    date:getVal('in-date'), slot:getVal('in-slot'), type:getVal('in-type'),
+    guests:Number(getVal('in-guests'))||1, name:getVal('in-name'),
+    phone:getVal('in-phone'), email:getVal('in-email'),
+    price:Number(getVal('in-price'))||0, state:getVal('in-status'),
+    notes:getVal('in-notes'),
+  };
+  let ok=true;
+  if(!data.date){markInvalid('f-date');ok=false;}
+  if(!data.name){markInvalid('f-name');ok=false;}
+  if(!ok){ toast('Compila i campi evidenziati', true); return; }
+
+  saveBtn.disabled = true; saveBtn.textContent = 'Salvataggio…';
+  try{
+    if(editingId){
+      await updateBooking(editingId, data);
+    } else {
+      await createBooking(data);
+    }
+  } finally {
+    saveBtn.disabled = false; saveBtn.textContent = 'Salva prenotazione';
+  }
+}
+
+// traduce gli errori delle funzioni database in messaggi comprensibili
+function rpcErrorMsg(error){
+  const m = error?.message || '';
+  if (/SLOT_NOT_FOUND/.test(m))   return 'Nessuno slot a sistema per questa data/ora: la fascia non è (ancora) prenotabile dal sito. Prova un\'altra fascia.';
+  if (/NOT_OWNER/.test(m))        return 'Questa prenotazione non è stata inserita da te: è in sola lettura.';
+  if (/NOT_AUTHORIZED/.test(m))   return 'Sessione scaduta: esci e accedi di nuovo.';
+  if (/ALREADY_CANCELLED/.test(m))return 'Prenotazione già cancellata.';
+  if (/INVALID_INPUT/.test(m))    return 'Dati non validi: controlla ospiti e stato.';
+  if (/Could not find the function|schema cache/i.test(m))
+    return 'Funzioni database mancanti: esegui lo script setup-calendario.sql su Supabase.';
+  return 'Errore: ' + m;
+}
+
+async function updateBooking(id, data){
+  const { error } = await db.rpc('update_manual_booking', {
+    p_id: String(id),
+    p_name: data.name,
+    p_email: data.email || null,
+    p_phone: data.phone || null,
+    p_persons: data.guests,
+    p_status: data.state==='pending' ? 'pending' : 'confirmed',
+    p_amount: data.price,
+    p_notes: data.notes || null,
+  });
+  if (error){ toast(rpcErrorMsg(error), true); return; }
+  toast('Prenotazione aggiornata');
+  await afterWrite(data.date);
+}
+
+async function createBooking(data, force=false){
+  // avvisi non bloccanti su giornate/fasce bloccate
+  if (!force){
+    const blk = dayBlock(data.date) || slotOnlyBlock(data.date, data.slot);
+    if (blk && !confirm('Attenzione: questa '+(blk.time?'fascia':'giornata')+' è bloccata'+(blk.reason?' ('+blk.reason+')':'')+'.\nInserire comunque la prenotazione?')) return;
+    const existing = monthRows.filter(b=>b.date===data.date && b.slot===data.slot);
+    if (data.type==='private' && existing.length && !confirm('In questa fascia ci sono già prenotazioni condivise. Confermare una privata?')) return;
+  }
+  // la funzione database inserisce la prenotazione e scala i posti in un colpo solo
+  const { error } = await db.rpc('create_manual_booking', {
+    p_date: data.date,
+    p_time: data.slot + ':00',
+    p_name: data.name,
+    p_email: data.email || null,
+    p_phone: data.phone || null,
+    p_persons: data.guests,
+    p_type: data.type,
+    p_status: data.state==='pending' ? 'pending' : 'confirmed',
+    p_amount: data.price,
+    p_notes: data.notes || null,
+    p_force: force,
+  });
+  if (error){
+    if (/SOLD_OUT/.test(error.message||'')){
+      if (confirm('La fascia risulta al completo (o riservata privata). Forzare comunque l\'inserimento?')) return createBooking(data, true);
+      return;
+    }
+    toast(rpcErrorMsg(error), true); return;
+  }
+  toast('Prenotazione aggiunta');
+  await afterWrite(data.date);
+}
+
+async function deleteCurrent(){
+  if(!editingId) return;
+  if(!confirm('Cancellare questa prenotazione? I posti tornano disponibili sul sito.')) return;
+  const { error } = await db.rpc('cancel_manual_booking', { p_id: String(editingId) });
+  if (error){ toast(rpcErrorMsg(error), true); return; }
+  toast('Prenotazione cancellata');
+  await afterWrite(null);
+}
+
+async function afterWrite(jumpDate){
+  closeModal();
+  if (jumpDate){
+    selectedDate = jumpDate;
+    viewMonth = startOfMonth(parseKey(jumpDate));
+  }
+  allRows = null;                 // la lista verrà ricaricata al prossimo accesso
+  await refreshMonth();
+  if (view==='list') await loadAllBookings();
+  render();
+}
+
+/* ============ Misc ============ */
+function toast(msg, isErr=false){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.toggle('error', !!isErr);
+  t.classList.add('show');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'), isErr?5200:2400);
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
