@@ -22,6 +22,7 @@
   --wait:#b07d2b; --wait-bg:#f4e9cf;
   --pending:#8a8576; --pending-bg:#eae6db;
   --refund:#a6543e; --refund-bg:#f2e0d8;
+  --partial:#46708c; --partial-bg:#e0eaf1;
   --shadow:0 1px 2px rgba(29,35,26,.06), 0 8px 24px rgba(29,35,26,.07);
   --radius:14px;
   --serif:'Cormorant Garamond',Georgia,serif;
@@ -124,6 +125,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .dot.ok{background:var(--ok)} .dot.wait{background:var(--wait)}
 .dot.pending{background:var(--pending)} .dot.refund{background:var(--refund)}
+.dot.partial{background:var(--partial)}
 
 /* ---------- Privacy bar ---------- */
 .privacy-bar{
@@ -207,6 +209,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
 .pill.wait{background:var(--wait-bg);color:var(--wait)}
 .pill.pending{background:var(--pending-bg);color:var(--pending)}
 .pill.refund{background:var(--refund-bg);color:var(--refund)}
+.pill.partial{background:var(--partial-bg);color:var(--partial)}
 .type-tag{font-size:11px;font-weight:600;color:var(--moss);text-transform:uppercase;letter-spacing:.06em}
 .origin-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:1px 7px;white-space:nowrap}
 .origin-tag.mine{color:var(--moss);background:var(--ok-bg);border:1px solid #cfdec5}
@@ -384,10 +387,11 @@ input,select,textarea{font-family:inherit;font-size:15px}
       <button id="tab-list" onclick="setView('list')">Lista prenotazioni</button>
     </div>
     <div class="legend">
-      <span><i class="dot ok"></i> Pagato online</span>
+      <span><i class="dot ok"></i> Pagata online</span>
       <span><i class="dot wait"></i> All'arrivo</span>
       <span><i class="dot pending"></i> In attesa</span>
-      <span><i class="dot refund"></i> Rimborsato</span>
+      <span><i class="dot partial"></i> Parz. saldata</span>
+      <span><i class="dot refund"></i> Rimborsata</span>
       <span>🔒 Bloccato</span>
     </div>
   </div>
@@ -436,10 +440,11 @@ input,select,textarea{font-family:inherit;font-size:15px}
     <div class="filters">
       <select id="filterStatus" onchange="onFilterChange()">
         <option value="">Tutti i pagamenti</option>
-        <option value="ok">Pagato online</option>
+        <option value="ok">Pagata online</option>
         <option value="wait">Da pagare all'arrivo</option>
         <option value="pending">In attesa</option>
-        <option value="refund">Rimborsato</option>
+        <option value="partial">Parzialmente saldata</option>
+        <option value="refund">Rimborsata</option>
       </select>
       <select id="filterType" onchange="onFilterChange()">
         <option value="">Tutte le esperienze</option>
@@ -467,7 +472,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
 </div><!-- /app -->
 
 <!-- MODAL -->
-<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal(false)">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-head">
       <h2 id="modalTitle">Nuova prenotazione</h2>
@@ -486,7 +491,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
             <option value="private">Privata</option>
           </select>
         </div>
-        <div class="field"><label>N° ospiti</label><input type="number" id="in-guests" min="1" value="2" onchange="suggestPrice()"></div>
+        <div class="field" id="f-guests"><label>N° ospiti</label><input type="number" id="in-guests" min="1" max="10" value="2" onchange="suggestPrice()"></div>
       </div>
       <div class="hint" id="edit-move-hint" style="display:none;font-size:11.5px;color:var(--text-faint);margin:-6px 0 10px">
         Per spostare data o fascia: elimina e ricrea la prenotazione (la capacità degli slot è gestita dal sistema).
@@ -496,15 +501,21 @@ input,select,textarea{font-family:inherit;font-size:15px}
       <div class="field" id="f-name"><label>Nome e cognome</label><input type="text" id="in-name"></div>
       <div class="row">
         <div class="field"><label>Telefono</label><input type="tel" id="in-phone" placeholder="+39…"></div>
-        <div class="field"><label>Email</label><input type="email" id="in-email" placeholder="email@esempio.it"></div>
+        <div class="field"><label>Email (facoltativa)</label><input type="email" id="in-email" placeholder="email@esempio.it">
+          <div class="hint">Se vuota viene usato un segnaposto; il cliente non riceve email.</div>
+        </div>
       </div>
 
       <div class="section-label">Pagamento</div>
       <div class="row">
         <div class="field"><label>Prezzo totale (€)</label><input type="number" id="in-price" min="0" step="1"></div>
         <div class="field"><label>Stato</label>
-          <select id="in-status"></select>
+          <select id="in-status" onchange="toggleAcconto()"></select>
         </div>
+      </div>
+      <div class="field" id="f-paid" style="display:none"><label>Acconto ricevuto (€)</label>
+        <input type="number" id="in-paid" min="0" step="1">
+        <div class="hint">Quanto è già stato pagato; il saldo si incassa all'arrivo.</div>
       </div>
       <div class="hint" id="status-hint" style="font-size:11.5px;color:var(--text-faint);margin:-6px 0 10px"></div>
 
@@ -544,7 +555,7 @@ const MAX_SHARED = 10;
 let PRICES = { shared:{online:159,arrival:169}, private:{online:259,arrival:269} };
 
 // Stati "vista" (pill) derivati da status + payment_method reali
-const STATUS_LABEL = { ok:"Pagato online", wait:"Da pagare all'arrivo", pending:"In attesa", refund:"Rimborsato" };
+const STATUS_LABEL = { ok:"Pagata online", wait:"Da pagare all'arrivo", pending:"In attesa", partial:"Parz. saldata", refund:"Rimborsata" };
 const TYPE_LABEL   = { shared:'Condivisa', private:'Privata' };
 const MONTHS = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 const WD = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
@@ -617,9 +628,10 @@ function monthRange(){
   const last  = dateKey(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1, 0));
   return { first, last };
 }
-// status+payment_method reali → stato "vista"
+// status+payment_method+acconto reali → stato "vista"
 function payState(b){
   if (b.status === 'refunded') return 'refund';
+  if (Number(b.amount_paid) > 0) return 'partial';
   if (b.status === 'pending')  return 'pending';
   if (b.payment_method === 'arrival') return 'wait';
   return 'ok';
@@ -636,6 +648,7 @@ function rowToVM(b){
     name: b.name || '—',
     phone: b.phone || '', email: b.email || '',
     price: Number(b.amount_eur)||0,
+    paid: Number(b.amount_paid)||0,
     state: payState(b),
     rawStatus: b.status, rawPayment: b.payment_method,
     notes: b.notes || '',
@@ -670,6 +683,10 @@ function mName(s){
 }
 function mContact(s){ return privacy.contact ? escapeHtml(s) : '<span class="masked">•••</span>'; }
 function mPrice(n){ return privacy.price ? '€'+escapeHtml(n) : '<span class="masked">€•••</span>'; }
+function mPriceFull(b){
+  if (!privacy.price) return '<span class="masked">€•••</span>';
+  return b.state==='partial' ? '€'+escapeHtml(b.price)+' <small>(acc. €'+escapeHtml(b.paid)+')</small>' : '€'+escapeHtml(b.price);
+}
 function mNotes(s){ return privacy.notes ? escapeHtml(s) : '<span class="masked">•••</span>'; }
 
 /* ============ Data loading ============ */
@@ -688,7 +705,7 @@ async function loadPrices(){
 
 // true quando il database ha la colonna created_by (script SQL eseguito)
 let ownershipReady = true;
-const BK_COLS      = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,slots!inner(date,time)';
+const BK_COLS      = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,amount_paid,notes,created_at,created_by,slots!inner(date,time)';
 const BK_COLS_BASE = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,slots!inner(date,time)';
 
 async function fetchBookings(applyRange){
@@ -697,7 +714,7 @@ async function fetchBookings(applyRange){
   if (applyRange){ const { first, last } = monthRange(); q = q.gte('slots.date', first).lte('slots.date', last); }
   let { data, error } = await q;
   // fallback: colonna created_by non ancora creata → sola lettura
-  if (error && ownershipReady && /created_by/.test(error.message||'')){
+  if (error && ownershipReady && /created_by|amount_paid/.test(error.message||'')){
     ownershipReady = false;
     document.getElementById('setupBanner').style.display = 'block';
     return fetchBookings(applyRange);
@@ -884,7 +901,7 @@ function bookingCard(b){
       <span class="origin-tag ${b.mine?'mine':'site'}">${b.mine?'Tua':'Sito'}</span>
       <span class="type-tag">${TYPE_LABEL[b.type]}</span>
       <span>· ${b.guests} osp.</span>
-      <span>· ${mPrice(b.price)}</span>
+      <span>· ${mPriceFull(b)}</span>
     </div>
     ${notes.join('')}
   </button>`;
@@ -958,7 +975,7 @@ function listCard(b){
     </div>
     <div class="right">
       <span class="pill ${b.state}">${STATUS_LABEL[b.state]}</span>
-      <span class="price">${mPrice(b.price)}</span>
+      <span class="price">${mPriceFull(b)}</span>
     </div>
   </button>`;
 }
@@ -974,10 +991,31 @@ populateSlotSelects();
 
 function findVM(id){ return monthRows.find(x=>x.id===id) || (allRows||[]).find(x=>x.id===id); }
 
-const MODAL_INPUTS = ['in-date','in-slot','in-type','in-guests','in-name','in-phone','in-email','in-price','in-status','in-notes'];
+const MODAL_INPUTS = ['in-date','in-slot','in-type','in-guests','in-name','in-phone','in-email','in-price','in-status','in-paid','in-notes'];
 function setModalReadOnly(ro){
   MODAL_INPUTS.forEach(i=>{ document.getElementById(i).disabled = ro; });
   document.getElementById('saveBtn').style.display = ro ? 'none' : 'inline-flex';
+}
+const STATUS_OPTIONS = `
+  <option value="wait">Da pagare all'arrivo</option>
+  <option value="ok">Pagata online / per intero</option>
+  <option value="partial">Parzialmente saldata (acconto)</option>
+  <option value="pending">In attesa</option>`;
+function toggleAcconto(){
+  const partial = document.getElementById('in-status').value === 'partial';
+  document.getElementById('f-paid').style.display = partial ? 'block' : 'none';
+}
+
+// Bozza: se la finestra si chiude per sbaglio (click fuori / Esc),
+// i dati inseriti vengono ripristinati alla riapertura.
+let draft = null;
+function snapshotDraft(){
+  const d = {};
+  MODAL_INPUTS.forEach(i=>{ d[i] = document.getElementById(i).value; });
+  return d;
+}
+function restoreDraft(d){
+  MODAL_INPUTS.forEach(i=>{ if(d[i]!==undefined) document.getElementById(i).value = d[i]; });
 }
 
 function openModal(id=null, presetDate=null, presetSlot=null){
@@ -991,29 +1029,29 @@ function openModal(id=null, presetDate=null, presetSlot=null){
   if(id){
     const b = findVM(id);
     if(!b){ toast('Prenotazione non trovata', true); return; }
-    const editable = b.mine && ownershipReady;
+    const editable = b.mine && ownershipReady && b.state!=='refund';
     title.textContent = editable ? 'Modifica prenotazione' : 'Dettagli prenotazione';
+    statusSel.innerHTML = STATUS_OPTIONS + `<option value="refund">Rimborsata</option>`;
     setVal('in-date',b.date); setVal('in-slot',b.slot); setVal('in-type',b.type);
     setVal('in-guests',b.guests); setVal('in-name',b.name);
     setVal('in-phone',b.phone); setVal('in-email',b.email); setVal('in-price',b.price);
-    setVal('in-notes',b.notes);
-    statusSel.innerHTML = `<option value="wait">Confermata · paga all'arrivo</option><option value="pending">In attesa</option><option value="ok">Pagato online</option><option value="refund">Rimborsato</option>`;
+    setVal('in-paid', b.paid||''); setVal('in-notes',b.notes);
     setVal('in-status', b.state);
     if (editable){
       setModalReadOnly(false);
       // data/fascia/tipo non modificabili dopo la creazione (i posti sono gestiti dal sistema)
+      statusSel.innerHTML = STATUS_OPTIONS;
+      setVal('in-status', b.state);
       document.getElementById('in-date').disabled = true;
       document.getElementById('in-slot').disabled = true;
       document.getElementById('in-type').disabled = true;
       document.getElementById('edit-move-hint').style.display = 'block';
-      statusSel.innerHTML = `<option value="wait">Confermata · paga all'arrivo</option><option value="pending">In attesa</option>`;
-      setVal('in-status', b.state==='pending' ? 'pending' : 'wait');
       statusHint.textContent = '';
       delBtn.style.display = 'inline-block';
     } else {
       setModalReadOnly(true);
       statusHint.textContent = b.mine
-        ? 'Configurazione database mancante: pagina in sola lettura.'
+        ? (b.state==='refund' ? 'Prenotazione rimborsata — sola lettura.' : 'Configurazione database mancante: pagina in sola lettura.')
         : 'Prenotazione dal sito o dall\'amministrazione — sola lettura.';
       delBtn.style.display = 'none';
     }
@@ -1022,20 +1060,36 @@ function openModal(id=null, presetDate=null, presetSlot=null){
     title.textContent = 'Nuova prenotazione';
     setModalReadOnly(false);
     delBtn.style.display='none';
-    setVal('in-date', presetDate || selectedDate || todayKey());
-    setVal('in-slot', presetSlot || SLOT_TIMES[0]);
-    setVal('in-type','shared'); setVal('in-guests',2);
-    setVal('in-name',''); setVal('in-phone',''); setVal('in-email','');
-    setVal('in-notes','');
-    statusSel.innerHTML = `<option value="wait">Confermata · paga all'arrivo</option><option value="pending">In attesa</option>`;
-    setVal('in-status','wait');
-    statusHint.textContent = 'Le prenotazioni manuali risultano "da pagare all\'arrivo". Nessuna email automatica al cliente.';
-    suggestPrice(true);
+    statusSel.innerHTML = STATUS_OPTIONS;
+    if (draft){
+      restoreDraft(draft);
+    } else {
+      setVal('in-type','shared'); setVal('in-guests',2);
+      setVal('in-name',''); setVal('in-phone',''); setVal('in-email','');
+      setVal('in-paid',''); setVal('in-notes','');
+      setVal('in-status','wait');
+      suggestPrice(true);
+    }
+    // data/fascia cliccate hanno la precedenza sulla bozza
+    if (presetDate || !getVal('in-date')) setVal('in-date', presetDate || selectedDate || todayKey());
+    if (presetSlot || !getVal('in-slot')) setVal('in-slot', presetSlot || SLOT_TIMES[0]);
+    statusHint.textContent = 'Nessuna email automatica al cliente per le prenotazioni manuali.';
   }
+  toggleAcconto();
   document.getElementById('overlay').classList.add('open');
   setTimeout(()=>document.getElementById('in-name').focus(),60);
 }
-function closeModal(){ document.getElementById('overlay').classList.remove('open'); editingId=null; }
+// discard=true (X, Annulla, salvataggio): la bozza viene eliminata.
+// discard=false (click fuori, Esc): la bozza viene conservata.
+function closeModal(discard=true){
+  if (!discard && !editingId && document.getElementById('overlay').classList.contains('open')){
+    draft = snapshotDraft();
+  } else if (discard){
+    draft = null;
+  }
+  document.getElementById('overlay').classList.remove('open');
+  editingId=null;
+}
 function setVal(id,v){ document.getElementById(id).value = (v===undefined||v===null)?'':v; }
 function getVal(id){ return document.getElementById(id).value.trim(); }
 function suggestPrice(force=false){
@@ -1059,12 +1113,18 @@ async function saveBooking(){
     guests:Number(getVal('in-guests'))||1, name:getVal('in-name'),
     phone:getVal('in-phone'), email:getVal('in-email'),
     price:Number(getVal('in-price'))||0, state:getVal('in-status'),
+    paid:Number(getVal('in-paid'))||0,
     notes:getVal('in-notes'),
   };
   let ok=true;
   if(!data.date){markInvalid('f-date');ok=false;}
-  if(!data.name){markInvalid('f-name');ok=false;}
-  if(!ok){ toast('Compila i campi evidenziati', true); return; }
+  if(!data.name || data.name.length<2){markInvalid('f-name');ok=false;}
+  if(data.guests<1 || data.guests>10){markInvalid('f-guests');ok=false; toast('Massimo 10 ospiti per prenotazione', true);}
+  if(data.state==='partial'){
+    if(!(data.paid>0)){ markInvalid('f-paid'); ok=false; toast('Inserisci l\'acconto ricevuto', true); }
+    else if(data.paid>=data.price && data.price>0){ markInvalid('f-paid'); ok=false; toast('L\'acconto copre l\'intero importo: usa "Pagata online"', true); }
+  }
+  if(!ok){ if(!document.getElementById('toast').classList.contains('show')) toast('Compila i campi evidenziati', true); return; }
 
   saveBtn.disabled = true; saveBtn.textContent = 'Salvataggio…';
   try{
@@ -1077,6 +1137,14 @@ async function saveBooking(){
     saveBtn.disabled = false; saveBtn.textContent = 'Salva prenotazione';
   }
 }
+// stato "vista" → parametri reali per il database
+function stateToParams(data){
+  return {
+    p_status:  data.state==='pending' ? 'pending' : 'confirmed',
+    p_payment: data.state==='ok' ? 'online' : 'arrival',
+    p_amount_paid: data.state==='partial' ? data.paid : null,
+  };
+}
 
 // traduce gli errori delle funzioni database in messaggi comprensibili
 function rpcErrorMsg(error){
@@ -1087,7 +1155,9 @@ function rpcErrorMsg(error){
   if (/ALREADY_CANCELLED/.test(m))return 'Prenotazione già cancellata.';
   if (/INVALID_INPUT/.test(m))    return 'Dati non validi: controlla ospiti e stato.';
   if (/Could not find the function|schema cache/i.test(m))
-    return 'Funzioni database mancanti: esegui lo script setup-calendario.sql su Supabase.';
+    return 'Funzioni database mancanti o non aggiornate: esegui lo script setup-calendario.sql su Supabase.';
+  if (/persons.*check|check.*persons/i.test(m)) return 'Numero ospiti non valido (da 1 a 10).';
+  if (/email.*check|null value.*email/i.test(m)) return 'Email non valida.';
   return 'Errore: ' + m;
 }
 
@@ -1098,9 +1168,9 @@ async function updateBooking(id, data){
     p_email: data.email || null,
     p_phone: data.phone || null,
     p_persons: data.guests,
-    p_status: data.state==='pending' ? 'pending' : 'confirmed',
     p_amount: data.price,
     p_notes: data.notes || null,
+    ...stateToParams(data),
   });
   if (error){ toast(rpcErrorMsg(error), true); return; }
   toast('Prenotazione aggiornata');
@@ -1124,10 +1194,10 @@ async function createBooking(data, force=false){
     p_phone: data.phone || null,
     p_persons: data.guests,
     p_type: data.type,
-    p_status: data.state==='pending' ? 'pending' : 'confirmed',
     p_amount: data.price,
     p_notes: data.notes || null,
     p_force: force,
+    ...stateToParams(data),
   });
   if (error){
     if (/SOLD_OUT/.test(error.message||'')){
@@ -1168,7 +1238,8 @@ function toast(msg, isErr=false){
   t.classList.add('show');
   clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'), isErr?5200:2400);
 }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(false); });
+/* v3 — stato pagamenti esteso + bozza anti-perdita dati */
 </script>
 </body>
 </html>
