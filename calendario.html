@@ -505,19 +505,19 @@ input,select,textarea{font-family:inherit;font-size:15px}
       <div class="section-label">Ospite</div>
       <div class="hide-note" id="hide-note"><span>🔒</span><span>Spunta <b>«Nascondi alla tenuta»</b> per non mostrare quel dato nel pannello admin della tenuta. Tu, qui nel calendario, vedi sempre tutto.</span></div>
       <div class="field" id="f-name"><label>Nome e cognome</label><input type="text" id="in-name">
-        <label class="hide-toggle" id="wrap-hf-name"><input type="checkbox" id="hf-name" onchange="onHideToggle('name')"> 🔒 Nascondi il nome alla tenuta</label></div>
+        <label class="hide-toggle" id="wrap-hf-name"><input type="checkbox" id="hf-name" onchange="onHideToggle('name')"> 🔒 Nascondi</label></div>
       <div class="row">
         <div class="field"><label>Telefono</label><input type="tel" id="in-phone" placeholder="+39…"></div>
         <div class="field"><label>Email (facoltativa)</label><input type="email" id="in-email" placeholder="email@esempio.it">
           <div class="hint">Se vuota viene usato un segnaposto; il cliente non riceve email.</div>
         </div>
       </div>
-      <label class="hide-toggle" id="wrap-hf-contact"><input type="checkbox" id="hf-contact" onchange="onHideToggle('contact')"> 🔒 Nascondi telefono ed email alla tenuta</label>
+      <label class="hide-toggle" id="wrap-hf-contact"><input type="checkbox" id="hf-contact" onchange="onHideToggle('contact')"> 🔒 Nascondi</label>
 
       <div class="section-label">Pagamento</div>
       <div class="row">
         <div class="field"><label>Prezzo totale (€)</label><input type="number" id="in-price" min="0" step="1">
-          <label class="hide-toggle" id="wrap-hf-price"><input type="checkbox" id="hf-price" onchange="onHideToggle('price')"> 🔒 Nascondi il prezzo alla tenuta</label></div>
+          <label class="hide-toggle" id="wrap-hf-price"><input type="checkbox" id="hf-price" onchange="onHideToggle('price')"> 🔒 Nascondi</label></div>
         <div class="field"><label>Stato</label>
           <select id="in-status" onchange="toggleAcconto()"></select>
         </div>
@@ -531,7 +531,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
       <div class="section-label">Note per l'esperienza</div>
       <div class="field"><label>Intolleranze, allergie, richieste speciali</label>
         <textarea id="in-notes" placeholder="Es. senza glutine · anniversario · accesso passeggino…"></textarea>
-        <label class="hide-toggle" id="wrap-hf-notes"><input type="checkbox" id="hf-notes" onchange="onHideToggle('notes')"> 🔒 Nascondi le note alla tenuta</label>
+        <label class="hide-toggle" id="wrap-hf-notes"><input type="checkbox" id="hf-notes" onchange="onHideToggle('notes')"> 🔒 Nascondi</label>
       </div>
     </div>
     <div class="modal-foot">
