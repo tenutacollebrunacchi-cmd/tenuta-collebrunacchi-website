@@ -948,6 +948,20 @@ async function loadDashboard() {
 }
 
 // ── Calendario ────────────────────────────────────────────────
+/* ==== Privacy per prenotazione: campi che Francesca nasconde alla tenuta ==== */
+const HF_MARK = '‖HF:';
+const HF_LOCK = '<span style="color:#9AA0A6;font-style:italic">🔒 Nascosto</span>';
+function bkHidden(b){
+  const raw = String((b && b.notes) || '');
+  const hidden = { name:false, contact:false, price:false, notes:false };
+  const i = raw.indexOf(HF_MARK);
+  const notes = i === -1 ? raw : raw.slice(0, i);
+  if (i !== -1 && b && b.created_by){
+    raw.slice(i + HF_MARK.length).split(',').forEach(k => { k = k.trim(); if (k in hidden) hidden[k] = true; });
+  }
+  return { notes, hidden };   // i flag valgono solo per prenotazioni del calendario (created_by)
+}
+
 async function loadCalendar() {
   await fetchCalendarData()
   renderCalendarGrid()
@@ -959,7 +973,7 @@ async function fetchCalendarData() {
 
   const [{ data: bookings }, { data: blocked }, { data: minimums }] = await Promise.all([
     db.from('bookings')
-      .select('id,slot_id,name,persons,type,status,payment_method,amount_eur,slots(date,time)')
+      .select('id,slot_id,name,persons,type,status,payment_method,amount_eur,notes,created_by,slots(date,time)')
       .gte('slots.date', first).lte('slots.date', last)
       .neq('status','cancelled'),
     db.from('blocked_slots').select('date,time,reason').gte('date', first).lte('date', last),
@@ -1085,7 +1099,7 @@ function renderSidebarContent(date) {
         const type = b.type === 'private' ? 'Privato' : 'Condiviso'
         return `<div class="cal-slot-booking-row">
           <div>
-            <div class="cal-slot-name">${esc(b.name)}</div>
+            <div class="cal-slot-name">${bkHidden(b).hidden.name ? HF_LOCK : esc(b.name)}</div>
             <div class="cal-slot-meta"><span>${b.persons} pers.</span><span>·</span><span>${type}</span><span>·</span>${pay}<span>·</span>${statusBadge(b.status)}</div>
           </div>
           <button class="btn btn-ghost btn-sm" onclick="openBookingModal('${b.id}')">Dettagli</button>
@@ -1206,7 +1220,12 @@ function renderBookingsTable() {
     if (originF === 'site'   &&  b.created_by) return false
     if (originF === 'manual' && !b.created_by) return false
     if (filter && b.status !== filter) return false
-    if (search && !b.name?.toLowerCase().includes(search) && !b.email?.toLowerCase().includes(search)) return false
+    if (search) {
+      const hh = bkHidden(b).hidden
+      const nameHit = !hh.name    && b.name?.toLowerCase().includes(search)
+      const mailHit = !hh.contact && b.email?.toLowerCase().includes(search)
+      if (!nameHit && !mailHit) return false
+    }
     return true
   })
 
@@ -1218,18 +1237,20 @@ function renderBookingsTable() {
   document.getElementById('bookings-body').innerHTML = rows.map(b => {
     const date = b.slots?.date?.slice(0,10) || '—'
     const time = b.slots?.time?.slice(0,5)  || '—'
+    const h    = bkHidden(b).hidden
+    const payAmt = h.price ? '🔒' : `€${b.amount_eur||'?'}`
     const pay  = b.payment_method === 'arrival'
-      ? `<span class="badge badge-arrival">Arrivo €${b.amount_eur||'?'}</span>`
+      ? `<span class="badge badge-arrival">Arrivo ${payAmt}</span>`
       : `<span class="badge badge-online">Online</span>`
     return `<tr>
       <td>${date}</td>
       <td>${time}</td>
-      <td><strong>${esc(b.name)}</strong>${b.created_by ? ' <span class="badge badge-manual">Calendario</span>' : ''}</td>
-      <td style="font-size:12px">${esc(b.email)}</td>
+      <td><strong>${h.name ? HF_LOCK : esc(b.name)}</strong>${b.created_by ? ' <span class="badge badge-manual">Calendario</span>' : ''}</td>
+      <td style="font-size:12px">${h.contact ? HF_LOCK : esc(b.email)}</td>
       <td>${b.persons}</td>
       <td>${b.type === 'private' ? 'Privato' : 'Condiviso'}</td>
       <td>${pay}</td>
-      <td>€${b.amount_eur || '—'}</td>
+      <td>${h.price ? HF_LOCK : ('€' + (b.amount_eur || '—'))}</td>
       <td>${statusBadge(b.status)}</td>
       <td>
         <button class="btn btn-ghost btn-sm" onclick="openBookingModal('${b.id}')">Apri</button>
@@ -1258,20 +1279,21 @@ async function openBookingModal(id) {
   }
   const date = b.slots?.date?.slice(0,10) || '—'
   const time = b.slots?.time?.slice(0,5)  || '—'
+  const hp = bkHidden(b), h = hp.hidden
   document.getElementById('modal-booking-content').innerHTML = `
     <table style="width:100%;font-size:13px;border-collapse:collapse">
       ${row('ID', b.id)}
-      ${row('Nome', b.name)}
-      ${row('Email', b.email || '—')}
-      ${row('Telefono', b.phone || '—')}
+      ${row('Nome', h.name ? HF_LOCK : esc(b.name))}
+      ${row('Email', h.contact ? HF_LOCK : (b.email ? esc(b.email) : '—'))}
+      ${row('Telefono', h.contact ? HF_LOCK : (b.phone ? esc(b.phone) : '—'))}
       ${row('Data', date)}
       ${row('Ora', time)}
       ${row('Persone', b.persons)}
       ${row('Tipo', b.type === 'private' ? 'Privato' : 'Condiviso')}
       ${row('Pagamento', b.payment_method === 'arrival' ? 'Paga all\'arrivo' : 'Online (Stripe)')}
-      ${row('Importo', '€' + (b.amount_eur || '—'))}
+      ${row('Importo', h.price ? HF_LOCK : ('€' + (b.amount_eur || '—')))}
       ${row('Stato', statusBadge(b.status))}
-      ${b.notes ? row('Note', esc(b.notes)) : ''}
+      ${h.notes ? row('Note', HF_LOCK) : (hp.notes ? row('Note', esc(hp.notes)) : '')}
     </table>`
 
   const confirmBtn = document.getElementById('modal-confirm-btn')
