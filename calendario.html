@@ -137,6 +137,11 @@ input,select,textarea{font-family:inherit;font-size:15px}
 .privacy-bar label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-weight:500}
 .privacy-bar input[type=checkbox]{accent-color:var(--ochre);width:15px;height:15px;cursor:pointer}
 .privacy-bar .pv-hint{margin-left:auto;color:var(--text-faint);font-size:11.5px;font-style:italic}
+/* Toggle "nascondi alla tenuta" per singola prenotazione */
+.hide-toggle{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;color:var(--text-faint);cursor:pointer;user-select:none;line-height:1.3}
+.hide-toggle input{width:15px;height:15px;flex:0 0 auto;accent-color:#a56a2b;cursor:pointer;margin:0}
+.hide-toggle.on{color:#a56a2b;font-weight:600}
+.hide-note{font-size:11.5px;color:var(--text-faint);font-style:italic;margin:8px 0 2px;display:flex;gap:6px;align-items:flex-start}
 .masked{filter:none;letter-spacing:.05em}
 
 /* ---------- Calendar ---------- */
@@ -498,17 +503,21 @@ input,select,textarea{font-family:inherit;font-size:15px}
       </div>
 
       <div class="section-label">Ospite</div>
-      <div class="field" id="f-name"><label>Nome e cognome</label><input type="text" id="in-name"></div>
+      <div class="hide-note" id="hide-note"><span>🔒</span><span>Spunta <b>«Nascondi alla tenuta»</b> per non mostrare quel dato nel pannello admin della tenuta. Tu, qui nel calendario, vedi sempre tutto.</span></div>
+      <div class="field" id="f-name"><label>Nome e cognome</label><input type="text" id="in-name">
+        <label class="hide-toggle" id="wrap-hf-name"><input type="checkbox" id="hf-name" onchange="onHideToggle('name')"> 🔒 Nascondi il nome alla tenuta</label></div>
       <div class="row">
         <div class="field"><label>Telefono</label><input type="tel" id="in-phone" placeholder="+39…"></div>
         <div class="field"><label>Email (facoltativa)</label><input type="email" id="in-email" placeholder="email@esempio.it">
           <div class="hint">Se vuota viene usato un segnaposto; il cliente non riceve email.</div>
         </div>
       </div>
+      <label class="hide-toggle" id="wrap-hf-contact"><input type="checkbox" id="hf-contact" onchange="onHideToggle('contact')"> 🔒 Nascondi telefono ed email alla tenuta</label>
 
       <div class="section-label">Pagamento</div>
       <div class="row">
-        <div class="field"><label>Prezzo totale (€)</label><input type="number" id="in-price" min="0" step="1"></div>
+        <div class="field"><label>Prezzo totale (€)</label><input type="number" id="in-price" min="0" step="1">
+          <label class="hide-toggle" id="wrap-hf-price"><input type="checkbox" id="hf-price" onchange="onHideToggle('price')"> 🔒 Nascondi il prezzo alla tenuta</label></div>
         <div class="field"><label>Stato</label>
           <select id="in-status" onchange="toggleAcconto()"></select>
         </div>
@@ -522,6 +531,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
       <div class="section-label">Note per l'esperienza</div>
       <div class="field"><label>Intolleranze, allergie, richieste speciali</label>
         <textarea id="in-notes" placeholder="Es. senza glutine · anniversario · accesso passeggino…"></textarea>
+        <label class="hide-toggle" id="wrap-hf-notes"><input type="checkbox" id="hf-notes" onchange="onHideToggle('notes')"> 🔒 Nascondi le note alla tenuta</label>
       </div>
     </div>
     <div class="modal-foot">
@@ -636,11 +646,45 @@ function payState(b){
   if (b.payment_method === 'arrival') return 'wait';
   return 'ok';
 }
+/* ==== Privacy per prenotazione: campi che Francesca nasconde alla tenuta (pannello admin) ==== */
+const HF_MARK = '‖HF:';           // sentinella anti-collisione in coda alle note (mai mostrata nelle viste)
+const HF_KEYS = ['name','contact','price','notes'];
+function splitHidden(raw){                    // note dal DB → { notes reali, flag nascosti }
+  const s = String(raw||'');
+  const hidden = { name:false, contact:false, price:false, notes:false };
+  const i = s.indexOf(HF_MARK);
+  if (i === -1) return { notes:s, hidden };
+  s.slice(i + HF_MARK.length).split(',').forEach(k => { k = k.trim(); if (k in hidden) hidden[k] = true; });
+  return { notes: s.slice(0, i), hidden };
+}
+function buildHiddenNotes(realNotes, hidden){ // note reali + flag → stringa da salvare
+  const on = HF_KEYS.filter(k => hidden && hidden[k]);
+  const base = String(realNotes||'');
+  return on.length ? base + HF_MARK + on.join(',') : base;
+}
+function onHideToggle(k){
+  const cb = document.getElementById('hf-'+k);
+  document.getElementById('wrap-hf-'+k).classList.toggle('on', cb.checked);
+}
+function setHideToggles(hidden){
+  HF_KEYS.forEach(k => {
+    const cb = document.getElementById('hf-'+k);
+    cb.checked = !!(hidden && hidden[k]);
+    document.getElementById('wrap-hf-'+k).classList.toggle('on', cb.checked);
+  });
+}
+function showHideToggles(show){
+  HF_KEYS.forEach(k => { document.getElementById('wrap-hf-'+k).style.display = show ? 'inline-flex' : 'none'; });
+  const note = document.getElementById('hide-note');
+  if (note) note.style.display = show ? 'flex' : 'none';
+}
+
 // riga DB → view-model usato dalle viste
 function rowToVM(b){
   const date = b.slots?.date ? b.slots.date.slice(0,10) : null;
   const slot = b.slots?.time ? b.slots.time.slice(0,5)  : null;
   const uid  = session?.user?.id || null;
+  const hf   = splitHidden(b.notes);
   return {
     id: b.id, date, slot,
     type: b.type === 'private' ? 'private' : 'shared',
@@ -651,7 +695,8 @@ function rowToVM(b){
     paid: Number(b.amount_paid)||0,
     state: payState(b),
     rawStatus: b.status, rawPayment: b.payment_method,
-    notes: b.notes || '',
+    notes: hf.notes,
+    adminHidden: hf.hidden,
     // proprietà: modificabile solo da chi l'ha creata in questo calendario
     mine: !!(uid && b.created_by && b.created_by === uid),
   };
@@ -1012,10 +1057,12 @@ let draft = null;
 function snapshotDraft(){
   const d = {};
   MODAL_INPUTS.forEach(i=>{ d[i] = document.getElementById(i).value; });
+  d.__hidden = {}; HF_KEYS.forEach(k=>{ d.__hidden[k] = document.getElementById('hf-'+k).checked; });
   return d;
 }
 function restoreDraft(d){
   MODAL_INPUTS.forEach(i=>{ if(d[i]!==undefined) document.getElementById(i).value = d[i]; });
+  setHideToggles(d.__hidden);
 }
 
 function openModal(id=null, presetDate=null, presetSlot=null){
@@ -1048,12 +1095,14 @@ function openModal(id=null, presetDate=null, presetSlot=null){
       document.getElementById('edit-move-hint').style.display = 'block';
       statusHint.textContent = '';
       delBtn.style.display = 'inline-block';
+      setHideToggles(b.adminHidden); showHideToggles(true);
     } else {
       setModalReadOnly(true);
       statusHint.textContent = b.mine
         ? (b.state==='refund' ? 'Prenotazione rimborsata — sola lettura.' : 'Configurazione database mancante: pagina in sola lettura.')
         : 'Prenotazione dal sito o dall\'amministrazione — sola lettura.';
       delBtn.style.display = 'none';
+      showHideToggles(false);
     }
   } else {
     if (!ownershipReady){ toast('Prima esegui lo script di configurazione del database (setup-calendario.sql)', true); return; }
@@ -1068,8 +1117,10 @@ function openModal(id=null, presetDate=null, presetSlot=null){
       setVal('in-name',''); setVal('in-phone',''); setVal('in-email','');
       setVal('in-paid',''); setVal('in-notes','');
       setVal('in-status','wait');
+      setHideToggles(null);
       suggestPrice(true);
     }
+    showHideToggles(true);
     // data/fascia cliccate hanno la precedenza sulla bozza
     if (presetDate || !getVal('in-date')) setVal('in-date', presetDate || selectedDate || todayKey());
     if (presetSlot || !getVal('in-slot')) setVal('in-slot', presetSlot || SLOT_TIMES[0]);
@@ -1115,6 +1166,12 @@ async function saveBooking(){
     price:Number(getVal('in-price'))||0, state:getVal('in-status'),
     paid:Number(getVal('in-paid'))||0,
     notes:getVal('in-notes'),
+    hidden:{
+      name:    document.getElementById('hf-name').checked,
+      contact: document.getElementById('hf-contact').checked,
+      price:   document.getElementById('hf-price').checked,
+      notes:   document.getElementById('hf-notes').checked,
+    },
   };
   let ok=true;
   if(!data.date){markInvalid('f-date');ok=false;}
@@ -1169,7 +1226,7 @@ async function updateBooking(id, data){
     p_phone: data.phone || null,
     p_persons: data.guests,
     p_amount: data.price,
-    p_notes: data.notes || null,
+    p_notes: buildHiddenNotes(data.notes, data.hidden) || null,
     ...stateToParams(data),
   });
   if (error){ toast(rpcErrorMsg(error), true); return; }
@@ -1195,7 +1252,7 @@ async function createBooking(data, force=false){
     p_persons: data.guests,
     p_type: data.type,
     p_amount: data.price,
-    p_notes: data.notes || null,
+    p_notes: buildHiddenNotes(data.notes, data.hidden) || null,
     p_force: force,
     ...stateToParams(data),
   });
