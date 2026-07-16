@@ -866,7 +866,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
 // ── Dashboard ─────────────────────────────────────────────────
 async function loadDashboard() {
   const { data: bookings } = await db.from('bookings')
-    .select('id,status,amount_eur,created_at,payment_method,created_by')
+    .select('id,status,amount_eur,created_at,payment_method,created_by,notes')
     .order('created_at', { ascending: true })
 
   if (!bookings) return
@@ -892,10 +892,15 @@ async function loadDashboard() {
   // Prenotazioni caricate manualmente dal calendario (staff): mostrate a parte,
   // fuori dal fatturato del sito.
   const manualConfirmed = bookings.filter(b => b.created_by && b.status === 'confirmed')
-  const manualRev = manualConfirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+  // il totale considera solo i prezzi che lo staff ha scelto di mostrare
+  const manualVisible = manualConfirmed.filter(b => !bkHidden(b).hidden.price)
+  const manualRev = manualVisible.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+  const nRiservate = manualConfirmed.length - manualVisible.length
   document.getElementById('stat-manual').textContent = manualConfirmed.length
   document.getElementById('stat-manual-sub').textContent =
-    '€' + manualRev.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' · fuori fatturato'
+    '€' + manualRev.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0})
+    + (nRiservate ? ' (+' + nRiservate + ' riservat' + (nRiservate===1?'a':'e') + ')' : '')
+    + ' · fuori fatturato'
 
   // Build monthly aggregates (last 12 months)
   const monthly = {}
