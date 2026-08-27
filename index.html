@@ -2394,6 +2394,9 @@
 .review-photo{width:72px;height:72px;object-fit:cover;border-radius:6px;cursor:pointer;
   transition:transform .15s,opacity .15s}
 .review-photo:hover{transform:scale(1.05);opacity:.9}
+.review-photo-more{display:flex;align-items:center;justify-content:center;border:0;background:rgba(255,255,255,0.12);color:#fff;font-size:14px;font-weight:600;font-family:inherit}
+.review-photo-more:hover{background:rgba(255,255,255,0.2);opacity:1}
+@media (max-width:640px){.review-photo,.review-photo-more{width:60px;height:60px}}
     .review-quote.clamped{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px}
     .review-more{background:none;border:0;padding:0;cursor:pointer;font-family:inherit;color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:18px}
     .review-more:hover{text-decoration:underline}
@@ -3849,9 +3852,19 @@
       </div>`
       const quote  = r.body && r.body !== '★★★★★'
         ? `<p class="review-quote clamped">"${r.body}"</p><button class="review-more" type="button" hidden>Read more</button>` : ''
-      const photos = (Array.isArray(r.photo_urls) && r.photo_urls.length)
-        ? `<div class="review-photos">${r.photo_urls.map((u,i)=>`<img src="${u}" loading="lazy" alt="Guest photo" class="review-photo" data-photos='${JSON.stringify(r.photo_urls).replace(/'/g,"&#39;")}' data-index="${i}">`).join('')}</div>`
-        : ''
+      const photos = (() => {
+        if (!Array.isArray(r.photo_urls) || !r.photo_urls.length) return ''
+        const all = JSON.stringify(r.photo_urls).replace(/'/g,"&#39;")
+        const n = r.photo_urls.length
+        const showCount = n > 4 ? 3 : n
+        const thumbs = r.photo_urls.slice(0, showCount).map((u,i) =>
+          `<img src="${u}" loading="lazy" alt="Guest photo" class="review-photo" data-photos='${all}' data-index="${i}">`
+        ).join('')
+        const more = n > showCount
+          ? `<button type="button" class="review-photo review-photo-more" data-photos='${all}' data-index="${showCount}">+${n - showCount}</button>`
+          : ''
+        return `<div class="review-photos">${thumbs}${more}</div>`
+      })()
       return `<div class="review-card">
         <div class="review-author-head" style="margin-bottom:18px">
           <div style="font-size:17px;font-weight:600;letter-spacing:.3px;color:#fff;font-family:var(--font-serif)">${r.name}</div>
@@ -3925,7 +3938,11 @@
 
 ;(async function updatePricingSubtitle() {
   try {
-    const res = await fetch('https://ioyjhvlbamgiiqdtgutk.supabase.co/rest/v1/price_settings?select=key,value_eur&key=in.(shared_online,shared_arrival,private_online)', {
+    // Prezzi validi OGGI: price_for_date applica il periodo stagionale in corso
+    // (price_periods) sopra ai prezzi base di price_settings.
+    const _d = new Date()
+    const _today = _d.getFullYear() + '-' + String(_d.getMonth() + 1).padStart(2, '0') + '-' + String(_d.getDate()).padStart(2, '0')
+    const res = await fetch('https://ioyjhvlbamgiiqdtgutk.supabase.co/rest/v1/rpc/price_for_date?p_date=' + _today, {
       headers: {
         'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko',
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'

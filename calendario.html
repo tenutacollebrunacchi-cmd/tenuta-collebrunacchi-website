@@ -563,6 +563,8 @@ const MAX_SHARED = 10;
 
 // Prezzi a persona (caricati da price_settings, con fallback)
 let PRICES = { shared:{online:159,arrival:169}, private:{online:259,arrival:269} };
+// Periodi stagionali attivi (price_periods), gia' ordinati per priorita'
+let PRICE_PERIODS = [];
 
 // Stati "vista" (pill) derivati da status + payment_method reali
 const STATUS_LABEL = { ok:"Pagata online", wait:"Da pagare all'arrivo", pending:"In attesa", partial:"Parz. saldata", refund:"Rimborsata" };
@@ -737,7 +739,16 @@ function mNotes(s){ return privacy.notes ? escapeHtml(s) : '<span class="masked"
 /* ============ Data loading ============ */
 async function loadPrices(){
   try{
-    const { data } = await db.from('price_settings').select('key,value_eur');
+    const [baseRes, periodRes] = await Promise.all([
+      db.from('price_settings').select('key,value_eur'),
+      db.from('price_periods')
+        .select('name,start_date,end_date,shared_online,shared_arrival,private_online,private_arrival')
+        .eq('active', true)
+        .order('priority',   { ascending:false })
+        .order('start_date', { ascending:false })
+        .order('created_at', { ascending:false }),
+    ]);
+    const data = baseRes.data;
     if (data?.length){
       const map = {}; data.forEach(r => map[r.key] = Number(r.value_eur));
       PRICES = {
@@ -745,7 +756,21 @@ async function loadPrices(){
         private: { online: map.private_online ?? PRICES.private.online, arrival: map.private_arrival ?? PRICES.private.arrival },
       };
     }
+    PRICE_PERIODS = Array.isArray(periodRes.data) ? periodRes.data : [];
   }catch(e){}
+}
+
+// Prezzi validi in una data (stessa regola di price_for_date sul database).
+// Campo vuoto nel periodo = si eredita il prezzo base.
+function pricesFor(dateStr){
+  if (!dateStr || !PRICE_PERIODS.length) return PRICES;
+  const p = PRICE_PERIODS.find(x => dateStr >= x.start_date && dateStr <= x.end_date);
+  if (!p) return PRICES;
+  const pick = (v, base) => (v == null ? base : Number(v));
+  return {
+    shared:  { online: pick(p.shared_online,  PRICES.shared.online),  arrival: pick(p.shared_arrival,  PRICES.shared.arrival)  },
+    private: { online: pick(p.private_online, PRICES.private.online), arrival: pick(p.private_arrival, PRICES.private.arrival) },
+  };
 }
 
 // true quando il database ha la colonna created_by (script SQL eseguito)
@@ -1146,7 +1171,8 @@ function getVal(id){ return document.getElementById(id).value.trim(); }
 function suggestPrice(force=false){
   const t = getVal('in-type');
   const n = Number(getVal('in-guests'))||1;
-  const suggested = (PRICES[t]?.arrival ?? 0) * n;
+  const P = pricesFor(getVal('in-date'));
+  const suggested = (P[t]?.arrival ?? 0) * n;
   const cur = Number(getVal('in-price'));
   // suggerisce solo in creazione, o se il campo è vuoto
   if (force || (!editingId && (!cur || cur===0)) || (!editingId && document.activeElement?.id!=='in-price')) {

@@ -835,8 +835,13 @@
 
     async function loadDynamicPrices () {
       try {
+        // Prezzi validi OGGI: price_for_date applica il periodo stagionale in corso
+        // (price_periods) sopra ai prezzi base di price_settings.
+        const _d = new Date()
+        const _today = _d.getFullYear() + '-' + String(_d.getMonth() + 1).padStart(2, '0') + '-' + String(_d.getDate()).padStart(2, '0')
+
         const [priceRes, cancelRes] = await Promise.all([
-          fetch(SUPABASE_URL + '/price_settings?select=key,value_eur', { headers }),
+          fetch(SUPABASE_URL + '/rpc/price_for_date?p_date=' + _today, { headers }),
           fetch(SUPABASE_URL + '/cancellation_policies?select=hours&order=created_at.desc&limit=1', { headers })
         ])
 

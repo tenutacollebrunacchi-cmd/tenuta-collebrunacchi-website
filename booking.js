@@ -15,6 +15,7 @@
     shared:  { online: 159, arrival: 169 },
     private: { online: 259, arrival: 269 },
   }
+  let PRICE_PERIODS       = []   // periodi stagionali attivi, gia' ordinati per priorita'
   const MAX_GUESTS  = 10
   const TIME_SLOTS  = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00']
   const MONTH_NAMES = ['January','February','March','April','May','June',
@@ -150,16 +151,41 @@
   }
 
   async function loadPrices () {
-    const { data, error } = await db
-      .from('price_settings')
-      .select('key,value_eur')
-    if (!error && data?.length) {
+    const [baseRes, periodRes] = await Promise.all([
+      db.from('price_settings').select('key,value_eur'),
+      db.from('price_periods')
+        .select('name,start_date,end_date,shared_online,shared_arrival,private_online,private_arrival')
+        .eq('active', true)
+        .order('priority',   { ascending: false })
+        .order('start_date', { ascending: false })
+        .order('created_at', { ascending: false }),
+    ])
+
+    if (!baseRes.error && baseRes.data?.length) {
       const map = {}
-      for (const row of data) map[row.key] = row.value_eur
+      for (const row of baseRes.data) map[row.key] = row.value_eur
       PRICES = {
         shared:  { online: map.shared_online  ?? PRICES.shared.online,  arrival: map.shared_arrival  ?? PRICES.shared.arrival  },
         private: { online: map.private_online ?? PRICES.private.online, arrival: map.private_arrival ?? PRICES.private.arrival },
       }
+    }
+
+    PRICE_PERIODS = (!periodRes.error && Array.isArray(periodRes.data)) ? periodRes.data : []
+  }
+
+  // Prezzi validi in una data. Stessa regola del server (price_for_date):
+  // tra i periodi attivi che contengono la data vince priority DESC, poi
+  // start_date DESC, poi created_at DESC — l'ordinamento arriva gia' dal
+  // server, quindi il primo che combacia e' quello giusto. Campo vuoto nel
+  // periodo = si eredita il prezzo base.
+  function pricesFor (dateStr) {
+    if (!dateStr || !PRICE_PERIODS.length) return PRICES
+    const p = PRICE_PERIODS.find(x => dateStr >= x.start_date && dateStr <= x.end_date)
+    if (!p) return PRICES
+    const pick = (v, base) => (v == null ? base : Number(v))
+    return {
+      shared:  { online: pick(p.shared_online,  PRICES.shared.online),  arrival: pick(p.shared_arrival,  PRICES.shared.arrival)  },
+      private: { online: pick(p.private_online, PRICES.private.online), arrival: pick(p.private_arrival, PRICES.private.arrival) },
     }
   }
 
@@ -313,7 +339,8 @@
     const cap     = Number(sl.capacity_left)
     // Private requires a fully-open slot; never keep private mode on a partly-booked one
     if (cap < 10 && S.bookingType === 'private') S.bookingType = 'shared'
-    const price   = PRICES[S.bookingType][S.paymentMethod]
+    const P       = pricesFor(sl.date)
+    const price   = P[S.bookingType][S.paymentMethod]
     const total   = price * S.persons
 
     const sharedLow  = S.bookingType === 'shared' && S.persons > cap
@@ -333,12 +360,12 @@
       <div class="bw-type-row">
         <button class="bw-type ${S.bookingType==='shared'  ? 'bw-type--on' : ''}"
                 data-bwtype="shared" type="button">
-          <strong>Shared group</strong><span>€${PRICES.shared[S.paymentMethod]}/person</span>
+          <strong>Shared group</strong><span>€${P.shared[S.paymentMethod]}/person</span>
           <small>${cap > 0 ? `${cap} spot${cap!==1?'s':''} left` : 'Full'}</small>
         </button>
         <button class="bw-type ${S.bookingType==='private' ? 'bw-type--on' : ''} ${privLocked ? 'bw-type--off' : ''}"
                 data-bwtype="private" type="button" ${privLocked ? 'disabled' : ''}>
-          <strong>Private</strong><span>€${PRICES.private[S.paymentMethod]}/person</span>
+          <strong>Private</strong><span>€${P.private[S.paymentMethod]}/person</span>
           ${privTip}
         </button>
       </div>`
@@ -387,13 +414,13 @@
             <strong>Pay online now</strong>
             <span class="bw-pay-badge">Best price</span>
           </div>
-          <span class="bw-pay-price">€${PRICES[S.bookingType].online}/person</span>
+          <span class="bw-pay-price">€${P[S.bookingType].online}/person</span>
           <small>Secure payment via Stripe</small>
         </button>
         <button class="bw-pay-opt ${S.paymentMethod==='arrival' ? 'bw-pay-opt--on' : ''}"
                 data-bwpay="arrival" type="button">
           <strong>Pay on arrival</strong>
-          <span class="bw-pay-price">€${PRICES[S.bookingType].arrival}/person</span>
+          <span class="bw-pay-price">€${P[S.bookingType].arrival}/person</span>
           <small>We confirm within 24 hours</small>
         </button>
       </div>`
@@ -720,7 +747,8 @@
         S.arrivalToken = data.token || null
         S.step = 'arrival_sent'
         try {
-          var leadPrice = (PRICES[S.bookingType] && PRICES[S.bookingType].arrival) || 0;
+          var leadP     = pricesFor(S.selectedSlot && S.selectedSlot.date);
+          var leadPrice = (leadP[S.bookingType] && leadP[S.bookingType].arrival) || 0;
           var leadValue = leadPrice * S.persons;
           window.gtag && window.gtag('event', 'generate_lead', {
             value: leadValue || undefined,
@@ -773,7 +801,8 @@
 
       if (data.url) {
         try {
-          var coPrice = (PRICES[S.bookingType] && PRICES[S.bookingType].online) || 0;
+          var coP     = pricesFor(S.selectedSlot && S.selectedSlot.date);
+          var coPrice = (coP[S.bookingType] && coP[S.bookingType].online) || 0;
           var coValue = coPrice * S.persons;
           window.gtag && window.gtag('event', 'begin_checkout', {
             value: coValue || undefined,

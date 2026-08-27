@@ -530,8 +530,82 @@
         <h1 class="page-title">Prezzi</h1>
         <p class="page-subtitle">Modifica i prezzi per tipo di prenotazione e metodo di pagamento</p>
       </div>
+      <h3 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin-bottom:6px">Prezzi base</h3>
+      <p style="font-size:13px;color:var(--warm-gray);margin-bottom:20px">Valgono in tutte le date non coperte da un periodo.</p>
       <div class="prices-grid" id="prices-grid">
         <div style="text-align:center;padding:48px;grid-column:1/-1"><span class="spinner"></span></div>
+      </div>
+
+      <!-- ── Periodi di prezzo ── -->
+      <div class="table-card" style="margin-top:32px">
+        <div class="table-card-header"><h3 id="pp-form-title">Nuovo periodo di prezzo</h3></div>
+        <div style="padding:24px">
+          <p style="font-size:13px;color:var(--warm-gray);margin-bottom:20px;line-height:1.6">
+            Nelle date comprese nel periodo valgono i prezzi indicati qui sotto.
+            <strong>Campo lasciato vuoto = resta il prezzo base.</strong>
+            Se due periodi attivi si sovrappongono vince quello con priorit&agrave; pi&ugrave; alta.
+          </p>
+          <div class="form-row">
+            <div class="fg">
+              <label class="lbl" for="pp-name">Nome periodo</label>
+              <input class="inp" id="pp-name" type="text" maxlength="60" placeholder="Alta stagione tartufo bianco">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="pp-priority">Priorit&agrave; <small style="text-transform:none;letter-spacing:0;font-weight:400">(0 = normale)</small></label>
+              <input class="inp" id="pp-priority" type="number" value="0" min="-100" max="100">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="lbl" for="pp-start">Dal</label>
+              <input class="inp" id="pp-start" type="date">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="pp-end">Al <small style="text-transform:none;letter-spacing:0;font-weight:400">(incluso)</small></label>
+              <input class="inp" id="pp-end" type="date">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="lbl" for="pp-shared_online">Shared &mdash; pagamento online</label>
+              <input class="inp" id="pp-shared_online" type="number" min="1" step="1">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="pp-shared_arrival">Shared &mdash; paga all'arrivo</label>
+              <input class="inp" id="pp-shared_arrival" type="number" min="1" step="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="lbl" for="pp-private_online">Private &mdash; pagamento online</label>
+              <input class="inp" id="pp-private_online" type="number" min="1" step="1">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="pp-private_arrival">Private &mdash; paga all'arrivo</label>
+              <input class="inp" id="pp-private_arrival" type="number" min="1" step="1">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="pp-save-btn">Crea periodo</button>
+            <button class="btn btn-ghost" id="pp-cancel-btn" style="display:none">Annulla modifica</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Periodo</th><th>Date</th><th>Shared online</th><th>Shared arrivo</th><th>Private online</th><th>Private arrivo</th><th>Priorit&agrave;</th><th>Stato</th><th>Azioni</th></tr></thead>
+            <tbody id="pp-body"><tr class="loading-row"><td colspan="9"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Verifica prezzi per data ── -->
+      <div class="chart-card" style="margin-top:28px">
+        <h3>Che prezzo vede il cliente in una data</h3>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input class="inp" id="pp-check-date" type="date" style="max-width:200px">
+          <button class="btn btn-primary btn-sm" id="pp-check-btn">Verifica</button>
+        </div>
+        <div id="pp-check-out" style="margin-top:18px"></div>
       </div>
     </div>
 
@@ -1390,6 +1464,7 @@ async function loadPrices() {
   const { data } = await db.from('price_settings').select('key,value_eur')
   const map = {}
   ;(data || []).forEach(r => { map[r.key] = r.value_eur })
+  PP_BASE = map
 
   document.getElementById('prices-grid').innerHTML = PRICE_KEYS.map(p => `
     <div class="price-box">
@@ -1403,6 +1478,14 @@ async function loadPrices() {
       <span class="form-success-msg" id="price-msg-${p.key}" style="display:none;margin-top:8px;display:none;font-size:12px"></span>
     </div>
   `).join('')
+
+  // I campi del form periodo mostrano il prezzo base come placeholder
+  PP_FIELDS.forEach(f => {
+    const el = document.getElementById('pp-' + f.key)
+    if (el) el.placeholder = map[f.key] != null ? 'Base: ' + Math.round(map[f.key]) : 'Prezzo base'
+  })
+
+  loadPricePeriods()
 }
 
 async function savePrice(key) {
@@ -1412,7 +1495,193 @@ async function savePrice(key) {
     .upsert({ key, value_eur: val, updated_at: new Date().toISOString() }, { onConflict: 'key' })
   if (error) { toast('Errore: ' + error.message, 'error'); return }
   toast('Prezzo aggiornato', 'success')
+  loadPricePeriods()
 }
+
+// ── Periodi di prezzo ─────────────────────────────────────────
+// Ordine di risoluzione identico a price_for_date() sul database:
+// tra i periodi attivi che contengono la data vince priority DESC,
+// poi start_date DESC, poi created_at DESC.
+const PP_FIELDS = [
+  { key: 'shared_online',   label: 'Shared online'  },
+  { key: 'shared_arrival',  label: 'Shared arrivo'  },
+  { key: 'private_online',  label: 'Private online' },
+  { key: 'private_arrival', label: 'Private arrivo' },
+]
+let PP_BASE  = {}
+let PP_ROWS  = []
+let ppEditId = null
+
+function ppToday() {
+  const d = new Date()
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+function ppFmt(d) { return d ? d.split('-').reverse().join('/') : '—' }
+function ppWinner(date) {
+  return PP_ROWS.find(r => r.active && date >= r.start_date && date <= r.end_date) || null
+}
+
+async function loadPricePeriods() {
+  const body = document.getElementById('pp-body')
+  if (!body) return
+  const { data, error } = await db.from('price_periods').select('*')
+    .order('priority',   { ascending: false })
+    .order('start_date', { ascending: false })
+    .order('created_at', { ascending: false })
+  if (error) {
+    body.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="ei">⚠</div><p>Errore: ${esc(error.message)}</p></div></td></tr>`
+    return
+  }
+  PP_ROWS = data || []
+  renderPricePeriods()
+}
+
+function renderPricePeriods() {
+  const body = document.getElementById('pp-body')
+  if (!PP_ROWS.length) {
+    body.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="ei">📅</div><p>Nessun periodo: valgono ovunque i prezzi base</p></div></td></tr>`
+    return
+  }
+  const now = ppWinner(ppToday())
+  body.innerHTML = PP_ROWS.map(r => {
+    const cell = k => r[k] == null
+      ? `<span style="color:var(--warm-gray)">base</span>`
+      : `<strong>€${Math.round(r[k])}</strong>`
+    const isNow  = now && now.id === r.id
+    const nowTag = isNow ? ` <span class="badge badge-active">in corso</span>` : ''
+    const stat   = r.active
+      ? `<span class="badge badge-active">Attivo</span>`
+      : `<span class="badge badge-inactive">Non attivo</span>`
+    return `<tr>
+      <td><strong>${esc(r.name)}</strong>${nowTag}</td>
+      <td style="white-space:nowrap">${ppFmt(r.start_date)} → ${ppFmt(r.end_date)}</td>
+      <td>${cell('shared_online')}</td>
+      <td>${cell('shared_arrival')}</td>
+      <td>${cell('private_online')}</td>
+      <td>${cell('private_arrival')}</td>
+      <td>${r.priority}</td>
+      <td>${stat}</td>
+      <td style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="editPricePeriod('${r.id}')">Modifica</button>
+        <button class="btn btn-ghost btn-sm" onclick="togglePricePeriod('${r.id}',${!r.active})">${r.active ? 'Disattiva' : 'Attiva'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePricePeriod('${r.id}')">Elimina</button>
+      </td>
+    </tr>`
+  }).join('')
+}
+
+function resetPricePeriodForm() {
+  ppEditId = null
+  document.getElementById('pp-form-title').textContent = 'Nuovo periodo di prezzo'
+  document.getElementById('pp-save-btn').textContent   = 'Crea periodo'
+  document.getElementById('pp-cancel-btn').style.display = 'none'
+  ;['pp-name','pp-start','pp-end'].forEach(id => { document.getElementById(id).value = '' })
+  document.getElementById('pp-priority').value = '0'
+  PP_FIELDS.forEach(f => { document.getElementById('pp-' + f.key).value = '' })
+}
+
+function editPricePeriod(id) {
+  const r = PP_ROWS.find(x => x.id === id)
+  if (!r) return
+  ppEditId = id
+  document.getElementById('pp-form-title').textContent = 'Modifica periodo'
+  document.getElementById('pp-save-btn').textContent   = 'Salva modifiche'
+  document.getElementById('pp-cancel-btn').style.display = ''
+  document.getElementById('pp-name').value     = r.name
+  document.getElementById('pp-start').value    = r.start_date
+  document.getElementById('pp-end').value      = r.end_date
+  document.getElementById('pp-priority').value = r.priority
+  PP_FIELDS.forEach(f => { document.getElementById('pp-' + f.key).value = r[f.key] == null ? '' : Math.round(r[f.key]) })
+  document.getElementById('pp-form-title').scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+async function savePricePeriod() {
+  const name  = document.getElementById('pp-name').value.trim()
+  const start = document.getElementById('pp-start').value
+  const end   = document.getElementById('pp-end').value
+  const prio  = parseInt(document.getElementById('pp-priority').value, 10) || 0
+
+  if (name.length < 2) { toast('Dai un nome al periodo', 'error'); return }
+  if (!start || !end)  { toast('Inserisci data di inizio e di fine', 'error'); return }
+  if (end < start)     { toast('La data di fine precede quella di inizio', 'error'); return }
+
+  const payload = { name, start_date: start, end_date: end, priority: prio }
+  let filled = 0
+  for (const f of PP_FIELDS) {
+    const raw = String(document.getElementById('pp-' + f.key).value).trim()
+    if (raw === '') { payload[f.key] = null; continue }
+    const v = parseFloat(raw.replace(',', '.'))
+    if (!(v > 0)) { toast('Prezzo non valido: ' + f.label, 'error'); return }
+    payload[f.key] = v
+    filled++
+  }
+  if (!filled) { toast('Compila almeno un prezzo, altrimenti il periodo non cambia nulla', 'error'); return }
+
+  const clash = PP_ROWS.filter(r => r.id !== ppEditId && r.active &&
+    !(end < r.start_date || start > r.end_date))
+  if (clash.length) {
+    const list = clash.map(r => `• ${r.name} (${ppFmt(r.start_date)} → ${ppFmt(r.end_date)}, priorità ${r.priority})`).join('\n')
+    if (!confirm('Questo periodo si sovrappone a:\n' + list + '\n\nNelle date in comune vince la priorità più alta. Procedo?')) return
+  }
+
+  const btn = document.getElementById('pp-save-btn')
+  const lbl = btn.textContent
+  btn.disabled = true; btn.textContent = 'Salvataggio…'
+  const { error } = ppEditId
+    ? await db.from('price_periods').update(payload).eq('id', ppEditId)
+    : await db.from('price_periods').insert(payload)
+  btn.disabled = false; btn.textContent = lbl
+
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast(ppEditId ? 'Periodo aggiornato' : 'Periodo creato', 'success')
+  resetPricePeriodForm()
+  loadPricePeriods()
+}
+
+async function togglePricePeriod(id, active) {
+  const { error } = await db.from('price_periods').update({ active }).eq('id', id)
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast(active ? 'Periodo attivato' : 'Periodo disattivato', 'success')
+  loadPricePeriods()
+}
+
+async function deletePricePeriod(id) {
+  const r = PP_ROWS.find(x => x.id === id)
+  if (!confirm('Eliminare il periodo "' + (r ? r.name : '') + '"? Le prenotazioni già fatte mantengono il prezzo pagato.')) return
+  const { error } = await db.from('price_periods').delete().eq('id', id)
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast('Periodo eliminato', 'success')
+  if (ppEditId === id) resetPricePeriodForm()
+  loadPricePeriods()
+}
+
+async function checkPriceForDate() {
+  const d   = document.getElementById('pp-check-date').value
+  const out = document.getElementById('pp-check-out')
+  if (!d) { toast('Scegli una data', 'error'); return }
+  out.innerHTML = '<span class="spinner"></span>'
+  const { data, error } = await db.rpc('price_for_date', { p_date: d })
+  if (error) { out.innerHTML = `<span style="color:var(--danger)">Errore: ${esc(error.message)}</span>`; return }
+  const map = {}
+  ;(data || []).forEach(r => { map[r.key] = r.value_eur })
+  const win = ppWinner(d)
+  out.innerHTML = `
+    <div class="prices-grid" style="gap:12px">
+      ${PP_FIELDS.map(f => `
+        <div class="price-box" style="padding:14px 18px">
+          <div class="price-box-label">${f.label}</div>
+          <div style="font-family:var(--font-serif);font-size:24px">€${map[f.key] != null ? Math.round(map[f.key]) : '—'}</div>
+        </div>`).join('')}
+    </div>
+    <p style="margin-top:14px;font-size:13px;color:var(--warm-gray)">
+      ${win ? 'Periodo applicato il ' + ppFmt(d) + ': <strong>' + esc(win.name) + '</strong>'
+            : 'Nessun periodo attivo il ' + ppFmt(d) + ' — valgono i prezzi base.'}
+    </p>`
+}
+
+document.getElementById('pp-save-btn').addEventListener('click', savePricePeriod)
+document.getElementById('pp-cancel-btn').addEventListener('click', resetPricePeriodForm)
+document.getElementById('pp-check-btn').addEventListener('click', checkPriceForDate)
 
 // ── Codici sconto ─────────────────────────────────────────────
 async function loadDiscounts() {
