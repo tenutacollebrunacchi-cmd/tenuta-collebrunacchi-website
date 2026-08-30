@@ -414,7 +414,9 @@
     /* E' largo 420px fissi: su uno schermo piu' stretto usciva a sinistra
        e tagliava le prime lettere del giorno della settimana. */
     @media (max-width: 520px) {
-      .cal-sidebar { width: 100%; right: -100%; }
+      /* A tutta larghezza il bordo sinistro non separa piu' da niente:
+         resta solo un filo chiaro accanto alla fascia verde. */
+      .cal-sidebar { width: 100%; right: -100%; border-left: none; }
       .cal-month { min-width: 0; font-size: 17px; }
     }
 
