@@ -191,6 +191,7 @@
       transition: border-color .2s; -webkit-appearance: none;
     }
     .inp:focus { border-color: var(--terra); }
+    textarea.inp { resize: vertical; min-height: 62px; line-height: 1.55; }
     .inp-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6B64' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
     .form-actions { display: flex; gap: 12px; align-items: center; margin-top: 20px; }
     .form-success-msg { font-size: 13px; color: var(--success); }
@@ -410,6 +411,9 @@
       <button class="nav-item" data-page="sconti">
         <span class="ni">🎟</span><span>Codici sconto</span>
       </button>
+      <button class="nav-item" data-page="voucher">
+        <span class="ni">🎁</span><span>Voucher regalo</span>
+      </button>
       <button class="nav-item" data-page="politica">
         <span class="ni">⚖️</span><span>Politica</span>
       </button>
@@ -496,6 +500,81 @@
       <div class="page-header">
         <h1 class="page-title">Prenotazioni</h1>
         <p class="page-subtitle">Lista completa prenotazioni</p>
+      </div>
+
+      <div class="table-card" style="margin-bottom:28px">
+        <div class="table-card-header"><h3>Nuova prenotazione</h3></div>
+        <div style="padding:24px">
+          <p style="font-size:13px;color:var(--warm-gray);margin-bottom:20px;line-height:1.6">
+            Per le prenotazioni prese al telefono, via email o dalle piattaforme. Occupa i posti come una prenotazione dal sito;
+            come tutte le prenotazioni caricate a mano resta fuori dal fatturato online del cruscotto.
+          </p>
+          <div class="form-row-3">
+            <div class="fg">
+              <label class="lbl" for="nb-date">Data</label>
+              <input class="inp" id="nb-date" type="date">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-slot">Fascia oraria</label>
+              <select class="inp inp-select" id="nb-slot"></select>
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-type">Tipo</label>
+              <select class="inp inp-select" id="nb-type">
+                <option value="shared">Condivisa</option>
+                <option value="private">Privata</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="fg">
+              <label class="lbl" for="nb-guests">Persone</label>
+              <input class="inp" id="nb-guests" type="number" min="1" max="10" value="2">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-price">Importo totale (&euro;)</label>
+              <input class="inp" id="nb-price" type="number" min="0" step="1">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-status">Pagamento</label>
+              <select class="inp inp-select" id="nb-status">
+                <option value="ok">Pagata</option>
+                <option value="wait">Da pagare all'arrivo</option>
+                <option value="pending">In attesa</option>
+                <option value="partial">Parzialmente saldata</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="fg">
+              <label class="lbl" for="nb-name">Nome</label>
+              <input class="inp" id="nb-name" type="text" placeholder="Mario Rossi">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-email">Email <small style="text-transform:none;letter-spacing:0;font-weight:400">(facoltativa)</small></label>
+              <input class="inp" id="nb-email" type="email">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-phone">Telefono <small style="text-transform:none;letter-spacing:0;font-weight:400">(facoltativo)</small></label>
+              <input class="inp" id="nb-phone" type="text">
+            </div>
+          </div>
+          <div class="form-row" id="nb-paid-row" style="display:none">
+            <div class="fg">
+              <label class="lbl" for="nb-paid">Acconto ricevuto (&euro;)</label>
+              <input class="inp" id="nb-paid" type="number" min="0" step="1">
+            </div>
+          </div>
+          <div class="fg" style="margin-top:16px">
+            <label class="lbl" for="nb-notes">Note <small style="text-transform:none;letter-spacing:0;font-weight:400">(facoltative)</small></label>
+            <textarea class="inp" id="nb-notes" rows="2" placeholder="Allergie, richieste particolari, piattaforma di provenienza…"></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="nb-save-btn">Crea prenotazione</button>
+            <button class="btn btn-ghost" id="nb-reset-btn">Svuota</button>
+            <span id="nb-hint" style="font-size:12px;color:var(--warm-gray)"></span>
+          </div>
+        </div>
       </div>
       <div class="table-card">
         <div class="table-card-header">
@@ -661,6 +740,132 @@
           <table>
             <thead><tr><th>Codice</th><th>Tipo</th><th>Valore</th><th>Utilizzi</th><th>Scadenza</th><th>Stato</th><th>Azioni</th></tr></thead>
             <tbody id="discounts-body"><tr class="loading-row"><td colspan="7"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Voucher regalo ── -->
+    <div class="page" id="page-voucher">
+      <div class="page-header">
+        <h1 class="page-title">Voucher regalo</h1>
+        <p class="page-subtitle">Buoni con biglietto e QR. L'importo non compare mai sul biglietto stampato</p>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:28px">
+        <h3>Segna un buono come utilizzato</h3>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input class="inp" id="gv-redeem-code" type="text" placeholder="TC-XXXX-XXXX" style="max-width:220px;text-transform:uppercase">
+          <input class="inp" id="gv-redeem-note" type="text" placeholder="Nota facoltativa: data prenotata, chi lo ha usato…" style="flex:1;min-width:220px">
+          <button class="btn btn-primary" id="gv-redeem-btn">Segna utilizzato</button>
+        </div>
+        <div id="gv-redeem-out" style="margin-top:14px;font-size:14px"></div>
+      </div>
+
+      <div class="table-card" style="margin-bottom:28px">
+        <div class="table-card-header"><h3 id="gv-form-title">Nuovo voucher regalo</h3></div>
+        <div style="padding:24px">
+          <p style="font-size:13px;color:var(--warm-gray);margin-bottom:20px;line-height:1.6">
+            <strong>Tutti i campi del biglietto sono facoltativi:</strong> quello che lasci vuoto non viene stampato.
+            Importo, contatti di chi regala e note interne restano riservati &mdash; si leggono solo dal QR dopo l'accesso staff.
+          </p>
+
+          <div class="form-row-3">
+            <div class="fg">
+              <label class="lbl" for="gv-lang">Lingua del biglietto</label>
+              <select class="inp inp-select" id="gv-lang">
+                <option value="it">Italiano</option>
+                <option value="en">Inglese</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl" for="gv-recipient">Festeggiato <small style="text-transform:none;letter-spacing:0;font-weight:400">(vuoto = al portatore)</small></label>
+              <input class="inp" id="gv-recipient" type="text" maxlength="80" placeholder="Maria Rossi">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="gv-buyer">Da parte di <small style="text-transform:none;letter-spacing:0;font-weight:400">(facoltativo)</small></label>
+              <input class="inp" id="gv-buyer" type="text" maxlength="80" placeholder="Luca">
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="fg">
+              <label class="lbl" for="gv-persons">Persone <small style="text-transform:none;letter-spacing:0;font-weight:400">(facoltativo)</small></label>
+              <input class="inp" id="gv-persons" type="number" min="1" max="20" placeholder="2">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="gv-type">Esperienza <small style="text-transform:none;letter-spacing:0;font-weight:400">(facoltativa)</small></label>
+              <select class="inp inp-select" id="gv-type">
+                <option value="">Non indicata</option>
+                <option value="shared">Condivisa</option>
+                <option value="private">Privata</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl" for="gv-valid">Valido fino al</label>
+              <input class="inp" id="gv-valid" type="date">
+            </div>
+          </div>
+
+          <div class="fg" style="margin-bottom:16px">
+            <label class="lbl" for="gv-includes">Cosa &egrave; incluso <small style="text-transform:none;letter-spacing:0;font-weight:400">(compare sul biglietto, a capo dove vuoi)</small></label>
+            <textarea class="inp" id="gv-includes" rows="4" placeholder="Caccia al tartufo con Francesca e i cani&#10;Degustazione di prodotti al tartufo&#10;Pranzo in tenuta con vini locali"></textarea>
+          </div>
+
+          <div class="fg" style="margin-bottom:20px">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="gv-show-expiry" checked style="width:16px;height:16px;cursor:pointer">
+              Stampa la data di scadenza sul biglietto
+            </label>
+          </div>
+
+          <div style="border-top:1.5px solid var(--border);padding-top:20px;margin-bottom:16px">
+            <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:16px">Dati riservati &mdash; mai sul biglietto</div>
+            <div class="form-row-3">
+              <div class="fg">
+                <label class="lbl" for="gv-amount">Importo incassato (&euro;)</label>
+                <input class="inp" id="gv-amount" type="number" min="0" step="1" placeholder="318">
+              </div>
+              <div class="fg">
+                <label class="lbl" for="gv-email">Email di chi regala</label>
+                <input class="inp" id="gv-email" type="email">
+              </div>
+              <div class="fg">
+                <label class="lbl" for="gv-phone">Telefono di chi regala</label>
+                <input class="inp" id="gv-phone" type="text">
+              </div>
+            </div>
+            <div class="fg" style="margin-top:16px">
+              <label class="lbl" for="gv-notes">Note interne</label>
+              <textarea class="inp" id="gv-notes" rows="2" placeholder="Pagato con bonifico, consegnato a mano il…"></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" id="gv-save-btn">Crea voucher</button>
+            <button class="btn btn-ghost" id="gv-cancel-btn" style="display:none">Annulla modifica</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>Buoni emessi</h3>
+          <div class="filter-bar">
+            <input class="search-inp" id="gv-search" placeholder="Cerca codice / nome…">
+            <select class="filter-select" id="gv-state-filter">
+              <option value="">Tutti gli stati</option>
+              <option value="active">Validi</option>
+              <option value="redeemed">Utilizzati</option>
+              <option value="expired">Scaduti</option>
+              <option value="cancelled">Annullati</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Codice</th><th>Festeggiato</th><th>Da parte di</th><th>Importo</th><th>Emesso</th><th>Scadenza</th><th>Stato</th><th>Azioni</th></tr></thead>
+            <tbody id="gv-body"><tr class="loading-row"><td colspan="8"><span class="spinner"></span></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -932,6 +1137,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
     if (btn.dataset.page === 'prenotazioni') loadBookings()
     if (btn.dataset.page === 'prezzi')      loadPrices()
     if (btn.dataset.page === 'sconti')      loadDiscounts()
+    if (btn.dataset.page === 'voucher')     loadVouchers()
     if (btn.dataset.page === 'politica')    loadPolicy()
     if (btn.dataset.page === 'recensioni')  loadReviewsAdmin()
   })
@@ -1682,6 +1888,345 @@ async function checkPriceForDate() {
 document.getElementById('pp-save-btn').addEventListener('click', savePricePeriod)
 document.getElementById('pp-cancel-btn').addEventListener('click', resetPricePeriodForm)
 document.getElementById('pp-check-btn').addEventListener('click', checkPriceForDate)
+
+// ── Nuova prenotazione dal pannello ───────────────────────────
+// Usa la stessa funzione database del calendario host (create_manual_booking):
+// una sola logica lato server, nessuna regola duplicata.
+;(function () {
+  const sel = document.getElementById('nb-slot')
+  if (sel) sel.innerHTML = SLOTS.map(t => `<option value="${t}">${t}</option>`).join('')
+})()
+
+function nbVal(id) { return String(document.getElementById(id).value || '').trim() }
+
+function nbReset() {
+  ;['nb-date','nb-name','nb-email','nb-phone','nb-price','nb-paid','nb-notes'].forEach(id => {
+    document.getElementById(id).value = ''
+  })
+  document.getElementById('nb-guests').value = '2'
+  document.getElementById('nb-type').value   = 'shared'
+  document.getElementById('nb-status').value = 'ok'
+  document.getElementById('nb-paid-row').style.display = 'none'
+  document.getElementById('nb-price').dataset.touched = ''
+  document.getElementById('nb-hint').textContent = ''
+}
+
+// Importo suggerito dal listino della data scelta: rispetta i periodi stagionali
+async function nbSuggestPrice() {
+  const date  = nbVal('nb-date')
+  const n     = Number(nbVal('nb-guests')) || 0
+  const price = document.getElementById('nb-price')
+  if (!date || !n || price.dataset.touched === '1') return
+  const { data, error } = await db.rpc('price_for_date', { p_date: date })
+  if (error || !Array.isArray(data)) return
+  const map = {}
+  data.forEach(r => { map[r.key] = Number(r.value_eur) })
+  const pagato = document.getElementById('nb-status').value === 'ok'
+  const unit   = map[document.getElementById('nb-type').value + (pagato ? '_online' : '_arrival')]
+  if (!unit) return
+  price.value = Math.round(unit * n)
+  document.getElementById('nb-hint').textContent = 'Suggerito dal listino di quella data: €' + Math.round(unit) + ' a persona'
+}
+
+document.getElementById('nb-price').addEventListener('input', e => { e.target.dataset.touched = '1' })
+;['nb-date','nb-type','nb-guests'].forEach(id =>
+  document.getElementById(id).addEventListener('change', nbSuggestPrice))
+document.getElementById('nb-status').addEventListener('change', () => {
+  document.getElementById('nb-paid-row').style.display =
+    document.getElementById('nb-status').value === 'partial' ? '' : 'none'
+  nbSuggestPrice()
+})
+document.getElementById('nb-reset-btn').addEventListener('click', nbReset)
+
+async function nbCreate(force) {
+  const date   = nbVal('nb-date')
+  const slot   = document.getElementById('nb-slot').value
+  const name   = nbVal('nb-name')
+  const guests = Number(nbVal('nb-guests')) || 0
+  const tipo   = document.getElementById('nb-type').value
+  const stato  = document.getElementById('nb-status').value
+  const price  = Number(nbVal('nb-price')) || 0
+  const paid   = Number(nbVal('nb-paid'))  || 0
+
+  if (!date)                     { toast('Scegli la data', 'error'); return }
+  if (name.length < 2)           { toast('Inserisci il nome dell\'ospite', 'error'); return }
+  if (guests < 1 || guests > 10) { toast('Da 1 a 10 persone per prenotazione', 'error'); return }
+  if (stato === 'partial') {
+    if (!(paid > 0))                { toast('Inserisci l\'acconto ricevuto', 'error'); return }
+    if (price > 0 && paid >= price) { toast('L\'acconto copre l\'intero importo: usa «Pagata»', 'error'); return }
+  }
+
+  const btn = document.getElementById('nb-save-btn')
+  const lbl = btn.textContent
+  btn.disabled = true; btn.textContent = 'Salvataggio…'
+  const { error } = await db.rpc('create_manual_booking', {
+    p_date:        date,
+    p_time:        slot + ':00',
+    p_name:        name,
+    p_email:       nbVal('nb-email') || null,
+    p_phone:       nbVal('nb-phone') || null,
+    p_persons:     guests,
+    p_type:        tipo,
+    p_amount:      price,
+    p_notes:       nbVal('nb-notes') || null,
+    p_force:       !!force,
+    p_status:      stato === 'pending' ? 'pending' : 'confirmed',
+    p_payment:     stato === 'ok' ? 'online' : 'arrival',
+    p_amount_paid: stato === 'partial' ? paid : null,
+  })
+  btn.disabled = false; btn.textContent = lbl
+
+  if (error) {
+    if (/SOLD_OUT/.test(error.message || '')) {
+      if (confirm('Questa fascia risulta al completo (o riservata a una privata). Inserire comunque la prenotazione?')) return nbCreate(true)
+      return
+    }
+    toast('Errore: ' + error.message, 'error'); return
+  }
+  toast('Prenotazione creata', 'success')
+  nbReset()
+  loadBookings()
+}
+document.getElementById('nb-save-btn').addEventListener('click', () => nbCreate(false))
+
+// ── Voucher regalo ────────────────────────────────────────────
+let GV_ROWS  = []
+let gvEditId = null
+
+const GV_STATE_LBL = { active: 'Valido', redeemed: 'Utilizzato', expired: 'Scaduto', cancelled: 'Annullato' }
+
+function gvState(r) {
+  if (r.status === 'cancelled') return 'cancelled'
+  if (r.status === 'redeemed')  return 'redeemed'
+  return r.valid_until < ppToday() ? 'expired' : 'active'
+}
+function gvPlusOneYear() {
+  const d = new Date(); d.setFullYear(d.getFullYear() + 1)
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+
+async function loadVouchers() {
+  const body = document.getElementById('gv-body')
+  if (!body) return
+  if (!document.getElementById('gv-valid').value) document.getElementById('gv-valid').value = gvPlusOneYear()
+  const { data, error } = await db.from('gift_vouchers').select('*').order('created_at', { ascending: false })
+  if (error) {
+    body.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="ei">⚠</div><p>Errore: ${esc(error.message)}</p></div></td></tr>`
+    return
+  }
+  GV_ROWS = data || []
+  renderVouchers()
+}
+
+function renderVouchers() {
+  const body   = document.getElementById('gv-body')
+  const q      = (document.getElementById('gv-search').value || '').trim().toLowerCase()
+  const filtro = document.getElementById('gv-state-filter').value
+  const righe  = GV_ROWS.filter(r => {
+    if (filtro && gvState(r) !== filtro) return false
+    if (!q) return true
+    return [r.code, r.recipient_name, r.buyer_name, r.buyer_email].some(v => (v || '').toLowerCase().includes(q))
+  })
+  if (!righe.length) {
+    body.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="ei">🎁</div><p>${GV_ROWS.length ? 'Nessun buono con questi filtri' : 'Nessun voucher emesso'}</p></div></td></tr>`
+    return
+  }
+  body.innerHTML = righe.map(r => {
+    const st  = gvState(r)
+    const bdg = st === 'active'
+      ? `<span class="badge badge-active">Valido</span>`
+      : `<span class="badge badge-inactive">${GV_STATE_LBL[st]}</span>`
+    const azioni = [
+      `<a class="btn btn-ghost btn-sm" href="voucher.html?token=${r.token}" target="_blank" rel="noopener">Biglietto</a>`,
+      `<button class="btn btn-ghost btn-sm" onclick="copyVoucherLink('${r.id}')">Copia link</button>`,
+      `<button class="btn btn-ghost btn-sm" onclick="editVoucher('${r.id}')">Modifica</button>`,
+    ]
+    if (st === 'active') {
+      azioni.push(`<button class="btn btn-ghost btn-sm" onclick="markVoucherUsed('${r.id}')">Utilizzato</button>`)
+      azioni.push(`<button class="btn btn-ghost btn-sm" onclick="setVoucherStatus('${r.id}','cancelled')">Annulla</button>`)
+    } else if (r.status !== 'active') {
+      azioni.push(`<button class="btn btn-ghost btn-sm" onclick="setVoucherStatus('${r.id}','active')">Riattiva</button>`)
+    }
+    azioni.push(`<button class="btn btn-danger btn-sm" onclick="deleteVoucher('${r.id}')">Elimina</button>`)
+    return `<tr>
+      <td><strong style="letter-spacing:1px">${esc(r.code)}</strong></td>
+      <td>${r.recipient_name ? esc(r.recipient_name) : '<span style="color:var(--warm-gray)">al portatore</span>'}</td>
+      <td>${esc(r.buyer_name || '—')}</td>
+      <td>${r.amount_eur != null ? '€' + Math.round(r.amount_eur) : '—'}</td>
+      <td style="white-space:nowrap">${ppFmt(r.issued_on)}</td>
+      <td style="white-space:nowrap">${ppFmt(r.valid_until)}</td>
+      <td>${bdg}</td>
+      <td style="display:flex;gap:8px;flex-wrap:wrap">${azioni.join('')}</td>
+    </tr>`
+  }).join('')
+}
+
+document.getElementById('gv-search').addEventListener('input', renderVouchers)
+document.getElementById('gv-state-filter').addEventListener('change', renderVouchers)
+
+function gvResetForm() {
+  gvEditId = null
+  document.getElementById('gv-form-title').textContent = 'Nuovo voucher regalo'
+  document.getElementById('gv-save-btn').textContent   = 'Crea voucher'
+  document.getElementById('gv-cancel-btn').style.display = 'none'
+  ;['gv-recipient','gv-buyer','gv-persons','gv-includes','gv-amount','gv-email','gv-phone','gv-notes'].forEach(id => {
+    document.getElementById(id).value = ''
+  })
+  document.getElementById('gv-lang').value  = 'it'
+  document.getElementById('gv-type').value  = ''
+  document.getElementById('gv-valid').value = gvPlusOneYear()
+  document.getElementById('gv-show-expiry').checked = true
+}
+
+function editVoucher(id) {
+  const r = GV_ROWS.find(x => x.id === id)
+  if (!r) return
+  gvEditId = id
+  document.getElementById('gv-form-title').textContent = 'Modifica voucher ' + r.code
+  document.getElementById('gv-save-btn').textContent   = 'Salva modifiche'
+  document.getElementById('gv-cancel-btn').style.display = ''
+  document.getElementById('gv-lang').value      = r.lang || 'it'
+  document.getElementById('gv-recipient').value = r.recipient_name || ''
+  document.getElementById('gv-buyer').value     = r.buyer_name || ''
+  document.getElementById('gv-persons').value   = r.persons || ''
+  document.getElementById('gv-type').value      = r.experience_type || ''
+  document.getElementById('gv-valid').value     = r.valid_until || ''
+  document.getElementById('gv-includes').value  = r.includes || ''
+  document.getElementById('gv-show-expiry').checked = r.show_expiry !== false
+  document.getElementById('gv-amount').value    = r.amount_eur != null ? Math.round(r.amount_eur) : ''
+  document.getElementById('gv-email').value     = r.buyer_email || ''
+  document.getElementById('gv-phone').value     = r.buyer_phone || ''
+  document.getElementById('gv-notes').value     = r.notes || ''
+  document.getElementById('gv-form-title').scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+async function saveVoucher() {
+  const v = id => String(document.getElementById(id).value || '').trim()
+  const valido = v('gv-valid')
+  if (!valido) { toast('Indica fino a quando il buono è valido', 'error'); return }
+  const persone = v('gv-persons')
+  const importo = v('gv-amount')
+  if (persone && !(Number(persone) >= 1 && Number(persone) <= 20)) { toast('Persone: da 1 a 20', 'error'); return }
+  if (importo && !(Number(importo) >= 0)) { toast('Importo non valido', 'error'); return }
+
+  const payload = {
+    lang:            document.getElementById('gv-lang').value,
+    recipient_name:  v('gv-recipient') || null,
+    buyer_name:      v('gv-buyer') || null,
+    persons:         persone ? Number(persone) : null,
+    experience_type: document.getElementById('gv-type').value || null,
+    includes:        v('gv-includes') || null,
+    show_expiry:     document.getElementById('gv-show-expiry').checked,
+    valid_until:     valido,
+    amount_eur:      importo ? Number(importo) : null,
+    buyer_email:     v('gv-email') || null,
+    buyer_phone:     v('gv-phone') || null,
+    notes:           v('gv-notes') || null,
+  }
+
+  const btn = document.getElementById('gv-save-btn')
+  const lbl = btn.textContent
+  btn.disabled = true; btn.textContent = 'Salvataggio…'
+  let creato = null, error
+  if (gvEditId) {
+    ;({ error } = await db.from('gift_vouchers').update(payload).eq('id', gvEditId))
+  } else {
+    const res = await db.from('gift_vouchers').insert(payload).select().single()
+    error = res.error; creato = res.data
+  }
+  btn.disabled = false; btn.textContent = lbl
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+
+  toast(gvEditId ? 'Voucher aggiornato' : 'Voucher creato', 'success')
+  gvResetForm()
+  await loadVouchers()
+  if (creato) window.open('voucher.html?token=' + creato.token, '_blank', 'noopener')
+}
+document.getElementById('gv-save-btn').addEventListener('click', saveVoucher)
+document.getElementById('gv-cancel-btn').addEventListener('click', gvResetForm)
+
+function copyVoucherLink(id) {
+  const r = GV_ROWS.find(x => x.id === id)
+  if (!r) return
+  const url = location.origin + '/voucher.html?token=' + r.token
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(
+      () => toast('Link del biglietto copiato', 'success'),
+      () => prompt('Copia il link del biglietto:', url)
+    )
+  } else {
+    prompt('Copia il link del biglietto:', url)
+  }
+}
+
+function gvReasonMsg(reason) {
+  return {
+    not_admin: 'Servono i permessi da amministratore.',
+    not_found: 'Codice non trovato.',
+    redeemed:  'Questo buono era già stato utilizzato.',
+    expired:   'Questo buono è scaduto.',
+    cancelled: 'Questo buono è stato annullato.',
+  }[reason] || 'Operazione non riuscita.'
+}
+
+async function markVoucherUsed(id) {
+  const r = GV_ROWS.find(x => x.id === id)
+  if (!r) return
+  if (!confirm('Segnare il buono ' + r.code + ' come utilizzato? Non sarà più valido.')) return
+  const { data, error } = await db.rpc('redeem_gift_voucher', { p_code: r.code, p_note: null })
+  if (error)             { toast('Errore: ' + error.message, 'error'); return }
+  if (!data || !data.ok) { toast(gvReasonMsg(data && data.reason), 'error'); return }
+  toast('Buono segnato come utilizzato', 'success')
+  loadVouchers()
+}
+
+async function setVoucherStatus(id, status) {
+  const r = GV_ROWS.find(x => x.id === id)
+  if (!r) return
+  if (status === 'cancelled' && !confirm('Annullare il buono ' + r.code + '? Non sarà più utilizzabile.')) return
+  const patch = status === 'active'
+    ? { status: 'active', redeemed_at: null, redeemed_note: null }
+    : { status }
+  const { error } = await db.from('gift_vouchers').update(patch).eq('id', id)
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast(status === 'active' ? 'Buono riattivato' : 'Buono annullato', 'success')
+  loadVouchers()
+}
+
+async function deleteVoucher(id) {
+  const r = GV_ROWS.find(x => x.id === id)
+  if (!r) return
+  if (!confirm('Eliminare definitivamente il buono ' + r.code + '?\nSe è già stato consegnato, meglio annullarlo che eliminarlo.')) return
+  const { error } = await db.from('gift_vouchers').delete().eq('id', id)
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast('Voucher eliminato', 'success')
+  if (gvEditId === id) gvResetForm()
+  loadVouchers()
+}
+
+document.getElementById('gv-redeem-btn').addEventListener('click', async () => {
+  const code = document.getElementById('gv-redeem-code').value.trim()
+  const nota = document.getElementById('gv-redeem-note').value.trim()
+  const out  = document.getElementById('gv-redeem-out')
+  if (!code) { toast('Inserisci il codice del buono', 'error'); return }
+  const btn = document.getElementById('gv-redeem-btn')
+  btn.disabled = true; btn.textContent = 'Verifica…'
+  const { data, error } = await db.rpc('redeem_gift_voucher', { p_code: code, p_note: nota || null })
+  btn.disabled = false; btn.textContent = 'Segna utilizzato'
+  if (error) { out.innerHTML = `<span style="color:var(--danger)">Errore: ${esc(error.message)}</span>`; return }
+  if (!data || !data.ok) {
+    out.innerHTML = `<span style="color:var(--danger)">${esc(gvReasonMsg(data && data.reason))}${data && data.code ? ' (' + esc(data.code) + ')' : ''}</span>`
+    return
+  }
+  out.innerHTML = `<span style="color:var(--success)">Buono <strong>${esc(data.code)}</strong> segnato come utilizzato${data.recipient_name ? ' — ' + esc(data.recipient_name) : ''}.</span>`
+  document.getElementById('gv-redeem-code').value = ''
+  document.getElementById('gv-redeem-note').value = ''
+  loadVouchers()
+})
+document.getElementById('gv-redeem-code').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('gv-redeem-btn').click()
+})
+
 
 // ── Codici sconto ─────────────────────────────────────────────
 async function loadDiscounts() {

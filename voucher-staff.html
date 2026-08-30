@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica Buono Regalo — Tenuta Collebrunacchi</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --verde: #1A2D15; --gold: #C4A456; --charcoal: #1C1C1A; --warm-gray: #6B6B64; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--verde); min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 32px 16px 48px; -webkit-font-smoothing: antialiased; }
+    .logo { color: var(--gold); font-size: 20px; font-weight: 700; letter-spacing: .5px; margin-bottom: 4px; text-align: center; }
+    .logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 28px; text-align: center; }
+    .loading { color: rgba(255,255,255,0.5); font-size: 14px; padding: 40px; }
+    .error { background: #FEE2E2; border-radius: 12px; padding: 24px; text-align: center; max-width: 380px; width: 100%; color: #DC2626; font-weight: 600; font-size: 15px; line-height: 1.5; }
+    .card { background: white; border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 380px; margin-bottom: 16px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 40px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    .status-active    { background: #DCFCE7; color: #16A34A; }
+    .status-redeemed  { background: #E2E3E5; color: #52525B; }
+    .status-expired   { background: #FEF3C7; color: #92400E; }
+    .status-cancelled { background: #FEE2E2; color: #DC2626; }
+    .row { padding: 13px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .row:last-child { border-bottom: none; }
+    .row-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 3px; }
+    .row-value { font-size: 17px; font-weight: 700; color: var(--charcoal); word-break: break-word; }
+    .row-value.multiline { font-size: 15px; font-weight: 400; line-height: 1.6; white-space: pre-line; }
+    .row-value.code { letter-spacing: 2px; color: #8B5E3C; }
+    .row-value.amount { color: #16A34A; }
+    .sec-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 12px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px 20px; border-radius: 40px; font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; }
+    .btn-primary { background: var(--verde); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--warm-gray); border: 1.5px solid rgba(0,0,0,0.12); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .inp { width: 100%; padding: 12px 14px; border: 1.5px solid rgba(0,0,0,0.12); border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; margin-bottom: 10px; }
+    .inp:focus { border-color: var(--gold); }
+    .msg { font-size: 13px; margin-top: 10px; line-height: 1.5; }
+    .msg-err { color: #DC2626; }
+    .msg-ok  { color: #16A34A; }
+    .hint { font-size: 12.5px; color: var(--warm-gray); line-height: 1.55; margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+  <div class="logo">Tenuta Collebrunacchi</div>
+  <div class="logo-sub">Staff · Verifica Buono Regalo</div>
+
+  <div class="loading" id="viewLoading">Caricamento…</div>
+  <div class="error" id="viewError" style="display:none">Buono non trovato.<br>Verifica il QR code.</div>
+
+  <div class="card" id="viewCard" style="display:none">
+    <div class="status-badge" id="statusBadge"></div>
+    <div id="rows"></div>
+  </div>
+
+  <!-- Dati riservati: visibili solo dopo accesso staff, così chi riceve
+       il regalo non scopre il prezzo inquadrando il proprio QR -->
+  <div class="card" id="viewReserved" style="display:none">
+    <div class="sec-title">Dati riservati</div>
+    <div id="reservedBody"></div>
+  </div>
+
+  <div class="card" id="viewLogin" style="display:none">
+    <div class="sec-title">Dati riservati</div>
+    <p class="hint">Importo, contatti di chi ha fatto il regalo e note interne sono visibili solo allo staff.</p>
+    <input class="inp" id="lgEmail" type="email" placeholder="Email" autocomplete="username">
+    <input class="inp" id="lgPass" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="btn btn-primary" id="lgBtn">Accedi</button>
+    <div class="msg msg-err" id="lgMsg" style="display:none"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ioyjhvlbamgiiqdtgutk.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko'
+    const { createClient } = supabase
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const token = new URLSearchParams(window.location.search).get('token')
+
+    const STATE = {
+      active:    { label: '✓ Valido',      cls: 'status-active'    },
+      redeemed:  { label: '● Utilizzato',  cls: 'status-redeemed'  },
+      expired:   { label: '⏳ Scaduto',     cls: 'status-expired'   },
+      cancelled: { label: '✗ Annullato',   cls: 'status-cancelled' },
+    }
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+    const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'
+    const fmtStamp = t => t ? new Date(t).toLocaleString('it-IT', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
+    const rowsHtml = rows => rows.filter(r => r.value !== null && r.value !== undefined && r.value !== '')
+      .map(r => `<div class="row"><div class="row-label">${esc(r.label)}</div><div class="row-value ${r.cls || ''}">${esc(r.value)}</div></div>`).join('')
+
+    function renderPublic(v) {
+      const s = STATE[v.state] || STATE.active
+      const badge = document.getElementById('statusBadge')
+      badge.textContent = s.label; badge.className = 'status-badge ' + s.cls
+      const tipo = v.experience_type === 'private' ? 'Privata' : (v.experience_type === 'shared' ? 'Condivisa' : null)
+      document.getElementById('rows').innerHTML = rowsHtml([
+        { label: 'Codice',       value: v.code, cls: 'code' },
+        { label: 'Festeggiato',  value: v.recipient_name },
+        { label: 'Da parte di',  value: v.buyer_name },
+        { label: 'Persone',      value: v.persons ? v.persons + (v.persons === 1 ? ' persona' : ' persone') : null },
+        { label: 'Esperienza',   value: tipo },
+        { label: 'Include',      value: v.includes, cls: 'multiline' },
+        { label: 'Valido fino al', value: v.valid_until ? fmtDate(v.valid_until) : null },
+      ])
+      document.getElementById('viewCard').style.display = 'block'
+    }
+
+    function renderReserved(v) {
+      const azione = v.state === 'active'
+        ? `<button class="btn btn-primary" id="redeemBtn" style="margin-top:16px">Segna come utilizzato</button>
+           <div class="msg" id="redeemMsg" style="display:none"></div>`
+        : ''
+      document.getElementById('reservedBody').innerHTML = rowsHtml([
+        { label: 'Importo incassato', value: v.amount_eur != null ? '€ ' + Number(v.amount_eur).toFixed(2).replace('.', ',') : '—', cls: 'amount' },
+        { label: 'Email acquirente',  value: v.buyer_email },
+        { label: 'Telefono acquirente', value: v.buyer_phone },
+        { label: 'Scadenza',          value: fmtDate(v.valid_until) },
+        { label: 'Emesso il',         value: fmtDate(v.issued_on) },
+        { label: 'Utilizzato il',     value: v.redeemed_at ? fmtStamp(v.redeemed_at) : null },
+        { label: 'Nota di riscatto',  value: v.redeemed_note, cls: 'multiline' },
+        { label: 'Note interne',      value: v.notes, cls: 'multiline' },
+      ]) + azione
+      document.getElementById('viewReserved').style.display = 'block'
+      document.getElementById('viewLogin').style.display = 'none'
+
+      const btn = document.getElementById('redeemBtn')
+      if (btn) btn.addEventListener('click', async () => {
+        if (!confirm('Segnare il buono ' + v.code + ' come utilizzato? Non sarà più valido.')) return
+        btn.disabled = true; btn.textContent = 'Attendere…'
+        const { data, error } = await db.rpc('redeem_gift_voucher', { p_code: v.code, p_note: null })
+        const msg = document.getElementById('redeemMsg')
+        msg.style.display = 'block'
+        if (error || !data || data.ok !== true) {
+          msg.className = 'msg msg-err'
+          msg.textContent = error ? error.message : ({
+            not_admin: 'Servono i permessi da amministratore.',
+            not_found: 'Codice non trovato.',
+            redeemed:  'Questo buono era già stato utilizzato.',
+            expired:   'Questo buono è scaduto.',
+            cancelled: 'Questo buono è stato annullato.',
+          }[data && data.reason] || 'Operazione non riuscita.')
+          btn.disabled = false; btn.textContent = 'Segna come utilizzato'
+          return
+        }
+        msg.className = 'msg msg-ok'; msg.textContent = 'Buono segnato come utilizzato.'
+        btn.remove()
+        setTimeout(() => location.reload(), 1200)
+      })
+    }
+
+    async function caricaRiservati() {
+      const { data } = await db.rpc('get_voucher_staff', { p_token: token })
+      if (data) { renderReserved(data); return true }
+      return false
+    }
+
+    ;(async () => {
+      if (!token) {
+        document.getElementById('viewLoading').style.display = 'none'
+        document.getElementById('viewError').style.display = 'block'
+        return
+      }
+      const { data, error } = await db.rpc('get_voucher_public', { p_token: token })
+      document.getElementById('viewLoading').style.display = 'none'
+      if (error || !data) { document.getElementById('viewError').style.display = 'block'; return }
+      renderPublic(data)
+      const { data: { session } } = await db.auth.getSession()
+      let ok = false
+      if (session) ok = await caricaRiservati()
+      if (!ok) document.getElementById('viewLogin').style.display = 'block'
+    })()
+
+    document.getElementById('lgBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('lgBtn')
+      const msg = document.getElementById('lgMsg')
+      const email = document.getElementById('lgEmail').value.trim()
+      const pw    = document.getElementById('lgPass').value
+      if (!email || !pw) { msg.style.display = 'block'; msg.textContent = 'Inserisci email e password.'; return }
+      btn.disabled = true; btn.textContent = 'Accesso…'
+      msg.style.display = 'none'
+      const { error } = await db.auth.signInWithPassword({ email, password: pw })
+      if (error) {
+        msg.style.display = 'block'; msg.textContent = 'Accesso non riuscito.'
+        btn.disabled = false; btn.textContent = 'Accedi'; return
+      }
+      const ok = await caricaRiservati()
+      if (!ok) {
+        msg.style.display = 'block'; msg.textContent = 'Questo account non ha i permessi da amministratore.'
+        btn.disabled = false; btn.textContent = 'Accedi'
+      }
+    })
+    document.getElementById('lgPass').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('lgBtn').click() })
+  </script>
+</body>
+</html>
