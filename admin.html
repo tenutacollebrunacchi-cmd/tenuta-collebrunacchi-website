@@ -347,14 +347,15 @@
 
     /* ── Price settings grid ── */
     .prices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .prices-grid > * { min-width: 0; }
     .price-box {
       background: var(--white); border: 1.5px solid var(--border); border-radius: 6px; padding: 24px 24px 20px;
     }
     .price-box-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 6px; }
     .price-box-name { font-family: var(--font-serif); font-size: 18px; font-weight: 500; margin-bottom: 16px; }
-    .price-inp-wrap { display: flex; align-items: center; gap: 0; }
+    .price-inp-wrap { display: flex; align-items: center; gap: 0; min-width: 0; }
     .price-currency { padding: 10px 12px; background: var(--cream); border: 1.5px solid var(--border); border-right: none; border-radius: var(--radius) 0 0 var(--radius); font-size: 14px; font-weight: 600; color: var(--warm-gray); }
-    .price-inp-num { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 0 var(--radius) var(--radius) 0; font-size: 16px; font-weight: 600; color: var(--charcoal); outline: none; transition: border-color .2s; }
+    .price-inp-num { flex: 1; min-width: 0; width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 0 var(--radius) var(--radius) 0; font-size: 16px; font-weight: 600; color: var(--charcoal); outline: none; transition: border-color .2s; }
     .price-inp-num:focus { border-color: var(--terra); }
     .price-save-btn { margin-top: 14px; }
 
@@ -407,6 +408,14 @@
       .stat-value { font-size: 26px; }
       .chart-card, .table-card { border-radius: 6px; }
       .table-card-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+
+    /* ── Pannello del giorno: a tutto schermo sui telefoni ── */
+    /* E' largo 420px fissi: su uno schermo piu' stretto usciva a sinistra
+       e tagliava le prime lettere del giorno della settimana. */
+    @media (max-width: 520px) {
+      .cal-sidebar { width: 100%; right: -100%; }
+      .cal-month { min-width: 0; font-size: 17px; }
     }
 
     /* ── Schermi stretti: una colonna sola e bersagli piu' grandi ── */
