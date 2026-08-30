@@ -7,6 +7,15 @@
   <title>Admin — Tenuta Collebrunacchi</title>
   <meta name="robots" content="noindex,nofollow">
 
+  <!-- Applicazione installabile sul telefono (solo il pannello) -->
+  <link rel="manifest" href="admin.webmanifest">
+  <meta name="theme-color" content="#1A2D15">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Collebrunacchi">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="assets/img/tc-apple-touch-icon.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -349,17 +358,69 @@
     .price-inp-num:focus { border-color: var(--terra); }
     .price-save-btn { margin-top: 14px; }
 
+    /* ── Barra superiore e velo del menu: solo su schermi stretti ── */
+    .topbar { display: none; }
+    .nav-overlay { display: none; }
+
     @media (max-width: 1024px) {
       .stat-grid { grid-template-columns: 1fr 1fr; }
       .prices-grid { grid-template-columns: 1fr; }
       .form-row-3 { grid-template-columns: 1fr 1fr; }
     }
-    @media (max-width: 768px) {
-      :root { --sidebar-w: 60px; }
-      .sidebar-logo, .nav-item span, .sidebar-bottom { display: none; }
-      .nav-item { justify-content: center; padding: 14px; }
-      .main { padding: 24px 20px; }
+
+    /* ── Telefono e tablet stretto: il menu diventa a scomparsa ── */
+    @media (max-width: 860px) {
+      .topbar {
+        display: flex; align-items: center; gap: 14px;
+        position: sticky; top: 0; z-index: 90;
+        background: var(--verde); color: #fff;
+        padding: 11px 16px; padding-top: max(11px, env(safe-area-inset-top));
+      }
+      .topbar-menu {
+        width: 42px; height: 42px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.12); border: none; border-radius: 8px;
+        color: #fff; font-size: 19px; line-height: 1; cursor: pointer;
+      }
+      .topbar-menu:active { background: rgba(255,255,255,0.22); }
+      .topbar-title {
+        font-family: var(--font-serif); font-size: 17px; font-weight: 500;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+
+      .sidebar {
+        width: 264px;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        box-shadow: 0 0 40px rgba(0,0,0,0.35);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .nav-item { padding: 14px 24px; font-size: 15px; }
+      .nav-overlay { position: fixed; inset: 0; z-index: 95; background: rgba(0,0,0,0.45); }
+      .nav-overlay.open { display: block; }
+
+      .main { margin-left: 0; padding: 20px 16px 48px; }
+      .page-header { margin-bottom: 22px; }
+      .page-title { font-size: 23px; }
+      .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .stat-card { padding: 18px 16px; }
+      .stat-value { font-size: 26px; }
+      .chart-card, .table-card { border-radius: 6px; }
+      .table-card-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+
+    /* ── Schermi stretti: una colonna sola e bersagli piu' grandi ── */
+    @media (max-width: 600px) {
       .stat-grid { grid-template-columns: 1fr; }
+      .form-row, .form-row-3, .prices-grid { grid-template-columns: 1fr; }
+      .filter-bar { width: 100%; }
+      .search-inp, .filter-select { width: 100%; min-width: 0; }
+      /* 16px impedisce a iPhone di ingrandire la pagina quando si scrive */
+      .inp, .search-inp, .filter-select, textarea.inp { font-size: 16px; padding: 12px 14px; }
+      .btn { padding: 12px 20px; }
+      .btn-sm { padding: 9px 14px; }
+      .form-actions { flex-wrap: wrap; }
+      .price-inp-num { font-size: 16px; }
     }
   </style>
   <script src="assets/js/email-validator.js"></script>
@@ -393,6 +454,13 @@
 
 <!-- ── App ───────────────────────────────────────────────────── -->
 <div id="app">
+  <!-- Su telefono: barra con il pulsante del menu; su schermo grande e' nascosta -->
+  <header class="topbar">
+    <button class="topbar-menu" id="menu-btn" aria-label="Apri il menu" aria-expanded="false">☰</button>
+    <span class="topbar-title" id="topbar-title">Dashboard</span>
+  </header>
+  <div class="nav-overlay" id="nav-overlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-logo">Collebrunacchi<span>Admin</span></div>
     <nav class="sidebar-nav">
@@ -1191,10 +1259,34 @@ document.getElementById('login-pw').addEventListener('keydown', e => {
 
 document.getElementById('logout-btn').addEventListener('click', () => db.auth.signOut())
 
+// ── Menu a scomparsa (solo su telefono) ───────────────────────
+function apriMenu() {
+  document.querySelector('.sidebar').classList.add('open')
+  document.getElementById('nav-overlay').classList.add('open')
+  document.getElementById('menu-btn').setAttribute('aria-expanded', 'true')
+  document.body.style.overflow = 'hidden'
+}
+function chiudiMenu() {
+  document.querySelector('.sidebar').classList.remove('open')
+  document.getElementById('nav-overlay').classList.remove('open')
+  document.getElementById('menu-btn').setAttribute('aria-expanded', 'false')
+  document.body.style.overflow = ''
+}
+document.getElementById('menu-btn').addEventListener('click', () => {
+  document.querySelector('.sidebar').classList.contains('open') ? chiudiMenu() : apriMenu()
+})
+document.getElementById('nav-overlay').addEventListener('click', chiudiMenu)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.querySelector('.sidebar').classList.contains('open')) chiudiMenu()
+})
+
 // ── Navigation ────────────────────────────────────────────────
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => {
     closeSidebar()
+    chiudiMenu()
+    const etichetta = btn.querySelector('span:last-child')
+    if (etichetta) document.getElementById('topbar-title').textContent = etichetta.textContent
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
     btn.classList.add('active')
@@ -2798,6 +2890,17 @@ function esc(s) {
 }
 function loadingRow(cols) {
   return `<tr class="loading-row"><td colspan="${cols}"><span class="spinner"></span></td></tr>`
+}
+
+// ── Webapp installabile ───────────────────────────────────────
+// Il service worker non mette niente in cache: serve solo perche' Chrome
+// consideri il pannello installabile. Cosi' non si rischia mai di aprire
+// una versione vecchia dopo una pubblicazione. L'ambito e' limitato ad
+// admin.html: il sito pubblico non viene toccato.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('admin-sw.js', { scope: '/admin.html' }).catch(() => {})
+  })
 }
 function iso(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
