@@ -3799,6 +3799,49 @@
       })();
 
     (function() {
+      // Il contenuto SOPRA il bersaglio continua a crescere dopo il clic: le
+      // recensioni arrivano da Supabase, le immagini pigre e il video si
+      // caricano. Chi cliccava "Book Now" si ritrovava sulle domande frequenti,
+      // che stanno appena sopra il calendario, perche' la pagina si fermava
+      // dove il calendario si trovava PRIMA che il contenuto crescesse.
+      //
+      // Riagganciare a raffica non funziona: ogni chiamata fa ripartire lo
+      // scorrimento animato da capo e l'animazione non arriva mai. Qui invece
+      // aspettiamo che la pagina si fermi, poi correggiamo se il bersaglio si
+      // e' spostato, e ripetiamo per qualche secondo. Se l'ospite tocca la
+      // pagina ci fermiamo subito: comanda lui.
+      function ancoraSuBersaglio(target) {
+        var padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 88;
+        var annullato = false;
+        var stop = function () { annullato = true; };
+        ['wheel', 'touchstart', 'keydown'].forEach(function (ev) {
+          window.addEventListener(ev, stop, { passive: true, once: true });
+        });
+
+        var scorri = function (behavior) {
+          var top = target.getBoundingClientRect().top + window.pageYOffset - padding;
+          window.scrollTo({ top: Math.max(0, top), behavior: behavior });
+        };
+        scorri('smooth');
+
+        var scadenza = Date.now() + 3500;
+        var ultimaY  = null;
+        var fermoDa  = 0;
+        var iv = setInterval(function () {
+          if (annullato || Date.now() > scadenza) { clearInterval(iv); return; }
+          var y = Math.round(window.pageYOffset);
+          if (y === ultimaY) { fermoDa += 100; } else { fermoDa = 0; ultimaY = y; }
+          if (fermoDa < 200) return;               // sta ancora scorrendo, aspetto
+          var scarto = target.getBoundingClientRect().top - padding;
+          if (Math.abs(scarto) > 4) {              // il bersaglio si e' spostato
+            scorri('instant');
+            fermoDa = 0; ultimaY = null;
+          } else {
+            clearInterval(iv);                     // in posizione e fermo
+          }
+        }, 100);
+      }
+
       document.querySelectorAll('a[href^="#"]').forEach(function(link) {
         var hash = link.getAttribute('href');
         if (hash === '#' || hash.length < 2) return;
@@ -3806,18 +3849,8 @@
           var target = document.getElementById(hash.slice(1));
           if (!target) return;
           e.preventDefault();
-          var scrollToTarget = function() {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          };
-          scrollToTarget();
-          // Re-aggancia il bersaglio mentre il layout si assesta (font swap, immagini)
-          var tries = 0;
-          var iv = setInterval(function() {
-            scrollToTarget();
-            tries++;
-            if (tries >= 6) clearInterval(iv);
-          }, 120);
           if (history.replaceState) history.replaceState(null, '', hash);
+          ancoraSuBersaglio(target);
         });
       });
     })();
