@@ -211,7 +211,25 @@
       const top   = root.getBoundingClientRect().top + window.scrollY - navH - 16
       window.scrollTo({ top, behavior: 'smooth' })
     }
+    // Scelta della data: la vista degli orari e' molto piu' corta del calendario.
+    // La pagina resta dov'era, il widget si accorcia e finisce sopra lo schermo:
+    // l'ospite si ritrova davanti "Request Information" e crede di dover chiedere
+    // informazioni per prenotare. Riportiamolo sugli orari.
+    if (['loading_slots', 'slots'].includes(S.step)) scrollToSlots(root)
     bind()
+  }
+
+  // Inquadra la scelta dell'orario. Se ci sta tutto riparte dal titolo
+  // "Check availability & book", altrimenti mette in cima il widget cosi'
+  // gli orari restano interamente visibili anche su schermi piccoli.
+  function scrollToSlots (root) {
+    const navEl  = document.getElementById('nav')
+    const navH   = navEl ? (navEl.classList.contains('scrolled') ? 80 : 113) : 113
+    const head   = document.querySelector('#booking .booking-header')
+    const spazio = window.innerHeight - navH - 24
+    const ancora = (head && head.offsetHeight + 48 + root.offsetHeight <= spazio) ? head : root
+    const top    = ancora.getBoundingClientRect().top + window.scrollY - navH - 16
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
   }
 
   function renderCalendar () {
