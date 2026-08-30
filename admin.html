@@ -116,7 +116,7 @@
     .page-subtitle { font-size: 13px; color: var(--warm-gray); margin-top: 4px; }
 
     /* ── Cards / stat boxes ── */
-    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 36px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; margin-bottom: 36px; }
     .stat-card {
       background: var(--white); border: 1px solid var(--border); border-radius: 6px;
       padding: 24px 28px;
@@ -411,6 +411,9 @@
       <button class="nav-item" data-page="sconti">
         <span class="ni">🎟</span><span>Codici sconto</span>
       </button>
+      <button class="nav-item" data-page="costi">
+        <span class="ni">🧮</span><span>Costi</span>
+      </button>
       <button class="nav-item" data-page="voucher">
         <span class="ni">🎁</span><span>Voucher regalo</span>
       </button>
@@ -442,7 +445,12 @@
         <div class="stat-card">
           <div class="stat-label">Incassato totale</div>
           <div class="stat-value" id="stat-revenue">—</div>
-          <div class="stat-sub">pagamenti confermati · dal sito</div>
+          <div class="stat-sub">confermati · sito e voucher</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Guadagno</div>
+          <div class="stat-value" id="stat-profit">—</div>
+          <div class="stat-sub" id="stat-profit-sub">al netto dei costi</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Questo mese</div>
@@ -559,6 +567,15 @@
               <input class="inp" id="nb-phone" type="text">
             </div>
           </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="lbl" for="nb-cost">Costo per noi (&euro;) <small style="text-transform:none;letter-spacing:0;font-weight:400">(riservato, vuoto = da listino costi)</small></label>
+              <input class="inp" id="nb-cost" type="number" min="0" step="1">
+            </div>
+            <div class="fg" style="justify-content:flex-end">
+              <span id="nb-margin" style="font-size:13px;color:var(--warm-gray);padding-bottom:11px"></span>
+            </div>
+          </div>
           <div class="form-row" id="nb-paid-row" style="display:none">
             <div class="fg">
               <label class="lbl" for="nb-paid">Acconto ricevuto (&euro;)</label>
@@ -643,6 +660,12 @@
               <label class="lbl" for="pp-end">Al <small style="text-transform:none;letter-spacing:0;font-weight:400">(incluso)</small></label>
               <input class="inp" id="pp-end" type="date">
             </div>
+          </div>
+          <div class="fg" style="margin-bottom:4px">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="pp-high-season" style="width:16px;height:16px;cursor:pointer">
+              Alta stagione &mdash; in queste date vale il costo alto di Francesca
+            </label>
           </div>
           <div class="form-row">
             <div class="fg">
@@ -745,6 +768,45 @@
       </div>
     </div>
 
+    <!-- ── Costi ── -->
+    <div class="page" id="page-costi">
+      <div class="page-header">
+        <h1 class="page-title">Costi</h1>
+        <p class="page-subtitle">Quanto ci costa Francesca, a persona. Dato riservato: non compare mai sul sito</p>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:28px">
+        <h3>Costo a persona</h3>
+        <p style="font-size:13px;color:var(--warm-gray);margin:-8px 0 20px;line-height:1.6">
+          Il costo alto vale quando la data dell'esperienza cade in un periodo contrassegnato come
+          <strong>alta stagione</strong> nella pagina Prezzi. Il guadagno mostrato nel cruscotto &egrave; la
+          differenza fra quello che incassiamo e questi costi, IVA compresa.
+        </p>
+        <div class="prices-grid" id="costs-grid">
+          <div style="text-align:center;padding:40px;grid-column:1/-1"><span class="spinner"></span></div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:28px">
+        <h3>Prenotazioni ricevute prima dell'aumento</h3>
+        <p style="font-size:13px;color:var(--warm-gray);margin:-8px 0 18px;line-height:1.6">
+          Le prenotazioni <strong>ricevute prima</strong> di questa data restano al costo di bassa stagione
+          anche se l'esperienza si svolger&agrave; in alta stagione: gli aumenti non erano stati comunicati.
+        </p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input class="inp" id="cost-cutoff" type="date" style="max-width:200px">
+          <button class="btn btn-primary btn-sm" id="cost-cutoff-save">Salva</button>
+          <button class="btn btn-ghost btn-sm" id="cost-cutoff-clear">Togli l'eccezione</button>
+        </div>
+        <div id="cost-cutoff-msg" style="margin-top:12px;font-size:13px;color:var(--warm-gray)"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Margine per persona ai prezzi di oggi</h3>
+        <div id="cost-margins" style="font-size:14px"></div>
+      </div>
+    </div>
+
     <!-- ── Voucher regalo ── -->
     <div class="page" id="page-voucher">
       <div class="page-header">
@@ -821,11 +883,17 @@
 
           <div style="border-top:1.5px solid var(--border);padding-top:20px;margin-bottom:16px">
             <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:16px">Dati riservati &mdash; mai sul biglietto</div>
-            <div class="form-row-3">
+            <div class="form-row">
               <div class="fg">
                 <label class="lbl" for="gv-amount">Importo incassato (&euro;)</label>
                 <input class="inp" id="gv-amount" type="number" min="0" step="1" placeholder="318">
               </div>
+              <div class="fg">
+                <label class="lbl" for="gv-cost">Costo per noi (&euro;)</label>
+                <input class="inp" id="gv-cost" type="number" min="0" step="1" placeholder="252">
+              </div>
+            </div>
+            <div class="form-row">
               <div class="fg">
                 <label class="lbl" for="gv-email">Email di chi regala</label>
                 <input class="inp" id="gv-email" type="email">
@@ -1137,6 +1205,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
     if (btn.dataset.page === 'prenotazioni') loadBookings()
     if (btn.dataset.page === 'prezzi')      loadPrices()
     if (btn.dataset.page === 'sconti')      loadDiscounts()
+    if (btn.dataset.page === 'costi')       loadCosts()
     if (btn.dataset.page === 'voucher')     loadVouchers()
     if (btn.dataset.page === 'politica')    loadPolicy()
     if (btn.dataset.page === 'recensioni')  loadReviewsAdmin()
@@ -1145,28 +1214,83 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
 
 // ── Dashboard ─────────────────────────────────────────────────
 async function loadDashboard() {
-  const { data: bookings } = await db.from('bookings')
-    .select('id,status,amount_eur,created_at,payment_method,created_by,notes')
-    .order('created_at', { ascending: true })
+  const [bookRes, voucherRes, costRes, ruleRes, periodRes, bcostRes] = await Promise.all([
+    db.from('bookings')
+      .select('id,status,amount_eur,created_at,payment_method,created_by,notes,persons,type,slots(date)')
+      .order('created_at', { ascending: true }),
+    db.from('gift_vouchers').select('amount_eur,cost_eur,issued_on,created_at,status'),
+    db.from('cost_settings').select('key,value_eur'),
+    db.from('cost_rules').select('legacy_cutoff').eq('id', 1).maybeSingle(),
+    db.from('price_periods').select('start_date,end_date').eq('active', true).eq('high_season', true),
+    db.from('booking_costs').select('booking_id,cost_eur'),
+  ])
 
+  const bookings = bookRes.data
   if (!bookings) return
+
+  // ── Costi (dati riservati, leggibili solo dall'admin) ────────
+  const COSTI = {}
+  ;(costRes.data || []).forEach(r => { COSTI[r.key] = Number(r.value_eur) })
+  const cutoff    = ruleRes.data ? ruleRes.data.legacy_cutoff : null
+  const altaStag  = periodRes.data || []
+  const override  = {}
+  ;(bcostRes.data || []).forEach(r => { override[r.booking_id] = Number(r.cost_eur) })
+
+  const inAltaStagione = d => !!d && altaStag.some(p => d >= p.start_date && d <= p.end_date)
+
+  // Costo di Francesca per una prenotazione. Un costo inserito a mano vince
+  // sul listino. Le prenotazioni ricevute prima del taglio restano a costo
+  // di bassa stagione anche se l'esperienza cade in alta stagione.
+  function costoPrenotazione(b) {
+    if (override[b.id] != null) return override[b.id]
+    const persone = Number(b.persons) || 0
+    if (!persone) return 0
+    const dataEsperienza = b.slots && b.slots.date ? b.slots.date : null
+    const ricevutaPrima  = cutoff ? String(b.created_at).slice(0, 10) < cutoff : false
+    const alta = !ricevutaPrima && inAltaStagione(dataEsperienza)
+    const unit = COSTI[(b.type === 'private' ? 'private' : 'shared') + (alta ? '_high' : '_low')]
+    return unit != null ? unit * persone : 0
+  }
 
   // Le prenotazioni inserite manualmente dal calendario staff (created_by valorizzato)
   // non entrano nel fatturato ne' nelle statistiche: qui si misura solo il sito.
   const siteBookings = bookings.filter(b => !b.created_by)
   const confirmed = siteBookings.filter(b => b.status === 'confirmed')
-  const totalRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+  const bookRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+  const bookCost = confirmed.reduce((s,b) => s + costoPrenotazione(b), 0)
+
+  // Voucher: incasso e costo contano dal giorno in cui il regalo viene venduto
+  const vouchers    = (voucherRes.data || []).filter(v => v.status !== 'cancelled')
+  const dataVoucher = v => v.issued_on || String(v.created_at || '').slice(0, 10)
+  const vRev  = vouchers.reduce((s,v) => s + (Number(v.amount_eur)||0), 0)
+  const vCost = vouchers.reduce((s,v) => s + (Number(v.cost_eur)||0), 0)
+
+  const totalRev  = bookRev + vRev
+  const profit    = totalRev - bookCost - vCost
 
   const now = new Date()
-  const thisMonth = confirmed.filter(b => {
-    const d = new Date(b.created_at)
+  const stessoMese = iso => {
+    if (!iso) return false
+    const d = new Date(iso)
     return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
-  })
+  }
+  const thisMonth = confirmed.filter(b => stessoMese(b.created_at))
+  const vMese     = vouchers.filter(v => stessoMese(dataVoucher(v)))
   const thisMonthRev = thisMonth.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+                     + vMese.reduce((s,v) => s + (Number(v.amount_eur)||0), 0)
+  const thisMonthProfit = thisMonthRev
+                     - thisMonth.reduce((s,b) => s + costoPrenotazione(b), 0)
+                     - vMese.reduce((s,v) => s + (Number(v.cost_eur)||0), 0)
+
+  const eur = n => '€' + Math.round(n).toLocaleString('it-IT')
 
   document.getElementById('stat-total').textContent   = confirmed.length
-  document.getElementById('stat-revenue').textContent = '€' + totalRev.toLocaleString('it-IT', {minimumFractionDigits:0,maximumFractionDigits:0})
-  document.getElementById('stat-month').textContent   = '€' + thisMonthRev.toLocaleString('it-IT', {minimumFractionDigits:0,maximumFractionDigits:0})
+  document.getElementById('stat-revenue').textContent = eur(totalRev)
+  document.getElementById('stat-profit').textContent  = eur(profit)
+  document.getElementById('stat-profit-sub').textContent = totalRev > 0
+    ? 'margine ' + Math.round(profit / totalRev * 100) + '% · questo mese ' + eur(thisMonthProfit)
+    : 'al netto dei costi'
+  document.getElementById('stat-month').textContent   = eur(thisMonthRev)
   document.getElementById('stat-month-label').textContent = MONTH_NAMES[now.getMonth()]
 
   // Prenotazioni caricate manualmente dal calendario (staff): mostrate a parte,
@@ -1184,12 +1308,19 @@ async function loadDashboard() {
 
   // Build monthly aggregates (last 12 months)
   const monthly = {}
+  const bucket  = key => (monthly[key] = monthly[key] || { count: 0, rev: 0 })
   confirmed.forEach(b => {
     const d = new Date(b.created_at)
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
-    if (!monthly[key]) monthly[key] = { count: 0, rev: 0 }
-    monthly[key].count++
-    monthly[key].rev += Number(b.amount_eur)||0
+    const m = bucket(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)
+    m.count++
+    m.rev += Number(b.amount_eur)||0
+  })
+  // I voucher aggiungono incasso nel mese in cui sono stati venduti, ma non
+  // sono prenotazioni: il conteggio resta quello delle prenotazioni.
+  vouchers.forEach(v => {
+    const g = dataVoucher(v)
+    if (!g) return
+    bucket(g.slice(0, 7)).rev += Number(v.amount_eur)||0
   })
 
   // Last 12 months
@@ -1759,7 +1890,7 @@ function renderPricePeriods() {
       ? `<span class="badge badge-active">Attivo</span>`
       : `<span class="badge badge-inactive">Non attivo</span>`
     return `<tr>
-      <td><strong>${esc(r.name)}</strong>${nowTag}</td>
+      <td><strong>${esc(r.name)}</strong>${nowTag}${r.high_season ? ' <span class="badge badge-inactive">alta stagione</span>' : ''}</td>
       <td style="white-space:nowrap">${ppFmt(r.start_date)} → ${ppFmt(r.end_date)}</td>
       <td>${cell('shared_online')}</td>
       <td>${cell('shared_arrival')}</td>
@@ -1783,6 +1914,7 @@ function resetPricePeriodForm() {
   document.getElementById('pp-cancel-btn').style.display = 'none'
   ;['pp-name','pp-start','pp-end'].forEach(id => { document.getElementById(id).value = '' })
   document.getElementById('pp-priority').value = '0'
+  document.getElementById('pp-high-season').checked = false
   PP_FIELDS.forEach(f => { document.getElementById('pp-' + f.key).value = '' })
 }
 
@@ -1797,6 +1929,7 @@ function editPricePeriod(id) {
   document.getElementById('pp-start').value    = r.start_date
   document.getElementById('pp-end').value      = r.end_date
   document.getElementById('pp-priority').value = r.priority
+  document.getElementById('pp-high-season').checked = !!r.high_season
   PP_FIELDS.forEach(f => { document.getElementById('pp-' + f.key).value = r[f.key] == null ? '' : Math.round(r[f.key]) })
   document.getElementById('pp-form-title').scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
@@ -1811,7 +1944,8 @@ async function savePricePeriod() {
   if (!start || !end)  { toast('Inserisci data di inizio e di fine', 'error'); return }
   if (end < start)     { toast('La data di fine precede quella di inizio', 'error'); return }
 
-  const payload = { name, start_date: start, end_date: end, priority: prio }
+  const payload = { name, start_date: start, end_date: end, priority: prio,
+                    high_season: document.getElementById('pp-high-season').checked }
   let filled = 0
   for (const f of PP_FIELDS) {
     const raw = String(document.getElementById('pp-' + f.key).value).trim()
@@ -1900,7 +2034,7 @@ document.getElementById('pp-check-btn').addEventListener('click', checkPriceForD
 function nbVal(id) { return String(document.getElementById(id).value || '').trim() }
 
 function nbReset() {
-  ;['nb-date','nb-name','nb-email','nb-phone','nb-price','nb-paid','nb-notes'].forEach(id => {
+  ;['nb-date','nb-name','nb-email','nb-phone','nb-price','nb-cost','nb-paid','nb-notes'].forEach(id => {
     document.getElementById(id).value = ''
   })
   document.getElementById('nb-guests').value = '2'
@@ -1909,6 +2043,7 @@ function nbReset() {
   document.getElementById('nb-paid-row').style.display = 'none'
   document.getElementById('nb-price').dataset.touched = ''
   document.getElementById('nb-hint').textContent = ''
+  document.getElementById('nb-margin').textContent = ''
 }
 
 // Importo suggerito dal listino della data scelta: rispetta i periodi stagionali
@@ -1959,7 +2094,7 @@ async function nbCreate(force) {
   const btn = document.getElementById('nb-save-btn')
   const lbl = btn.textContent
   btn.disabled = true; btn.textContent = 'Salvataggio…'
-  const { error } = await db.rpc('create_manual_booking', {
+  const { data: esito, error } = await db.rpc('create_manual_booking', {
     p_date:        date,
     p_time:        slot + ':00',
     p_name:        name,
@@ -1983,9 +2118,46 @@ async function nbCreate(force) {
     }
     toast('Errore: ' + error.message, 'error'); return
   }
+  // Costo riservato: sta in booking_costs, mai sulla riga della prenotazione
+  // che il cliente puo' leggere nella propria area.
+  const costo = Number(nbVal('nb-cost'))
+  if (costo > 0) {
+    const id = nbEstraiId(esito) || await nbCercaId(name, date, slot)
+    if (id) {
+      const { error: e2 } = await db.from('booking_costs')
+        .upsert({ booking_id: id, cost_eur: costo, updated_at: new Date().toISOString() }, { onConflict: 'booking_id' })
+      if (e2) toast('Prenotazione creata, ma il costo non e stato salvato: ' + e2.message, 'error')
+    } else {
+      toast('Prenotazione creata, ma non sono riuscito a collegarci il costo', 'error')
+    }
+  }
+
   toast('Prenotazione creata', 'success')
   nbReset()
   loadBookings()
+}
+
+// L'identificativo puo' arrivare in forme diverse dalla funzione database
+function nbEstraiId(x) {
+  if (!x) return null
+  if (typeof x === 'string') return /^[0-9a-f-]{36}$/i.test(x) ? x : null
+  if (typeof x !== 'object') return null
+  for (const k of ['id', 'booking_id', 'bookingId']) if (typeof x[k] === 'string') return x[k]
+  for (const k of ['booking', 'data', 'row', 'result']) {
+    if (x[k] && typeof x[k] === 'object') { const r = nbEstraiId(x[k]); if (r) return r }
+  }
+  return null
+}
+// Riserva: ripesco la prenotazione appena creata
+async function nbCercaId(name, date, slot) {
+  const { data } = await db.from('bookings')
+    .select('id,created_at,slots!inner(date,time)')
+    .eq('name', name)
+    .eq('slots.date', date)
+    .eq('slots.time', slot + ':00')
+    .order('created_at', { ascending: false })
+    .limit(1)
+  return data && data[0] ? data[0].id : null
 }
 document.getElementById('nb-save-btn').addEventListener('click', () => nbCreate(false))
 
@@ -2069,7 +2241,7 @@ function gvResetForm() {
   document.getElementById('gv-form-title').textContent = 'Nuovo voucher regalo'
   document.getElementById('gv-save-btn').textContent   = 'Crea voucher'
   document.getElementById('gv-cancel-btn').style.display = 'none'
-  ;['gv-recipient','gv-buyer','gv-persons','gv-includes','gv-amount','gv-email','gv-phone','gv-notes'].forEach(id => {
+  ;['gv-recipient','gv-buyer','gv-persons','gv-includes','gv-amount','gv-cost','gv-email','gv-phone','gv-notes'].forEach(id => {
     document.getElementById(id).value = ''
   })
   document.getElementById('gv-lang').value  = 'it'
@@ -2094,6 +2266,7 @@ function editVoucher(id) {
   document.getElementById('gv-includes').value  = r.includes || ''
   document.getElementById('gv-show-expiry').checked = r.show_expiry !== false
   document.getElementById('gv-amount').value    = r.amount_eur != null ? Math.round(r.amount_eur) : ''
+  document.getElementById('gv-cost').value      = r.cost_eur != null ? Math.round(r.cost_eur) : ''
   document.getElementById('gv-email').value     = r.buyer_email || ''
   document.getElementById('gv-phone').value     = r.buyer_phone || ''
   document.getElementById('gv-notes').value     = r.notes || ''
@@ -2106,8 +2279,10 @@ async function saveVoucher() {
   if (!valido) { toast('Indica fino a quando il buono è valido', 'error'); return }
   const persone = v('gv-persons')
   const importo = v('gv-amount')
+  const costo   = v('gv-cost')
   if (persone && !(Number(persone) >= 1 && Number(persone) <= 20)) { toast('Persone: da 1 a 20', 'error'); return }
   if (importo && !(Number(importo) >= 0)) { toast('Importo non valido', 'error'); return }
+  if (costo && !(Number(costo) >= 0)) { toast('Costo non valido', 'error'); return }
 
   const payload = {
     lang:            document.getElementById('gv-lang').value,
@@ -2119,6 +2294,7 @@ async function saveVoucher() {
     show_expiry:     document.getElementById('gv-show-expiry').checked,
     valid_until:     valido,
     amount_eur:      importo ? Number(importo) : null,
+    cost_eur:        costo ? Number(costo) : null,
     buyer_email:     v('gv-email') || null,
     buyer_phone:     v('gv-phone') || null,
     notes:           v('gv-notes') || null,
@@ -2226,6 +2402,164 @@ document.getElementById('gv-redeem-btn').addEventListener('click', async () => {
 document.getElementById('gv-redeem-code').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('gv-redeem-btn').click()
 })
+
+// ── Costi e guadagno ──────────────────────────────────────────
+// Dati riservati: queste tabelle sono leggibili solo da un admin
+// autenticato e non vengono mai lette dalle pagine pubbliche.
+const COST_KEYS = [
+  { key: 'shared_low',   label: 'Shared',  sub: 'Bassa stagione' },
+  { key: 'shared_high',  label: 'Shared',  sub: 'Alta stagione'  },
+  { key: 'private_low',  label: 'Private', sub: 'Bassa stagione' },
+  { key: 'private_high', label: 'Private', sub: 'Alta stagione'  },
+]
+let COSTI_LISTINO = {}
+
+const eurIt = n => Number(n).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+async function loadCosts() {
+  const grid = document.getElementById('costs-grid')
+  if (!grid) return
+  const [costRes, ruleRes, priceRes, periodRes] = await Promise.all([
+    db.from('cost_settings').select('key,value_eur'),
+    db.from('cost_rules').select('legacy_cutoff').eq('id', 1).maybeSingle(),
+    db.from('price_settings').select('key,value_eur'),
+    db.from('price_periods')
+      .select('name,start_date,end_date,shared_online,shared_arrival,private_online,private_arrival')
+      .eq('active', true).eq('high_season', true)
+      .order('start_date', { ascending: false }).limit(1),
+  ])
+
+  if (costRes.error) {
+    grid.innerHTML = `<div style="grid-column:1/-1;color:var(--danger)">Errore: ${esc(costRes.error.message)}</div>`
+    return
+  }
+
+  COSTI_LISTINO = {}
+  ;(costRes.data || []).forEach(r => { COSTI_LISTINO[r.key] = Number(r.value_eur) })
+
+  grid.innerHTML = COST_KEYS.map(c => `
+    <div class="price-box">
+      <div class="price-box-label">${c.sub}</div>
+      <div class="price-box-name">${c.label}</div>
+      <div class="price-inp-wrap">
+        <span class="price-currency">€</span>
+        <input class="price-inp-num" id="cost-${c.key}" type="number" min="0" step="0.5" value="${COSTI_LISTINO[c.key] != null ? COSTI_LISTINO[c.key] : ''}">
+      </div>
+      <button class="btn btn-primary btn-sm price-save-btn" onclick="saveCost('${c.key}')">Salva</button>
+    </div>
+  `).join('')
+
+  const cutoff = ruleRes.data ? ruleRes.data.legacy_cutoff : null
+  document.getElementById('cost-cutoff').value = cutoff || ''
+  document.getElementById('cost-cutoff-msg').textContent = cutoff
+    ? 'Attiva: tutto quello ricevuto prima del ' + ppFmt(cutoff) + ' resta a costo di bassa stagione.'
+    : 'Nessuna eccezione: vale sempre la stagione della data dell’esperienza.'
+
+  renderMargins(priceRes.data || [], (periodRes.data || [])[0] || null)
+}
+
+async function saveCost(key) {
+  const raw = String(document.getElementById('cost-' + key).value || '').trim()
+  const val = parseFloat(raw.replace(',', '.'))
+  if (!(val >= 0)) { toast('Inserisci un valore valido', 'error'); return }
+  const { error } = await db.from('cost_settings')
+    .upsert({ key, value_eur: val, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast('Costo aggiornato', 'success')
+  loadCosts()
+}
+
+function renderMargins(prezziBase, periodoAlto) {
+  const base = {}
+  prezziBase.forEach(r => { base[r.key] = Number(r.value_eur) })
+  const righe = (titolo, prezzi, suffisso) => {
+    const combinazioni = [
+      ['Shared · pagamento online',  'shared_online',  'shared'  + suffisso],
+      ['Shared · paga all’arrivo', 'shared_arrival', 'shared'  + suffisso],
+      ['Private · pagamento online', 'private_online', 'private' + suffisso],
+      ['Private · paga all’arrivo','private_arrival','private' + suffisso],
+    ]
+    const corpo = combinazioni.map(([etichetta, kPrezzo, kCosto]) => {
+      const p = prezzi[kPrezzo], c = COSTI_LISTINO[kCosto]
+      if (p == null || c == null) return ''
+      const m = p - c
+      const pct = p > 0 ? Math.round(m / p * 100) : 0
+      const colore = m <= 0 ? 'var(--danger)' : 'var(--charcoal)'
+      return `<tr>
+        <td>${etichetta}</td>
+        <td>€${eurIt(p)}</td>
+        <td>€${eurIt(c)}</td>
+        <td style="font-weight:600;color:${colore}">€${eurIt(m)}</td>
+        <td>${pct}%</td>
+      </tr>`
+    }).join('')
+    return `<h4 style="font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--warm-gray);margin:18px 0 10px">${esc(titolo)}</h4>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Combinazione</th><th>Prezzo</th><th>Costo</th><th>Margine</th><th>%</th></tr></thead>
+        <tbody>${corpo}</tbody>
+      </table></div>`
+  }
+
+  let html = righe('Bassa stagione · prezzi base', base, '_low')
+  if (periodoAlto) {
+    const pz = {
+      shared_online:   periodoAlto.shared_online   != null ? Number(periodoAlto.shared_online)   : base.shared_online,
+      shared_arrival:  periodoAlto.shared_arrival  != null ? Number(periodoAlto.shared_arrival)  : base.shared_arrival,
+      private_online:  periodoAlto.private_online  != null ? Number(periodoAlto.private_online)  : base.private_online,
+      private_arrival: periodoAlto.private_arrival != null ? Number(periodoAlto.private_arrival) : base.private_arrival,
+    }
+    html += righe('Alta stagione · ' + periodoAlto.name, pz, '_high')
+  } else {
+    html += `<p style="font-size:13px;color:var(--warm-gray);margin-top:16px">
+      Nessun periodo contrassegnato come alta stagione: spunta la casella nel periodo giusto, nella pagina Prezzi.</p>`
+  }
+  document.getElementById('cost-margins').innerHTML = html
+}
+
+document.getElementById('cost-cutoff-save').addEventListener('click', async () => {
+  const d = document.getElementById('cost-cutoff').value
+  if (!d) { toast('Scegli una data', 'error'); return }
+  const { error } = await db.from('cost_rules').upsert({ id: 1, legacy_cutoff: d, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast('Data aggiornata', 'success')
+  loadCosts()
+})
+
+document.getElementById('cost-cutoff-clear').addEventListener('click', async () => {
+  if (!confirm('Togliere l’eccezione? Da quel momento anche le prenotazioni gia’ ricevute useranno il costo della stagione in cui si svolge l’esperienza.')) return
+  const { error } = await db.from('cost_rules').upsert({ id: 1, legacy_cutoff: null, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+  if (error) { toast('Errore: ' + error.message, 'error'); return }
+  toast('Eccezione rimossa', 'success')
+  loadCosts()
+})
+
+// Suggerisce il costo della prenotazione manuale e mostra il margine
+async function nbSuggestCost() {
+  const date = nbVal('nb-date')
+  const n    = Number(nbVal('nb-guests')) || 0
+  const box  = document.getElementById('nb-margin')
+  if (!date || !n) { box.textContent = ''; return }
+  if (!Object.keys(COSTI_LISTINO).length) {
+    const { data } = await db.from('cost_settings').select('key,value_eur')
+    ;(data || []).forEach(r => { COSTI_LISTINO[r.key] = Number(r.value_eur) })
+  }
+  const { data: periodi } = await db.from('price_periods')
+    .select('start_date,end_date').eq('active', true).eq('high_season', true)
+  const alta = (periodi || []).some(p => date >= p.start_date && date <= p.end_date)
+  const unit = COSTI_LISTINO[(document.getElementById('nb-type').value === 'private' ? 'private' : 'shared') + (alta ? '_high' : '_low')]
+  if (unit == null) { box.textContent = ''; return }
+  const costoListino = unit * n
+  const campo = document.getElementById('nb-cost')
+  const costo = campo.value.trim() ? Number(campo.value) : costoListino
+  const prezzo = Number(nbVal('nb-price')) || 0
+  campo.placeholder = 'Da listino: ' + Math.round(costoListino)
+  box.textContent = prezzo > 0
+    ? 'Margine: €' + Math.round(prezzo - costo) + (alta ? ' · costo alta stagione' : ' · costo bassa stagione')
+    : (alta ? 'Costo alta stagione: €' + Math.round(costoListino) : 'Costo bassa stagione: €' + Math.round(costoListino))
+}
+;['nb-date','nb-type','nb-guests','nb-price','nb-cost'].forEach(id =>
+  document.getElementById(id).addEventListener('input', nbSuggestCost))
+
 
 
 // ── Codici sconto ─────────────────────────────────────────────
