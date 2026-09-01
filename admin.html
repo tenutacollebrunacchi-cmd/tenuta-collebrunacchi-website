@@ -170,6 +170,8 @@
     .badge-manual     { background: #E0EAF1; color: #46708C; }
     .badge-online     { background: #D1ECF1; color: #0C5460; }
     .badge-arrival    { background: #E2E3E5; color: #383D41; }
+    .badge-cashed     { background: #FDE9C8; color: #8A4B08; }
+    .badge-nocash     { background: #EFEFEC; color: #8A8A80; }
     .badge-active     { background: #D4EDDA; color: #155724; }
     .badge-inactive   { background: #E2E3E5; color: #6C757D; }
 
@@ -697,6 +699,7 @@
               <option value="confirmed">Confermata</option>
               <option value="pending">In attesa</option>
               <option value="cancelled">Cancellata</option>
+              <option value="refunded">Rimborsata</option>
             </select>
           </div>
         </div>
@@ -1185,6 +1188,8 @@ const DAY_SHORT   = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']
 
 let db, session
 let allBookings = []
+// Stato dell'incasso per prenotazione, indicizzato per id.
+let INCASSI = {}
 let calYear  = new Date().getFullYear()
 let calMonth = new Date().getMonth()
 let calBookings  = {}
@@ -1775,11 +1780,47 @@ document.getElementById('cal-sidebar-overlay').addEventListener('click', closeSi
 // ── Prenotazioni ──────────────────────────────────────────────
 async function loadBookings() {
   document.getElementById('bookings-body').innerHTML = loadingRow(10)
-  const { data } = await db.from('bookings')
-    .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,slots(date,time)')
-    .order('created_at', { ascending: false })
-  allBookings = data || []
+  // Insieme alle prenotazioni si leggono i pagamenti: senza, una prenotazione
+  // annullata che aveva incassato e una che non ha mai visto un euro sembrano
+  // identiche, e non si capisce quale vada rimborsata.
+  const [bookRes, payRes] = await Promise.all([
+    db.from('bookings')
+      .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,stripe_session_id,slots(date,time)')
+      .order('created_at', { ascending: false }),
+    db.from('payments').select('booking_id,status,amount_eur,stripe_payment_intent'),
+  ])
+  allBookings = bookRes.data || []
+  INCASSI = {}
+  const rango = { refunded: 3, paid: 2, pending: 1, failed: 0 }
+  ;(payRes.data || []).forEach(p => {
+    const attuale = INCASSI[p.booking_id]
+    if (!attuale || (rango[p.status] || 0) > (rango[attuale.status] || 0)) INCASSI[p.booking_id] = p
+  })
   renderBookingsTable()
+}
+
+// Stato dell'incasso di una prenotazione, come lo conosce il pannello.
+// 'paid' = i soldi sono sul conto, 'refunded' = restituiti, null = mai entrati.
+function incassoDi(b) {
+  const p = b ? INCASSI[b.id] : null
+  const stato = p && (p.status === 'paid' || p.status === 'refunded') ? p.status : null
+  return {
+    stato,
+    importo: p ? p.amount_eur : null,
+    riferimento: p ? p.stripe_payment_intent : null,
+    daRimborsare: stato === 'paid',
+  }
+}
+
+function badgeIncasso(b) {
+  if (b.created_by || b.payment_method !== 'online') return ''
+  const i = incassoDi(b)
+  if (i.stato === 'refunded') return ' <span class="badge badge-refunded">Rimborsata</span>'
+  if (i.stato === 'paid') {
+    const cifra = i.importo != null ? ' \u20ac' + Math.round(i.importo) : ''
+    return ' <span class="badge badge-cashed">Incassata' + cifra + '</span>'
+  }
+  return ' <span class="badge badge-nocash">Mai incassata</span>'
 }
 
 function renderBookingsTable() {
@@ -1821,7 +1862,7 @@ function renderBookingsTable() {
       <td>${b.type === 'private' ? 'Privato' : 'Condiviso'}</td>
       <td>${pay}</td>
       <td>${h.price ? HF_LOCK : ('€' + (b.amount_eur || '—'))}</td>
-      <td>${statusBadge(b.status)}</td>
+      <td>${statusBadge(b.status)}${badgeIncasso(b)}</td>
       <td>
         <button class="btn btn-ghost btn-sm" onclick="openBookingModal('${b.id}')">Apri</button>
       </td>
@@ -1840,12 +1881,24 @@ async function openBookingModal(id) {
   if (!b) {
     // Chiamata dalla sidebar: recupera il record completo dal DB
     const { data, error } = await db.from('bookings')
-      .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,slots(date,time)')
+      .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,stripe_session_id,slots(date,time)')
       .eq('id', id)
       .single()
     if (error || !data) { toast('Prenotazione non trovata', 'error'); return }
     b = data
     allBookings = [...allBookings, b]
+  }
+  // Senza il pagamento la scheda direbbe "mai incassata" anche quando i soldi
+  // ci sono: se manca, lo si chiede prima di mostrare qualcosa.
+  if (!INCASSI[id]) {
+    const { data: pag } = await db.from('payments')
+      .select('booking_id,status,amount_eur,stripe_payment_intent')
+      .eq('booking_id', id)
+    const rango = { refunded: 3, paid: 2, pending: 1, failed: 0 }
+    ;(pag || []).forEach(p => {
+      const attuale = INCASSI[p.booking_id]
+      if (!attuale || (rango[p.status] || 0) > (rango[attuale.status] || 0)) INCASSI[p.booking_id] = p
+    })
   }
   const date = b.slots?.date?.slice(0,10) || '—'
   const time = b.slots?.time?.slice(0,5)  || '—'
@@ -1862,6 +1915,7 @@ async function openBookingModal(id) {
       ${row('Tipo', b.type === 'private' ? 'Privato' : 'Condiviso')}
       ${row('Pagamento', b.payment_method === 'arrival' ? 'Paga all\'arrivo' : 'Online (Stripe)')}
       ${row('Importo', h.price ? HF_LOCK : ('€' + (b.amount_eur || '—')))}
+      ${row('Incasso', descriviIncasso(b))}
       ${row('Stato', statusBadge(b.status))}
       ${h.notes ? row('Note', HF_LOCK) : (hp.notes ? row('Note', esc(hp.notes)) : '')}
     </table>`
@@ -1871,7 +1925,28 @@ async function openBookingModal(id) {
   confirmBtn.style.display = b.status === 'confirmed' ? 'none' : 'inline-flex'
   cancelBtn.style.display  = b.status === 'cancelled' ? 'none' : 'inline-flex'
 
+  // I rimborsi compaiono solo dove c'e' davvero un incasso da restituire.
+  // Su una prenotazione mai pagata quei pulsanti non servono a niente e
+  // rischiano solo di confondere.
+  const inc = incassoDi(b)
+  document.getElementById('modal-refund-cancel-btn').style.display =
+    (inc.daRimborsare && b.status !== 'cancelled') ? 'inline-flex' : 'none'
+  document.getElementById('modal-refund-only-btn').style.display =
+    inc.daRimborsare ? 'inline-flex' : 'none'
+
   document.getElementById('modal-booking').classList.add('open')
+}
+
+// Dice in chiaro se i soldi di questa prenotazione sono arrivati, se sono
+// gia' tornati indietro o se non sono mai entrati.
+function descriviIncasso(b) {
+  if (b.created_by) return '<span style="color:var(--warm-gray)">prenotazione del calendario</span>'
+  if (b.payment_method === 'arrival') return '<span style="color:var(--warm-gray)">si salda all\u2019arrivo</span>'
+  const i = incassoDi(b)
+  const cifra = i.importo != null ? '\u20ac' + Number(i.importo).toFixed(2).replace('.', ',') : ''
+  if (i.stato === 'refunded') return '<span class="badge badge-refunded">Rimborsata</span> <span style="color:var(--warm-gray)">' + cifra + ' restituiti</span>'
+  if (i.stato === 'paid') return '<span class="badge badge-cashed">Incassata</span> <span style="color:var(--warm-gray)">' + cifra + ' sul conto' + (i.riferimento ? ' \u00b7 ' + esc(i.riferimento) : '') + '</span>'
+  return '<span class="badge badge-nocash">Mai incassata</span> <span style="color:var(--warm-gray)">pagamento mai andato a buon fine</span>'
 }
 
 function row(label, value) {
@@ -1913,7 +1988,8 @@ document.getElementById('modal-cancel-btn').addEventListener('click', async () =
 // La funzione di rimborso risponde con codici tecnici: qui diventano frasi.
 function spiegaRimborso(json) {
   const e = json && json.error
-  if (e === 'already_cancelled') return 'Prenotazione gi\u00e0 annullata: da qui non si rimborsa pi\u00f9. Se i soldi erano stati incassati, il rimborso va fatto da Stripe.'
+  if (e === 'already_refunded') return 'Questa prenotazione risulta gi\u00e0 rimborsata.'
+  if (e === 'already_cancelled') return 'Prenotazione gi\u00e0 annullata.'
   if (e === 'outside_cancellation_window') return 'Siamo fuori dalla finestra di cancellazione gratuita.'
   if (e === 'unauthorized') return 'Sessione scaduta: rifai l\u2019accesso e riprova.'
   if (e === 'booking_not_found') return 'Prenotazione non trovata.'
