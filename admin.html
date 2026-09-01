@@ -522,14 +522,24 @@
           <div class="stat-sub">confermate · dal sito</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Incassato totale</div>
+          <div class="stat-label">Fatturato totale</div>
           <div class="stat-value" id="stat-revenue">—</div>
-          <div class="stat-sub">confermati · sito e voucher</div>
+          <div class="stat-sub" id="stat-revenue-sub">confermati · sito e voucher</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Guadagno</div>
+          <div class="stat-label">Guadagno totale</div>
           <div class="stat-value" id="stat-profit">—</div>
           <div class="stat-sub" id="stat-profit-sub">al netto dei costi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Fatturato già incassato</div>
+          <div class="stat-value" id="stat-cashed">—</div>
+          <div class="stat-sub" id="stat-cashed-sub">esperienze già svolte</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Guadagno già incassato</div>
+          <div class="stat-value" id="stat-cashed-profit">—</div>
+          <div class="stat-sub" id="stat-cashed-profit-sub">già sul conto</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Questo mese</div>
@@ -1135,7 +1145,7 @@
     <div id="modal-booking-content"></div>
     <div class="form-actions" style="margin-top:24px;flex-wrap:wrap;gap:8px;">
       <button class="btn btn-success btn-sm" id="modal-confirm-btn">Conferma</button>
-      <button class="btn btn-danger btn-sm" id="modal-cancel-btn">Cancella</button>
+      <button class="btn btn-danger btn-sm" id="modal-cancel-btn">Cancella senza rimborso</button>
       <button class="btn btn-danger btn-sm" id="modal-refund-cancel-btn" style="background:#7B2D00;">Rimborsa e cancella</button>
       <button class="btn btn-warning btn-sm" id="modal-refund-only-btn" style="background:#B7791F;color:white;">Rimborsa solo</button>
     </div>
@@ -1371,6 +1381,32 @@ async function loadDashboard() {
   const totalRev  = bookRev + vRev
   const profit    = totalRev - bookCost - vCost
 
+  // ── Gia' incassato: solo le esperienze gia' svolte ─────────────────
+  // Il fatturato totale comprende anche prenotazioni future (e quelle da
+  // saldare all'arrivo, dove il denaro non e' ancora arrivato). Qui si
+  // contano solo le esperienze con data gia' passata: quel denaro e' sul
+  // conto e il relativo costo di Francesca e' ormai certo.
+  const oggiIso = new Date().toISOString().slice(0, 10)
+  const giaSvolta = b => {
+    const d = b.slots && b.slots.date ? b.slots.date : null
+    return !!d && d < oggiIso
+  }
+  const svolte     = confirmed.filter(giaSvolta)
+  // I voucher entrano nell'incassato quando vengono riscattati
+  const vRiscattati = vouchers.filter(v => v.status === 'redeemed')
+
+  const cashedRev = svolte.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+                  + vRiscattati.reduce((s,v) => s + (Number(v.amount_eur)||0), 0)
+  const cashedProfit = cashedRev
+                  - svolte.reduce((s,b) => s + costoPrenotazione(b), 0)
+                  - vRiscattati.reduce((s,v) => s + (Number(v.cost_eur)||0), 0)
+
+  // Quanto del fatturato totale non e' ancora entrato: prenotazioni future
+  // con pagamento all'arrivo.
+  const daSaldare = confirmed
+    .filter(b => b.payment_method === 'arrival' && !giaSvolta(b))
+    .reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
+
   const now = new Date()
   const stessoMese = iso => {
     if (!iso) return false
@@ -1387,12 +1423,27 @@ async function loadDashboard() {
 
   const eur = n => '€' + Math.round(n).toLocaleString('it-IT')
 
+  const plur = (n, uno, tanti) => n + ' ' + (n === 1 ? uno : tanti)
+
   document.getElementById('stat-total').textContent   = confirmed.length
   document.getElementById('stat-revenue').textContent = eur(totalRev)
+  document.getElementById('stat-revenue-sub').textContent =
+    plur(confirmed.length, 'prenotazione', 'prenotazioni')
+    + (vouchers.length ? ' + ' + plur(vouchers.length, 'voucher', 'voucher') : '')
+    + (daSaldare > 0 ? ' · ' + eur(daSaldare) + ' da saldare all\u2019arrivo' : '')
   document.getElementById('stat-profit').textContent  = eur(profit)
   document.getElementById('stat-profit-sub').textContent = totalRev > 0
     ? 'margine ' + Math.round(profit / totalRev * 100) + '% · questo mese ' + eur(thisMonthProfit)
     : 'al netto dei costi'
+
+  document.getElementById('stat-cashed').textContent = eur(cashedRev)
+  document.getElementById('stat-cashed-sub').textContent =
+    plur(svolte.length, 'esperienza gi\u00e0 svolta', 'esperienze gi\u00e0 svolte')
+    + (vRiscattati.length ? ' + ' + plur(vRiscattati.length, 'voucher usato', 'voucher usati') : '')
+  document.getElementById('stat-cashed-profit').textContent = eur(cashedProfit)
+  document.getElementById('stat-cashed-profit-sub').textContent = cashedRev > 0
+    ? 'margine ' + Math.round(cashedProfit / cashedRev * 100) + '% · gi\u00e0 sul conto'
+    : 'gi\u00e0 sul conto'
   document.getElementById('stat-month').textContent   = eur(thisMonthRev)
   document.getElementById('stat-month-label').textContent = MONTH_NAMES[now.getMonth()]
 
@@ -1839,7 +1890,18 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
 
 document.getElementById('modal-cancel-btn').addEventListener('click', async () => {
   if (!selectedBookingId) return
-  if (!confirm('Sei sicuro di voler cancellare questa prenotazione?')) return
+  // Questo pulsante annulla e basta: su Stripe non tocca niente. Se l'ospite
+  // ha gia' pagato online i soldi restano sul conto, quindi lo diciamo.
+  const bAnn = allBookings.find(x => x.id === selectedBookingId)
+  const haPagato = bAnn && bAnn.payment_method === 'online' && bAnn.status === 'confirmed'
+  const avviso = haPagato
+    ? 'Attenzione: questa prenotazione \u00e8 stata pagata online'
+      + (bAnn.amount_eur ? ' (\u20ac' + bAnn.amount_eur + ')' : '') + '.\n\n'
+      + 'Questo pulsante la annulla soltanto: NON restituisce i soldi all\u2019ospite.\n'
+      + 'Per rimborsare usa \u201cRimborsa e cancella\u201d.\n\n'
+      + 'Annullare comunque senza rimborsare?'
+    : 'Sei sicuro di voler cancellare questa prenotazione?'
+  if (!confirm(avviso)) return
   const { error } = await db.from('bookings').update({ status: 'cancelled' }).eq('id', selectedBookingId)
   if (error) { toast('Errore: ' + error.message, 'error'); return }
   toast('Prenotazione cancellata', 'success')
@@ -2666,10 +2728,12 @@ async function nbSuggestCost() {
 
 
 // ── Codici sconto ─────────────────────────────────────────────
+let DISCOUNTS = []
 async function loadDiscounts() {
   document.getElementById('discounts-body').innerHTML = loadingRow(7)
   const { data } = await db.from('discount_codes').select('*').order('created_at', { ascending: false })
-  renderDiscounts(data || [])
+  DISCOUNTS = data || []
+  renderDiscounts(DISCOUNTS)
 }
 
 function renderDiscounts(codes) {
@@ -2692,6 +2756,7 @@ function renderDiscounts(codes) {
       <td>${statBadge}</td>
       <td style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" onclick="toggleDiscount('${c.id}',${!c.active})">${toggleLbl}</button>
+        <button class="btn btn-ghost btn-sm" onclick="syncDiscount('${c.id}')" title="Ricrea questo codice su Stripe, se li' manca">Sincronizza</button>
         <button class="btn btn-danger btn-sm" onclick="deleteDiscount('${c.id}')">Elimina</button>
       </td>
     </tr>`
@@ -2711,39 +2776,76 @@ document.getElementById('dc-create-btn').addEventListener('click', async () => {
     msg.textContent = 'Compila codice e valore.'; msg.style.color = 'var(--danger)'; return
   }
 
+  // PRIMA Stripe, POI il database. Lo sconto lo applica Stripe alla cassa:
+  // se il codice non arriva li', al cliente non viene scalato niente. Salvarlo
+  // comunque nell'elenco vorrebbe dire mostrare come attivo un codice che non
+  // funziona - ed e' esattamente cosi' che un cliente ha pagato intero.
+  const esito = await sincronizzaSuStripe({ code, type, value, expires, maxuses })
+  if (!esito.ok) {
+    msg.textContent = 'Codice NON creato: Stripe non lo ha accettato — ' + esito.errore
+    msg.style.color = 'var(--danger)'
+    return
+  }
+
   const { error } = await db.from('discount_codes').insert({
     code, type, value,
     expires_at: expires ? new Date(expires).toISOString() : null,
     max_uses: maxuses,
   })
-  if (error) { msg.textContent = error.message; msg.style.color = 'var(--danger)'; return }
-
-  try {
-    const stripeRes = await fetch(`${SUPABASE_URL}/functions/v1/create-stripe-coupon`, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${session?.access_token ?? SUPABASE_ANON_KEY}`,
-      },
-      body: JSON.stringify({
-        code, type, value,
-        expires_at: expires ? new Date(expires).toISOString() : null,
-        max_uses:   maxuses,
-      }),
-    })
-    if (!stripeRes.ok) throw new Error(await stripeRes.text())
-    msg.textContent = 'Codice creato e sincronizzato con Stripe!'; msg.style.color = 'var(--success)'
-  } catch (stripeErr) {
-    console.warn('Stripe sync failed:', stripeErr)
-    msg.textContent = 'Codice salvato ma non sincronizzato con Stripe'; msg.style.color = '#f59e0b'
+  if (error) {
+    msg.textContent = 'Attenzione: il codice esiste in Stripe e funziona alla cassa, ma non e stato salvato nell elenco qui — ' + error.message
+    msg.style.color = '#f59e0b'
+    return
   }
 
+  msg.textContent = 'Codice creato e attivo su Stripe.'; msg.style.color = 'var(--success)'
   document.getElementById('dc-code').value = ''
   document.getElementById('dc-value').value = ''
   document.getElementById('dc-expires').value = ''
   document.getElementById('dc-maxuses').value = ''
   await loadDiscounts()
 })
+
+// Crea coupon e codice promozionale su Stripe. Il token viene richiesto
+// fresco a ogni chiamata: quello tenuto in una variabile puo' essere scaduto,
+// e la funzione risponderebbe 401 senza che nessuno se ne accorga.
+async function sincronizzaSuStripe({ code, type, value, expires, maxuses }) {
+  try {
+    const tok = (await db.auth.getSession()).data.session?.access_token
+    if (!tok) return { ok: false, errore: 'sessione scaduta, rifai l accesso' }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-stripe-coupon`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+      body: JSON.stringify({
+        code, type, value,
+        expires_at: expires ? new Date(expires).toISOString() : null,
+        max_uses:   maxuses,
+      }),
+    })
+    if (res.ok) return { ok: true }
+    let dettaglio = ''
+    try { const j = await res.json(); dettaglio = j.error || JSON.stringify(j) } catch (_) { dettaglio = await res.text() }
+    return { ok: false, errore: res.status + ': ' + String(dettaglio).slice(0, 200) }
+  } catch (e) {
+    return { ok: false, errore: e.message || 'errore di rete' }
+  }
+}
+
+// Ripara un codice gia' in elenco ma assente da Stripe (o creato prima di questo controllo)
+async function syncDiscount(id) {
+  const c = (DISCOUNTS || []).find(x => x.id === id)
+  if (!c) return
+  const esito = await sincronizzaSuStripe({
+    code: c.code, type: c.type, value: c.value,
+    expires: c.expires_at ? String(c.expires_at).slice(0, 10) : '',
+    maxuses: c.max_uses || null,
+  })
+  if (esito.ok) { toast('Codice ' + c.code + ' ora attivo su Stripe', 'success'); return }
+  if (/already exists|gia|exists/i.test(esito.errore)) {
+    toast('Il codice ' + c.code + ' risulta gia presente su Stripe', 'success'); return
+  }
+  toast('Stripe ha rifiutato ' + c.code + ': ' + esito.errore, 'error')
+}
 
 async function toggleDiscount(id, active) {
   const { error } = await db.from('discount_codes').update({ active }).eq('id', id)

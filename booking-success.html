@@ -28,13 +28,21 @@
         document.head.appendChild(gaScript);
         gtag('js', new Date());
         gtag('config', 'G-1HQBJQC0L1');
+        // L'importo nell'indirizzo e' quello calcolato prima del pagamento:
+        // se l'ospite ha usato un codice sconto non e' la cifra addebitata.
+        // L'evento parte piu' tardi, quando la pagina conosce l'incasso vero.
         var purchaseParams = new URLSearchParams(window.location.search);
-        var purchaseValue = parseFloat(purchaseParams.get('importo'));
-        gtag('event', 'purchase', {
-          transaction_id: purchaseParams.get('token') || undefined,
-          value: isNaN(purchaseValue) ? undefined : purchaseValue,
-          currency: 'EUR'
-        });
+        var giaInviato = false;
+        window.__segnalaAcquisto = function (valore) {
+          if (giaInviato) return;
+          giaInviato = true;
+          var v = parseFloat(valore);
+          gtag('event', 'purchase', {
+            transaction_id: purchaseParams.get('token') || undefined,
+            value: isNaN(v) ? undefined : v,
+            currency: 'EUR'
+          });
+        };
       }
     } catch (e) { /* consenso non concesso o localStorage non disponibile */ }
   </script>
@@ -276,7 +284,51 @@
     fill('sumOra',     p.get('ora'),     'Da definire');
     fill('sumPersone', p.get('persone') ? p.get('persone') + ' persone' : null, '2 persone');
     fill('sumTipo',    p.get('tipo'),    'Caccia al Tartufo');
-    fill('sumImporto', p.get('importo') ? '€ ' + p.get('importo') : null, '€ —');
+
+    // ── Totale ──────────────────────────────────────
+    // L'importo nell'indirizzo e' quello calcolato prima di andare su
+    // Stripe: con un codice sconto non e' la cifra davvero addebitata.
+    // Si mostra subito quello, poi si corregge con l'incasso registrato.
+    const SB_URL = 'https://ioyjhvlbamgiiqdtgutk.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlveWpodmxiYW1naWlxZHRndXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTQ5NDUsImV4cCI6MjA5NTYzMDk0NX0.559A_7cE3cuOETALWADbdRzoKphRePpLsLD51RxD_Ko';
+
+    const soldi = v => '\u20ac\u00a0' + Number(v).toFixed(2).replace('.', ',');
+    const importoUrl = p.get('importo') ? Number(p.get('importo')) : null;
+    const importoValido = importoUrl != null && !isNaN(importoUrl);
+    fill('sumImporto', importoValido ? soldi(importoUrl) : null, '\u20ac \u2014');
+
+    // La conferma del pagamento arriva dal webhook di Stripe un attimo dopo
+    // il rientro sul sito: si riprova qualche volta prima di rassegnarsi
+    // all'importo scritto nell'indirizzo.
+    async function incassoReale(token) {
+      for (let tentativo = 0; tentativo < 4; tentativo++) {
+        try {
+          const r = await fetch(SB_URL + '/rest/v1/rpc/get_booking_by_token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+            body: JSON.stringify({ p_token: token })
+          });
+          if (!r.ok) return null;
+          const d = await r.json();
+          if (d && d.amount_eur != null && d.status !== 'pending') return Number(d.amount_eur);
+        } catch (e) { return null; }
+        await new Promise(ok => setTimeout(ok, 1500));
+      }
+      return null;
+    }
+
+    ;(async () => {
+      const tok = p.get('token');
+      let valore = importoValido ? importoUrl : null;
+      if (tok) {
+        const vero = await incassoReale(tok);
+        if (vero != null && !isNaN(vero)) {
+          valore = vero;
+          fill('sumImporto', soldi(vero), '\u20ac \u2014');
+        }
+      }
+      if (typeof window.__segnalaAcquisto === 'function') window.__segnalaAcquisto(valore);
+    })();
 
     const ticketToken = p.get('token');
     if (ticketToken) {
