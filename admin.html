@@ -1910,6 +1910,16 @@ document.getElementById('modal-cancel-btn').addEventListener('click', async () =
   if (calSelectedDate) { await fetchCalendarData(); renderSidebarContent(calSelectedDate) }
 })
 
+// La funzione di rimborso risponde con codici tecnici: qui diventano frasi.
+function spiegaRimborso(json) {
+  const e = json && json.error
+  if (e === 'already_cancelled') return 'Prenotazione gi\u00e0 annullata: da qui non si rimborsa pi\u00f9. Se i soldi erano stati incassati, il rimborso va fatto da Stripe.'
+  if (e === 'outside_cancellation_window') return 'Siamo fuori dalla finestra di cancellazione gratuita.'
+  if (e === 'unauthorized') return 'Sessione scaduta: rifai l\u2019accesso e riprova.'
+  if (e === 'booking_not_found') return 'Prenotazione non trovata.'
+  return (json && (json.message || json.error)) || 'Errore rimborso'
+}
+
 document.getElementById('modal-refund-cancel-btn').addEventListener('click', async () => {
   if (!selectedBookingId) return
   if (!confirm('Rimborsa e cancella questa prenotazione? Il rimborso verrà processato su Stripe.')) return
@@ -1922,8 +1932,10 @@ document.getElementById('modal-refund-cancel-btn').addEventListener('click', asy
       body: JSON.stringify({ booking_id: selectedBookingId, cancel: true })
     })
     const json = await res.json()
-    if (!res.ok) throw new Error(json.error || 'Errore rimborso')
-    toast('Rimborso effettuato e prenotazione cancellata', 'success')
+    if (!res.ok) throw new Error(spiegaRimborso(json))
+    if (json.no_payment) toast('Nessun incasso da restituire: la prenotazione \u00e8 stata solo annullata', 'success')
+    else if (json.already_refunded) toast('Era gi\u00e0 rimborsata su Stripe: qui \u00e8 stata allineata', 'success')
+    else toast('Rimborso effettuato e prenotazione cancellata', 'success')
     document.getElementById('modal-booking').classList.remove('open')
     loadBookings()
   } catch(e) {
@@ -1944,8 +1956,10 @@ document.getElementById('modal-refund-only-btn').addEventListener('click', async
       body: JSON.stringify({ booking_id: selectedBookingId, cancel: false })
     })
     const json = await res.json()
-    if (!res.ok) throw new Error(json.error || 'Errore rimborso')
-    toast('Rimborso effettuato con successo', 'success')
+    if (!res.ok) throw new Error(spiegaRimborso(json))
+    if (json.no_payment) toast('Nessun incasso da restituire per questa prenotazione', 'success')
+    else if (json.already_refunded) toast('Era gi\u00e0 rimborsata su Stripe: qui \u00e8 stata allineata', 'success')
+    else toast('Rimborso effettuato con successo', 'success')
     document.getElementById('modal-booking').classList.remove('open')
     loadBookings()
   } catch(e) {
