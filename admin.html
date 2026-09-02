@@ -133,6 +133,23 @@
     .stat-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 8px; }
     .stat-value { font-family: var(--font-serif); font-size: 32px; font-weight: 500; color: var(--charcoal); }
     .stat-sub { font-size: 12px; color: var(--warm-gray); margin-top: 4px; }
+    .stat-card[data-dettaglio] { cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .stat-card[data-dettaglio]:hover { border-color: var(--terra); box-shadow: 0 6px 18px rgba(28,28,26,.07); transform: translateY(-1px); }
+    .stat-card[data-dettaglio]:focus-visible { outline: 2px solid var(--terra); outline-offset: 3px; }
+    .stat-card[data-dettaglio].vuota { cursor: default; opacity: .75; }
+    .stat-card[data-dettaglio].vuota:hover { border-color: var(--border); box-shadow: none; transform: none; }
+    .dettaglio-banner {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      background: #F7F3EC; border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px 16px; margin-bottom: 16px; font-size: 13px;
+    }
+    .dettaglio-banner .dett-titolo { font-weight: 600; }
+    .dettaglio-banner .dett-nota { color: var(--warm-gray); }
+    .dettaglio-banner button {
+      margin-left: auto; background: none; border: 1px solid var(--border); border-radius: 4px;
+      padding: 6px 12px; font: inherit; font-size: 12px; color: var(--charcoal); cursor: pointer;
+    }
+    .dettaglio-banner button:hover { border-color: var(--terra); color: var(--terra); }
 
     /* ── Charts ── */
     .chart-card {
@@ -516,40 +533,47 @@
     <div class="page active" id="page-dashboard">
       <div class="page-header">
         <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Panoramica prenotazioni e ricavi</p>
+        <p class="page-subtitle">Panoramica prenotazioni e ricavi · clicca una casella per vedere da cosa nasce</p>
       </div>
       <div class="stat-grid">
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="ricevute" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Prenotazioni ricevute</div>
           <div class="stat-value" id="stat-total">—</div>
           <div class="stat-sub">confermate · sito e gestionale</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="fatturato" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Fatturato totale</div>
           <div class="stat-value" id="stat-revenue">—</div>
           <div class="stat-sub" id="stat-revenue-sub">confermati · sito e voucher</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="guadagno" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Guadagno totale</div>
           <div class="stat-value" id="stat-profit">—</div>
           <div class="stat-sub" id="stat-profit-sub">al netto dei costi</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="incassato" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Fatturato già incassato</div>
           <div class="stat-value" id="stat-cashed">—</div>
           <div class="stat-sub" id="stat-cashed-sub">esperienze già svolte</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="guadagno-incassato" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Guadagno già incassato</div>
           <div class="stat-value" id="stat-cashed-profit">—</div>
           <div class="stat-sub" id="stat-cashed-profit-sub">già sul conto</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="mese" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Questo mese</div>
           <div class="stat-value" id="stat-month">—</div>
           <div class="stat-sub" id="stat-month-label">prenotazioni</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-dettaglio="francesca" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
           <div class="stat-label">Calendario di Francesca</div>
           <div class="stat-value" id="stat-manual">—</div>
           <div class="stat-sub" id="stat-manual-sub">inserite dallo staff</div>
@@ -684,6 +708,11 @@
             <span id="nb-hint" style="font-size:12px;color:var(--warm-gray)"></span>
           </div>
         </div>
+      </div>
+      <div class="dettaglio-banner" id="dettaglio-banner" style="display:none">
+        <span class="dett-titolo" id="dettaglio-titolo"></span>
+        <span class="dett-nota" id="dettaglio-nota"></span>
+        <button type="button" id="dettaglio-chiudi">Mostra tutte</button>
       </div>
       <div class="table-card">
         <div class="table-card-header">
@@ -1200,6 +1229,13 @@ function origineDi(b) {
   const io = session?.user?.id || null
   return (io && b.created_by === io) ? 'gestionale' : 'francesca'
 }
+// Cosa c'e' dentro ogni casella della dashboard: la riempie loadDashboard
+// con gli stessi elenchi che usa per fare i conti, cosi' il dettaglio non
+// puo' raccontare una storia diversa dal numero.
+const DETTAGLIO_DASHBOARD = {}
+let dettaglioAttivo = null
+let dettaglioInApertura = false
+
 const ORIGINE_TARGHETTA = {
   gestionale: ' <span class="badge badge-gestionale">Gestionale</span>',
   francesca:  ' <span class="badge badge-manual">Francesca</span>',
@@ -1328,6 +1364,8 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => {
     closeSidebar()
     chiudiMenu()
+    // Entrando nell'elenco dal menu si riparte sempre da tutte le prenotazioni.
+    if (btn.dataset.page === 'prenotazioni' && !dettaglioInApertura) dettaglioAttivo = null
     const etichetta = btn.querySelector('span:last-child')
     if (etichetta) document.getElementById('topbar-title').textContent = etichetta.textContent
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
@@ -1485,6 +1523,31 @@ async function loadDashboard() {
     '€' + manualRev.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0})
     + (nRiservate ? ' (+' + nRiservate + ' riservat' + (nRiservate===1?'a':'e') + ')' : '')
     + ' \u00b7 fuori dai nostri conti'
+
+  // Ogni casella si porta dietro l'elenco esatto che l'ha prodotta.
+  const conta = n => plur(n, 'prenotazione', 'prenotazioni')
+  const piuVoucher = (lista, uno, tanti) =>
+    lista.length === 0 ? ''
+    : lista.length === 1 ? ' \u00b7 nel totale c\u2019\u00e8 anche 1 voucher ' + uno
+    : ' \u00b7 nel totale ci sono anche ' + lista.length + ' voucher ' + tanti
+  const registra = (chiave, titolo, valore, elenco, nota) => {
+    DETTAGLIO_DASHBOARD[chiave] = {
+      titolo, valore,
+      ids: new Set(elenco.map(b => b.id)),
+      nota: conta(elenco.length) + (nota || ''),
+    }
+  }
+  registra('ricevute',           'Prenotazioni ricevute',   confirmed.length, confirmed)
+  registra('fatturato',          'Fatturato totale',        eur(totalRev),    confirmed, piuVoucher(vouchers, 'venduto', 'venduti'))
+  registra('guadagno',           'Guadagno totale',         eur(profit),      confirmed, piuVoucher(vouchers, 'venduto', 'venduti'))
+  registra('incassato',          'Fatturato gi\u00e0 incassato', eur(cashedRev),   svolte,    piuVoucher(vRiscattati, 'usato', 'usati'))
+  registra('guadagno-incassato', 'Guadagno gi\u00e0 incassato',  eur(cashedProfit), svolte,   piuVoucher(vRiscattati, 'usato', 'usati'))
+  registra('mese',               'Questo mese',             eur(thisMonthRev), thisMonth, piuVoucher(vMese, 'venduto', 'venduti'))
+  registra('francesca',          'Calendario di Francesca', manualConfirmed.length, manualConfirmed)
+  document.querySelectorAll('.stat-card[data-dettaglio]').forEach(c => {
+    const d = DETTAGLIO_DASHBOARD[c.dataset.dettaglio]
+    c.classList.toggle('vuota', !d || !d.ids.size)
+  })
 
   // Build monthly aggregates (last 12 months)
   const monthly = {}
@@ -1799,6 +1862,44 @@ document.getElementById('cal-sidebar-close').addEventListener('click', closeSide
 document.getElementById('cal-sidebar-overlay').addEventListener('click', closeSidebar)
 
 // ── Prenotazioni ──────────────────────────────────────────────
+// Mostra da quale casella arriva l'elenco che si sta guardando.
+function mostraFasciaDettaglio(dett) {
+  const fascia = document.getElementById('dettaglio-banner')
+  if (!fascia) return
+  if (!dett) { fascia.style.display = 'none'; return }
+  fascia.style.display = 'flex'
+  document.getElementById('dettaglio-titolo').textContent = dett.titolo + ': ' + dett.valore
+  document.getElementById('dettaglio-nota').textContent = '\u2014 ' + dett.nota
+}
+
+// Dalla casella all'elenco: si azzerano gli altri filtri, altrimenti il
+// numero in alto e le righe qui sotto non tornerebbero.
+function apriDettaglioDashboard(chiave) {
+  const d = DETTAGLIO_DASHBOARD[chiave]
+  if (!d || !d.ids.size) return
+  dettaglioAttivo = chiave
+  document.getElementById('book-search').value = ''
+  document.getElementById('book-origin-filter').value = ''
+  document.getElementById('book-status-filter').value = ''
+  const voce = document.querySelector('.nav-item[data-page="prenotazioni"]')
+  dettaglioInApertura = true
+  if (voce) voce.click()
+  dettaglioInApertura = false
+}
+
+function chiudiDettaglioDashboard() {
+  dettaglioAttivo = null
+  renderBookingsTable()
+}
+
+document.querySelectorAll('.stat-card[data-dettaglio]').forEach(card => {
+  card.addEventListener('click', () => apriDettaglioDashboard(card.dataset.dettaglio))
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apriDettaglioDashboard(card.dataset.dettaglio) }
+  })
+})
+document.getElementById('dettaglio-chiudi').addEventListener('click', chiudiDettaglioDashboard)
+
 async function loadBookings() {
   document.getElementById('bookings-body').innerHTML = loadingRow(10)
   // Insieme alle prenotazioni si leggono i pagamenti: senza, una prenotazione
@@ -1848,7 +1949,10 @@ function renderBookingsTable() {
   const search = document.getElementById('book-search').value.toLowerCase()
   const filter = document.getElementById('book-status-filter').value
   const originF = document.getElementById('book-origin-filter').value
+  const dett    = dettaglioAttivo ? DETTAGLIO_DASHBOARD[dettaglioAttivo] : null
+  mostraFasciaDettaglio(dett)
   const rows   = allBookings.filter(b => {
+    if (dett && !dett.ids.has(b.id)) return false
     if (originF && origineDi(b) !== originF) return false
     if (filter && b.status !== filter) return false
     if (search) {
