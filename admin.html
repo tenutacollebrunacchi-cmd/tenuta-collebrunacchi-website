@@ -168,6 +168,7 @@
     .badge-cancelled  { background: #F8D7DA; color: #721C24; }
     .badge-refunded   { background: #EDE9FE; color: #6D28D9; }
     .badge-manual     { background: #E0EAF1; color: #46708C; }
+    .badge-gestionale { background: #E4EDE0; color: #4A6B3A; }
     .badge-online     { background: #D1ECF1; color: #0C5460; }
     .badge-arrival    { background: #E2E3E5; color: #383D41; }
     .badge-cashed     { background: #FDE9C8; color: #8A4B08; }
@@ -691,8 +692,9 @@
             <input class="search-inp" id="book-search" placeholder="Cerca nome / email…">
             <select class="filter-select" id="book-origin-filter">
               <option value="">Tutte le origini</option>
-              <option value="site">Ricevute dal sito</option>
-              <option value="manual">Caricate dal calendario</option>
+              <option value="sito">Ricevute dal sito</option>
+              <option value="gestionale">Inserite da noi</option>
+              <option value="francesca">Calendario di Francesca</option>
             </select>
             <select class="filter-select" id="book-status-filter">
               <option value="">Tutti gli stati</option>
@@ -1188,6 +1190,21 @@ const DAY_SHORT   = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']
 
 let db, session
 let allBookings = []
+
+// Da dove arriva una prenotazione:
+//   'sito'       -> nessun autore: l'ha fatta il cliente da solo
+//   'gestionale' -> l'abbiamo caricata noi da questo pannello
+//   'francesca'  -> arriva dal calendario dello staff
+function origineDi(b) {
+  if (!b || !b.created_by) return 'sito'
+  const io = session?.user?.id || null
+  return (io && b.created_by === io) ? 'gestionale' : 'francesca'
+}
+const ORIGINE_TARGHETTA = {
+  gestionale: ' <span class="badge badge-gestionale">Gestionale</span>',
+  francesca:  ' <span class="badge badge-manual">Francesca</span>',
+  sito:       '',
+}
 // Stato dell'incasso per prenotazione, indicizzato per id.
 let INCASSI = {}
 let calYear  = new Date().getFullYear()
@@ -1375,8 +1392,7 @@ async function loadDashboard() {
   //  - il nostro account -> l'abbiamo caricata noi dal gestionale: e' nostra a
   //    tutti gli effetti e va nel fatturato
   //  - un altro account -> e' del calendario di Francesca: resta fuori dai conti
-  const ioUtente = (await db.auth.getUser()).data.user?.id || null
-  const nostra   = b => !b.created_by || (ioUtente && b.created_by === ioUtente)
+  const nostra = b => origineDi(b) !== 'francesca'
 
   const siteBookings = bookings.filter(nostra)
   const confirmed = siteBookings.filter(b => b.status === 'confirmed')
@@ -1833,8 +1849,7 @@ function renderBookingsTable() {
   const filter = document.getElementById('book-status-filter').value
   const originF = document.getElementById('book-origin-filter').value
   const rows   = allBookings.filter(b => {
-    if (originF === 'site'   &&  b.created_by) return false
-    if (originF === 'manual' && !b.created_by) return false
+    if (originF && origineDi(b) !== originF) return false
     if (filter && b.status !== filter) return false
     if (search) {
       const hh = bkHidden(b).hidden
@@ -1861,7 +1876,7 @@ function renderBookingsTable() {
     return `<tr>
       <td>${date}</td>
       <td>${time}</td>
-      <td><strong>${h.name ? HF_LOCK : esc(b.name)}</strong>${b.created_by ? ' <span class="badge badge-manual">Calendario</span>' : ''}</td>
+      <td><strong>${h.name ? HF_LOCK : esc(b.name)}</strong>${ORIGINE_TARGHETTA[origineDi(b)]}</td>
       <td style="font-size:12px">${h.contact ? HF_LOCK : esc(b.email)}</td>
       <td>${b.persons}</td>
       <td>${b.type === 'private' ? 'Privato' : 'Condiviso'}</td>
@@ -1945,7 +1960,9 @@ async function openBookingModal(id) {
 // Dice in chiaro se i soldi di questa prenotazione sono arrivati, se sono
 // gia' tornati indietro o se non sono mai entrati.
 function descriviIncasso(b) {
-  if (b.created_by) return '<span style="color:var(--warm-gray)">prenotazione del calendario</span>'
+  const origine = origineDi(b)
+  if (origine === 'gestionale') return '<span style="color:var(--warm-gray)">inserita da noi dal gestionale</span>'
+  if (origine === 'francesca')  return '<span style="color:var(--warm-gray)">dal calendario di Francesca</span>'
   if (b.payment_method === 'arrival') return '<span style="color:var(--warm-gray)">si salda all\u2019arrivo</span>'
   const i = incassoDi(b)
   const cifra = i.importo != null ? '\u20ac' + Number(i.importo).toFixed(2).replace('.', ',') : ''
