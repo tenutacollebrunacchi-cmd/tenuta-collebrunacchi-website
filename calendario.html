@@ -215,6 +215,7 @@ input,select,textarea{font-family:inherit;font-size:15px}
 .pill.pending{background:var(--pending-bg);color:var(--pending)}
 .pill.refund{background:var(--refund-bg);color:var(--refund)}
 .pill.partial{background:var(--partial-bg);color:var(--partial)}
+.pill.tenuta{background:#EFEFEC;color:#6B6B64}
 .type-tag{font-size:11px;font-weight:600;color:var(--moss);text-transform:uppercase;letter-spacing:.06em}
 .origin-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:1px 7px;white-space:nowrap}
 .origin-tag.mine{color:var(--moss);background:var(--ok-bg);border:1px solid #cfdec5}
@@ -567,7 +568,7 @@ let PRICES = { shared:{online:159,arrival:169}, private:{online:259,arrival:269}
 let PRICE_PERIODS = [];
 
 // Stati "vista" (pill) derivati da status + payment_method reali
-const STATUS_LABEL = { ok:"Pagata online", wait:"Da pagare all'arrivo", pending:"In attesa", partial:"Parz. saldata", refund:"Rimborsata" };
+const STATUS_LABEL = { ok:"Pagata online", wait:"Da pagare all'arrivo", pending:"In attesa", partial:"Parz. saldata", refund:"Rimborsata", tenuta:"Tenuta" };
 const TYPE_LABEL   = { shared:'Condivisa', private:'Privata' };
 const MONTHS = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 const WD = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
@@ -642,6 +643,9 @@ function monthRange(){
 }
 // status+payment_method+acconto reali → stato "vista"
 function payState(b){
+  // Prenotazioni della tenuta: nessuna informazione di pagamento.
+  // Qui serve sapere che ci sono, non quanto hanno speso.
+  if (b.mine === false) return 'tenuta';
   if (b.status === 'refunded') return 'refund';
   if (Number(b.amount_paid) > 0) return 'partial';
   if (b.status === 'pending')  return 'pending';
@@ -683,9 +687,8 @@ function showHideToggles(show){
 
 // riga DB → view-model usato dalle viste
 function rowToVM(b){
-  const date = b.slots?.date ? b.slots.date.slice(0,10) : null;
-  const slot = b.slots?.time ? b.slots.time.slice(0,5)  : null;
-  const uid  = session?.user?.id || null;
+  const date = b.date ? String(b.date).slice(0,10) : null;
+  const slot = b.time ? String(b.time).slice(0,5)  : null;
   const hf   = splitHidden(b.notes);
   return {
     id: b.id, date, slot,
@@ -693,14 +696,14 @@ function rowToVM(b){
     guests: Number(b.persons)||1,
     name: b.name || '—',
     phone: b.phone || '', email: b.email || '',
-    price: Number(b.amount_eur)||0,
-    paid: Number(b.amount_paid)||0,
+    price: b.amount_eur == null ? null : Number(b.amount_eur),
+    paid:  b.amount_paid == null ? null : Number(b.amount_paid),
     state: payState(b),
     rawStatus: b.status, rawPayment: b.payment_method,
     notes: hf.notes,
     adminHidden: hf.hidden,
-    // proprietà: modificabile solo da chi l'ha creata in questo calendario
-    mine: !!(uid && b.created_by && b.created_by === uid),
+    // proprietà: la vista dice gia' se la prenotazione e' di chi sta guardando
+    mine: !!b.mine,
   };
 }
 
@@ -731,6 +734,7 @@ function mName(s){
 function mContact(s){ return privacy.contact ? escapeHtml(s) : '<span class="masked">•••</span>'; }
 function mPrice(n){ return privacy.price ? '€'+escapeHtml(n) : '<span class="masked">€•••</span>'; }
 function mPriceFull(b){
+  if (b.price == null) return '—';
   if (!privacy.price) return '<span class="masked">€•••</span>';
   return b.state==='partial' ? '€'+escapeHtml(b.price)+' <small>(acc. €'+escapeHtml(b.paid)+')</small>' : '€'+escapeHtml(b.price);
 }
@@ -773,24 +777,19 @@ function pricesFor(dateStr){
   };
 }
 
-// true quando il database ha la colonna created_by (script SQL eseguito)
+// Le prenotazioni arrivano dalla vista staff_calendar, non dalla tabella.
+// E' il database a decidere cosa e' visibile: delle prenotazioni della tenuta
+// lascia passare solo nome di battesimo, data, ora, tipologia, persone e
+// richieste. Cognome, telefono, email e prezzo non escono proprio.
 let ownershipReady = true;
-const BK_COLS      = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,amount_paid,notes,created_at,created_by,slots!inner(date,time)';
-const BK_COLS_BASE = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,slots!inner(date,time)';
+const BK_COLS = 'id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,amount_paid,notes,created_at,date,time,mine';
 
 async function fetchBookings(applyRange){
-  let cols = ownershipReady ? BK_COLS : BK_COLS_BASE;
-  let q = db.from('bookings').select(cols).neq('status','cancelled');
-  if (applyRange){ const { first, last } = monthRange(); q = q.gte('slots.date', first).lte('slots.date', last); }
-  let { data, error } = await q;
-  // fallback: colonna created_by non ancora creata → sola lettura
-  if (error && ownershipReady && /created_by|amount_paid/.test(error.message||'')){
-    ownershipReady = false;
-    document.getElementById('setupBanner').style.display = 'block';
-    return fetchBookings(applyRange);
-  }
+  let q = db.from('staff_calendar').select(BK_COLS).neq('status','cancelled');
+  if (applyRange){ const { first, last } = monthRange(); q = q.gte('date', first).lte('date', last); }
+  const { data, error } = await q;
   if (error) { toast('Errore caricamento prenotazioni: '+error.message, true); return []; }
-  if (ownershipReady) document.getElementById('setupBanner').style.display = 'none';
+  document.getElementById('setupBanner').style.display = 'none';
   return data||[];
 }
 
@@ -1103,7 +1102,7 @@ function openModal(id=null, presetDate=null, presetSlot=null){
     if(!b){ toast('Prenotazione non trovata', true); return; }
     const editable = b.mine && ownershipReady && b.state!=='refund';
     title.textContent = editable ? 'Modifica prenotazione' : 'Dettagli prenotazione';
-    statusSel.innerHTML = STATUS_OPTIONS + `<option value="refund">Rimborsata</option>`;
+    statusSel.innerHTML = STATUS_OPTIONS + `<option value="refund">Rimborsata</option><option value="tenuta">Tenuta</option>`;
     setVal('in-date',b.date); setVal('in-slot',b.slot); setVal('in-type',b.type);
     setVal('in-guests',b.guests); setVal('in-name',b.name);
     setVal('in-phone',b.phone); setVal('in-email',b.email); setVal('in-price',b.price);

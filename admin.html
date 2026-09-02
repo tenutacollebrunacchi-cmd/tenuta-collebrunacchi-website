@@ -521,7 +521,7 @@
         <div class="stat-card">
           <div class="stat-label">Prenotazioni ricevute</div>
           <div class="stat-value" id="stat-total">—</div>
-          <div class="stat-sub">confermate · dal sito</div>
+          <div class="stat-sub">confermate · sito e gestionale</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Fatturato totale</div>
@@ -549,7 +549,7 @@
           <div class="stat-sub" id="stat-month-label">prenotazioni</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Caricate dal calendario</div>
+          <div class="stat-label">Calendario di Francesca</div>
           <div class="stat-value" id="stat-manual">—</div>
           <div class="stat-sub" id="stat-manual-sub">inserite dallo staff</div>
         </div>
@@ -1370,9 +1370,15 @@ async function loadDashboard() {
     return unit != null ? unit * persone : 0
   }
 
-  // Le prenotazioni inserite manualmente dal calendario staff (created_by valorizzato)
-  // non entrano nel fatturato ne' nelle statistiche: qui si misura solo il sito.
-  const siteBookings = bookings.filter(b => !b.created_by)
+  // Chi ha inserito la prenotazione decide dove finisce.
+  //  - nessun autore  -> arrivata dal sito
+  //  - il nostro account -> l'abbiamo caricata noi dal gestionale: e' nostra a
+  //    tutti gli effetti e va nel fatturato
+  //  - un altro account -> e' del calendario di Francesca: resta fuori dai conti
+  const ioUtente = (await db.auth.getUser()).data.user?.id || null
+  const nostra   = b => !b.created_by || (ioUtente && b.created_by === ioUtente)
+
+  const siteBookings = bookings.filter(nostra)
   const confirmed = siteBookings.filter(b => b.status === 'confirmed')
   const bookRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
   const bookCost = confirmed.reduce((s,b) => s + costoPrenotazione(b), 0)
@@ -1452,9 +1458,8 @@ async function loadDashboard() {
   document.getElementById('stat-month').textContent   = eur(thisMonthRev)
   document.getElementById('stat-month-label').textContent = MONTH_NAMES[now.getMonth()]
 
-  // Prenotazioni caricate manualmente dal calendario (staff): mostrate a parte,
-  // fuori dal fatturato del sito.
-  const manualConfirmed = bookings.filter(b => b.created_by && b.status === 'confirmed')
+  // Prenotazioni del calendario di Francesca: mostrate a parte, fuori dai conti.
+  const manualConfirmed = bookings.filter(b => !nostra(b) && b.status === 'confirmed')
   // il totale considera solo i prezzi che lo staff ha scelto di mostrare
   const manualVisible = manualConfirmed.filter(b => !bkHidden(b).hidden.price)
   const manualRev = manualVisible.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
@@ -1463,7 +1468,7 @@ async function loadDashboard() {
   document.getElementById('stat-manual-sub').textContent =
     '€' + manualRev.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0})
     + (nRiservate ? ' (+' + nRiservate + ' riservat' + (nRiservate===1?'a':'e') + ')' : '')
-    + ' · fuori fatturato'
+    + ' \u00b7 fuori dai nostri conti'
 
   // Build monthly aggregates (last 12 months)
   const monthly = {}
