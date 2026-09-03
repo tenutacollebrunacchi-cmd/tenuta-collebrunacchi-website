@@ -133,6 +133,10 @@
     .stat-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 8px; }
     .stat-value { font-family: var(--font-serif); font-size: 32px; font-weight: 500; color: var(--charcoal); }
     .stat-sub { font-size: 12px; color: var(--warm-gray); margin-top: 4px; }
+    /* Avviso in cima alla dashboard quando l'alta stagione non copre piu' il futuro */
+    .avviso-stagione { border-radius: 6px; border: 1px solid; padding: 14px 16px; margin-bottom: 24px; font-size: 13px; line-height: 1.55; }
+    .avviso-stagione.grave { background: #FDECEA; border-color: #F0C4C0; color: #7A2018; }
+    .avviso-stagione.attenzione { background: #FBF4E4; border-color: #E8D9B4; color: #6B5310; }
     /* Le voci dentro la casella dei costi: una riga per uscita, cifra a destra */
     .stat-voci { margin-top: 11px; padding-top: 10px; border-top: 1px solid #F2EDE3; display: grid; gap: 6px; }
     .stat-voci div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 12px; color: var(--warm-gray); }
@@ -544,6 +548,7 @@
         <h1 class="page-title">Dashboard</h1>
         <p class="page-subtitle">Panoramica prenotazioni e ricavi · clicca una casella per vedere da cosa nasce</p>
       </div>
+      <div class="avviso-stagione" id="avviso-stagione" style="display:none"></div>
       <div class="stat-grid">
         <div class="stat-card" data-dettaglio="ricevute" role="button" tabindex="0"
              title="Vedi le prenotazioni che compongono questo numero">
@@ -1515,6 +1520,34 @@ async function loadDashboard() {
   const bookRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
   const bookCost = confirmed.reduce((s,b) => s + uscitePrenotazione(b), 0)
 
+  // Se il periodo di alta stagione sparisce o scade, il sito ricomincia a
+  // vendere al prezzo base senza avvisare nessuno: sono i mesi del tartufo
+  // bianco, e la differenza si scopre solo leggendo le fatture. Qui si vede
+  // subito, in cima alla dashboard.
+  ;(() => {
+    const box = document.getElementById('avviso-stagione')
+    if (!box) return
+    const oggiIso  = new Date().toISOString().slice(0, 10)
+    const inFuturo = (periodRes.data || []).filter(p => p.end_date && p.end_date >= oggiIso)
+    const giorno   = iso => new Date(iso + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
+    if (!inFuturo.length) {
+      box.className = 'avviso-stagione grave'
+      box.innerHTML = '<strong>Nessun periodo di alta stagione attivo.</strong> Tutte le prenotazioni future, compresi i mesi del tartufo bianco, vengono vendute al prezzo base. Controlla la pagina Prezzi.'
+      box.style.display = 'block'
+      return
+    }
+    const fine   = inFuturo.map(p => p.end_date).sort().slice(-1)[0]
+    const giorni = Math.round((new Date(fine + 'T12:00:00') - new Date()) / 86400000)
+    if (giorni <= 60) {
+      box.className = 'avviso-stagione attenzione'
+      box.innerHTML = '<strong>L\'alta stagione finisce fra ' + giorni + ' giorni</strong>, il ' + giorno(fine)
+        + '. Da quel giorno si torna al prezzo base: se serve, allunga il periodo dalla pagina Prezzi.'
+      box.style.display = 'block'
+      return
+    }
+    box.style.display = 'none'
+  })()
+
   // Le stesse uscite, separate per voce. Sommate fanno esattamente la
   // differenza fra fatturato e guadagno: se un giorno non tornano, e'
   // perche' e' comparsa un'uscita che qui non e' elencata.
@@ -2377,7 +2410,10 @@ function renderPricePeriods() {
     return
   }
   const now = ppWinner(ppToday())
-  body.innerHTML = PP_ROWS.map(r => {
+  // Prima quelli in uso, gli archiviati in fondo e sbiaditi: cosi' non si
+  // confondono con i periodi che stanno davvero decidendo i prezzi.
+  const ordinati = PP_ROWS.slice().sort((a, b) => (a.active === b.active) ? 0 : (a.active ? -1 : 1))
+  body.innerHTML = ordinati.map(r => {
     const cell = k => r[k] == null
       ? `<span style="color:var(--warm-gray)">base</span>`
       : `<strong>€${Math.round(r[k])}</strong>`
@@ -2386,7 +2422,7 @@ function renderPricePeriods() {
     const stat   = r.active
       ? `<span class="badge badge-active">Attivo</span>`
       : `<span class="badge badge-inactive">Non attivo</span>`
-    return `<tr>
+    return `<tr${r.active ? '' : ' style="opacity:.55"'}>
       <td><strong>${esc(r.name)}</strong>${nowTag}${r.high_season ? ' <span class="badge badge-inactive">alta stagione</span>' : ''}</td>
       <td style="white-space:nowrap">${ppFmt(r.start_date)} → ${ppFmt(r.end_date)}</td>
       <td>${cell('shared_online')}</td>
@@ -2397,8 +2433,7 @@ function renderPricePeriods() {
       <td>${stat}</td>
       <td style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" onclick="editPricePeriod('${r.id}')">Modifica</button>
-        <button class="btn btn-ghost btn-sm" onclick="togglePricePeriod('${r.id}',${!r.active})">${r.active ? 'Disattiva' : 'Attiva'}</button>
-        <button class="btn btn-danger btn-sm" onclick="deletePricePeriod('${r.id}')">Elimina</button>
+        <button class="btn btn-ghost btn-sm" onclick="archiviaPeriodo('${r.id}',${!r.active})">${r.active ? 'Archivia' : 'Riattiva'}</button>
       </td>
     </tr>`
   }).join('')
@@ -2482,12 +2517,16 @@ async function togglePricePeriod(id, active) {
   loadPricePeriods()
 }
 
-async function deletePricePeriod(id) {
+// I periodi non si cancellano piu'. Archiviare li ferma subito - smettono di
+// valere sul sito nello stesso istante - ma la riga resta, e un periodo perso
+// per un clic di troppo significa vendere al prezzo sbagliato per settimane.
+async function archiviaPeriodo(id, attivare) {
   const r = PP_ROWS.find(x => x.id === id)
-  if (!confirm('Eliminare il periodo "' + (r ? r.name : '') + '"? Le prenotazioni già fatte mantengono il prezzo pagato.')) return
-  const { error } = await db.from('price_periods').delete().eq('id', id)
+  const nome = r ? r.name : ''
+  if (!attivare && !confirm('Archiviare il periodo "' + nome + '"?\n\nSmette subito di valere sul sito, ma resta in elenco e lo puoi riattivare quando vuoi.')) return
+  const { error } = await db.from('price_periods').update({ active: attivare }).eq('id', id)
   if (error) { toast('Errore: ' + error.message, 'error'); return }
-  toast('Periodo eliminato', 'success')
+  toast(attivare ? 'Periodo riattivato' : 'Periodo archiviato', 'success')
   if (ppEditId === id) resetPricePeriodForm()
   loadPricePeriods()
 }
@@ -3254,13 +3293,14 @@ function renderDiscounts(codes) {
     document.getElementById('discounts-body').innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="ei">🎟</div><p>Nessun codice sconto</p></div></td></tr>`
     return
   }
-  document.getElementById('discounts-body').innerHTML = codes.map(c => {
+  const ordinati = codes.slice().sort((a, b) => (a.active === b.active) ? 0 : (a.active ? -1 : 1))
+  document.getElementById('discounts-body').innerHTML = ordinati.map(c => {
     const valStr   = c.type === 'percent' ? c.value + '%' : '€' + c.value
     const usesStr  = c.max_uses ? `${c.uses_count}/${c.max_uses}` : c.uses_count
     const expStr   = c.expires_at ? new Date(c.expires_at).toLocaleDateString('it-IT') : '—'
-    const statBadge = c.active ? `<span class="badge badge-active">Attivo</span>` : `<span class="badge badge-inactive">Inattivo</span>`
-    const toggleLbl = c.active ? 'Disattiva' : 'Attiva'
-    return `<tr>
+    const statBadge = c.active ? `<span class="badge badge-active">Attivo</span>` : `<span class="badge badge-inactive">Archiviato</span>`
+    const toggleLbl = c.active ? 'Archivia' : 'Riattiva'
+    return `<tr${c.active ? '' : ' style="opacity:.55"'}>
       <td><strong>${esc(c.code)}</strong></td>
       <td>${c.type === 'percent' ? 'Percentuale' : 'Fisso'}</td>
       <td>${valStr}</td>
@@ -3270,7 +3310,6 @@ function renderDiscounts(codes) {
       <td style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" onclick="toggleDiscount('${c.id}',${!c.active})">${toggleLbl}</button>
         <button class="btn btn-ghost btn-sm" onclick="syncDiscount('${c.id}')" title="Ricrea questo codice su Stripe, se li' manca">Sincronizza</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteDiscount('${c.id}')">Elimina</button>
       </td>
     </tr>`
   }).join('')
@@ -3360,18 +3399,13 @@ async function syncDiscount(id) {
   toast('Stripe ha rifiutato ' + c.code + ': ' + esito.errore, 'error')
 }
 
-async function toggleDiscount(id, active) {
-  const { error } = await db.from('discount_codes').update({ active }).eq('id', id)
+// Come per i periodi: si archivia, non si cancella. Un codice archiviato non
+// e' piu' spendibile, ma resta lo storico di quante volte era stato usato.
+async function toggleDiscount(id, attivare) {
+  if (!attivare && !confirm('Archiviare questo codice sconto?\n\nSmette subito di funzionare, ma resta in elenco e lo puoi riattivare quando vuoi.')) return
+  const { error } = await db.from('discount_codes').update({ active: attivare }).eq('id', id)
   if (error) { toast('Errore: ' + error.message, 'error'); return }
-  toast(active ? 'Codice attivato' : 'Codice disattivato', 'success')
-  await loadDiscounts()
-}
-
-async function deleteDiscount(id) {
-  if (!confirm('Eliminare questo codice sconto?')) return
-  const { error } = await db.from('discount_codes').delete().eq('id', id)
-  if (error) { toast('Errore: ' + error.message, 'error'); return }
-  toast('Codice eliminato', 'success')
+  toast(attivare ? 'Codice riattivato' : 'Codice archiviato', 'success')
   await loadDiscounts()
 }
 
