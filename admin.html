@@ -133,6 +133,10 @@
     .stat-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 8px; }
     .stat-value { font-family: var(--font-serif); font-size: 32px; font-weight: 500; color: var(--charcoal); }
     .stat-sub { font-size: 12px; color: var(--warm-gray); margin-top: 4px; }
+    /* Le voci dentro la casella dei costi: una riga per uscita, cifra a destra */
+    .stat-voci { margin-top: 11px; padding-top: 10px; border-top: 1px solid #F2EDE3; display: grid; gap: 6px; }
+    .stat-voci div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 12px; color: var(--warm-gray); }
+    .stat-voci strong { font-weight: 600; color: var(--charcoal); white-space: nowrap; }
     .stat-card[data-dettaglio] { cursor: pointer; touch-action: manipulation; transition: border-color .15s, box-shadow .15s, transform .15s; }
     .stat-card[data-dettaglio]:hover { border-color: var(--terra); box-shadow: 0 6px 18px rgba(28,28,26,.07); transform: translateY(-1px); }
     .stat-card[data-dettaglio]:focus-visible { outline: 2px solid var(--terra); outline-offset: 3px; }
@@ -558,6 +562,13 @@
           <div class="stat-label">Guadagno totale</div>
           <div class="stat-value" id="stat-profit">—</div>
           <div class="stat-sub" id="stat-profit-sub">al netto dei costi</div>
+        </div>
+        <div class="stat-card" data-dettaglio="costi" role="button" tabindex="0"
+             title="Vedi le prenotazioni che compongono questo numero">
+          <div class="stat-label">Costi totali</div>
+          <div class="stat-value" id="stat-costs">—</div>
+          <div class="stat-sub" id="stat-costs-sub">tutte le uscite</div>
+          <div class="stat-voci" id="stat-costs-voci"></div>
         </div>
         <div class="stat-card" data-dettaglio="incassato" role="button" tabindex="0"
              title="Vedi le prenotazioni che compongono questo numero">
@@ -1504,6 +1515,13 @@ async function loadDashboard() {
   const bookRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
   const bookCost = confirmed.reduce((s,b) => s + uscitePrenotazione(b), 0)
 
+  // Le stesse uscite, separate per voce. Sommate fanno esattamente la
+  // differenza fra fatturato e guadagno: se un giorno non tornano, e'
+  // perche' e' comparsa un'uscita che qui non e' elencata.
+  const costiFrancesca    = confirmed.reduce((s,b) => s + costoPrenotazione(b), 0)
+  const commissioniOta    = confirmed.reduce((s,b) => s + commissionePrenotazione(b), 0)
+  const commissioniStripe = confirmed.reduce((s,b) => s + commissioneStripe(b), 0)
+
   // Voucher: incasso e costo contano dal giorno in cui il regalo viene venduto
   const vouchers    = (voucherRes.data || []).filter(v => v.status !== 'cancelled')
   const dataVoucher = v => v.issued_on || String(v.created_at || '').slice(0, 10)
@@ -1568,6 +1586,21 @@ async function loadDashboard() {
     ? 'margine ' + Math.round(profit / totalRev * 100) + '% · questo mese ' + eur(thisMonthProfit)
     : 'al netto dei costi'
 
+  const costiTotali = bookCost + vCost
+  document.getElementById('stat-costs').textContent = eur(costiTotali)
+  document.getElementById('stat-costs-sub').textContent = totalRev > 0
+    ? Math.round(costiTotali / totalRev * 100) + '% del fatturato'
+    : 'tutte le uscite'
+  const vociCosti = [
+    ['Francesca', costiFrancesca],
+    ['Commissioni OTA', commissioniOta],
+    ['Commissioni Stripe', commissioniStripe],
+  ]
+  if (vCost > 0) vociCosti.push(['Costo dei voucher', vCost])
+  document.getElementById('stat-costs-voci').innerHTML = vociCosti
+    .map(v => '<div><span>' + v[0] + '</span><strong>' + eur(v[1]) + '</strong></div>')
+    .join('')
+
   document.getElementById('stat-cashed').textContent = eur(cashedRev)
   document.getElementById('stat-cashed-sub').textContent =
     plur(svolte.length, 'esperienza gi\u00e0 svolta', 'esperienze gi\u00e0 svolte')
@@ -1607,6 +1640,7 @@ async function loadDashboard() {
   registra('ricevute',           'Prenotazioni ricevute',   confirmed.length, confirmed)
   registra('fatturato',          'Fatturato totale',        eur(totalRev),    confirmed, piuVoucher(vouchers, 'venduto', 'venduti'))
   registra('guadagno',           'Guadagno totale',         eur(profit),      confirmed, piuVoucher(vouchers, 'venduto', 'venduti'))
+  registra('costi',              'Costi totali',            eur(costiTotali), confirmed)
   registra('incassato',          'Fatturato gi\u00e0 incassato', eur(cashedRev),   svolte,    piuVoucher(vRiscattati, 'usato', 'usati'))
   registra('guadagno-incassato', 'Guadagno gi\u00e0 incassato',  eur(cashedProfit), svolte,   piuVoucher(vRiscattati, 'usato', 'usati'))
   registra('mese',               'Questo mese',             eur(thisMonthRev), thisMonth, piuVoucher(vMese, 'venduto', 'venduti'))

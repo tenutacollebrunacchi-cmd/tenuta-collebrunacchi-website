@@ -3740,6 +3740,29 @@
   <script src="booking.js"></script>
 
   <script>
+    // Il pulsante WhatsApp sta fisso in basso a destra, sopra ogni cosa.
+    // Sul telefono finiva proprio sopra il tasto per pagare: si toccava
+    // "Proceed to Payment" e si apriva WhatsApp. Finche' il modulo di
+    // prenotazione e' a schermo il pulsante si toglie di mezzo, e torna
+    // appena si esce.
+    ;(function () {
+      var root   = document.getElementById('bw-root')
+      var widget = document.getElementById('waWidget')
+      if (!root || !widget) return
+
+      function aggiorna() {
+        var staPrenotando = !!root.querySelector('.bw-submit')
+        widget.style.opacity       = staPrenotando ? '0' : ''
+        widget.style.pointerEvents = staPrenotando ? 'none' : ''
+        widget.setAttribute('aria-hidden', staPrenotando ? 'true' : 'false')
+      }
+
+      new MutationObserver(aggiorna).observe(root, { childList: true, subtree: true })
+      aggiorna()
+    })()
+  </script>
+
+  <script>
     // Show truffle season banner from September to December
     ;(function () {
       var m = new Date().getMonth() // 0=Jan … 6=Jul 7=Aug … 11=Dec
@@ -3990,6 +4013,42 @@
       const v = map[elp.dataset.price]
       if (v) elp.textContent = '€' + Math.round(v)
     })
+
+    // Le card mostrano il prezzo di oggi. Chi guarda a settembre e prenota a
+    // novembre pagherebbe di piu': se c'e' un periodo di alta stagione ancora
+    // da venire con un prezzo superiore, lo si scrive sotto al prezzo invece
+    // di lasciarglielo scoprire al momento di pagare.
+    try {
+      const cfg = window.BOOKING_CONFIG || {}
+      const rp = await fetch(cfg.supabaseUrl + '/rest/v1/price_periods'
+        + '?select=name,start_date,end_date,shared_online,private_online'
+        + '&active=eq.true&end_date=gte.' + _today, {
+        headers: { apikey: cfg.supabaseAnonKey, Authorization: 'Bearer ' + cfg.supabaseAnonKey }
+      })
+      const periodi = await rp.json()
+      if (Array.isArray(periodi) && periodi.length) {
+        const giorno = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+        document.querySelectorAll('.price-num[data-price]').forEach(elp => {
+          const chiave  = elp.dataset.price
+          const attuale = map[chiave]
+          const card    = elp.closest('.price-card')
+          const unit    = card && card.querySelector('.price-unit')
+          if (!attuale || !unit) return
+          let alta = null
+          periodi.forEach(pp => {
+            const v = pp[chiave]
+            if (v == null || Number(v) <= Number(attuale)) return
+            if (!alta || Number(v) > Number(alta[chiave])) alta = pp
+          })
+          if (!alta) return
+          const nota = document.createElement('div')
+          nota.style.cssText = 'margin-top:6px;font-size:12px;line-height:1.4;color:var(--warm-gray);'
+          nota.textContent = '€' + Math.round(alta[chiave]) + ' per person in high season ('
+            + giorno(alta.start_date) + ' \u2013 ' + giorno(alta.end_date) + ')'
+          unit.parentNode.insertBefore(nota, unit.nextSibling)
+        })
+      }
+    } catch (e) { /* la card resta com'e' */ }
     const online  = map['shared_online']
     const arrival = map['shared_arrival']
     if (!online || !arrival) return
