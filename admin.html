@@ -1401,7 +1401,29 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
 })
 
 // ── Dashboard ─────────────────────────────────────────────────
+// Quanto Stripe ha davvero trattenuto non sta nel database finche' non
+// glielo chiediamo. Lo si chiede aprendo la dashboard, una volta per
+// visita: cosi' i guadagni che stai leggendo sono al netto delle
+// commissioni vere e non di una stima (su carta europea sono 1,5% + 0,25,
+// su carta americana oltre il 3%: stimarle voleva dire sbagliare del doppio).
+// Se Stripe o la funzione non rispondono la dashboard si apre lo stesso,
+// solo con le commissioni non ancora aggiornate.
+let commissioniGiaChieste = false
+async function recuperaCommissioniStripe() {
+  if (commissioniGiaChieste) return
+  commissioniGiaChieste = true
+  try {
+    for (let giro = 0; giro < 4; giro++) {
+      const { data, error } = await db.functions.invoke('backfill-stripe-fees', { method: 'POST' })
+      if (error || !data || !data.ok || !data.altri_da_fare) return
+    }
+  } catch (e) {
+    console.warn('Commissioni Stripe non recuperate:', e)
+  }
+}
+
 async function loadDashboard() {
+  await recuperaCommissioniStripe()
   const [bookRes, voucherRes, costRes, ruleRes, periodRes, bcostRes, payRes] = await Promise.all([
     db.from('bookings')
       .select('id,status,amount_eur,created_at,payment_method,created_by,notes,persons,type,slots(date)')
