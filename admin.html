@@ -1395,7 +1395,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
 
 // ── Dashboard ─────────────────────────────────────────────────
 async function loadDashboard() {
-  const [bookRes, voucherRes, costRes, ruleRes, periodRes, bcostRes] = await Promise.all([
+  const [bookRes, voucherRes, costRes, ruleRes, periodRes, bcostRes, payRes] = await Promise.all([
     db.from('bookings')
       .select('id,status,amount_eur,created_at,payment_method,created_by,notes,persons,type,slots(date)')
       .order('created_at', { ascending: true }),
@@ -1404,6 +1404,7 @@ async function loadDashboard() {
     db.from('cost_rules').select('legacy_cutoff').eq('id', 1).maybeSingle(),
     db.from('price_periods').select('start_date,end_date').eq('active', true).eq('high_season', true),
     db.from('booking_costs').select('booking_id,cost_eur,commission_pct'),
+    db.from('payments').select('booking_id,fee_eur,status'),
   ])
 
   const bookings = bookRes.data
@@ -1444,8 +1445,23 @@ async function loadDashboard() {
     const pct = commPerc[b.id]
     return pct ? (Number(b.amount_eur) || 0) * pct / 100 : 0
   }
-  // Tutto quello che esce per una prenotazione: erogazione + commissione
-  const uscitePrenotazione = b => costoPrenotazione(b) + commissionePrenotazione(b)
+
+  // Quanto si e' tenuto Stripe per incassare. Non si stima: e' la cifra
+  // che Stripe dichiara sul singolo pagamento, perche' su carta europea
+  // sono 1,5% + 0,25 e su carta di fuori 3,15% + 0,25. Una prenotazione
+  // pagata due volte ha due commissioni, e sono uscite tutte e due.
+  const commStripe = {}
+  ;(payRes.data || []).forEach(p => {
+    if (p.fee_eur == null) return
+    if (p.status !== 'paid' && p.status !== 'refunded') return
+    commStripe[p.booking_id] = (commStripe[p.booking_id] || 0) + Number(p.fee_eur)
+  })
+  const commissioneStripe = b => commStripe[b.id] || 0
+
+  // Tutto quello che esce per una prenotazione: erogazione, commissione
+  // della piattaforma e commissione del metodo di pagamento.
+  const uscitePrenotazione = b =>
+    costoPrenotazione(b) + commissionePrenotazione(b) + commissioneStripe(b)
 
   // Chi ha inserito la prenotazione decide dove finisce.
   //  - nessun autore  -> arrivata dal sito
@@ -1931,7 +1947,7 @@ async function loadBookings() {
     db.from('bookings')
       .select('id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,amount_paid,notes,created_at,created_by,stripe_session_id,slots(date,time)')
       .order('created_at', { ascending: false }),
-    db.from('payments').select('booking_id,status,amount_eur,stripe_payment_intent'),
+    db.from('payments').select('booking_id,status,amount_eur,stripe_payment_intent,fee_eur'),
   ])
   allBookings = bookRes.data || []
   INCASSI = {}
@@ -1952,6 +1968,8 @@ function incassoDi(b) {
     stato,
     importo: p ? p.amount_eur : null,
     riferimento: p ? p.stripe_payment_intent : null,
+    // quanto si e' tenuto Stripe: e' un costo, non torna indietro
+    commissione: p && p.fee_eur != null ? Number(p.fee_eur) : null,
     daRimborsare: stato === 'paid',
   }
 }
@@ -2038,7 +2056,7 @@ async function openBookingModal(id) {
   // ci sono: se manca, lo si chiede prima di mostrare qualcosa.
   if (!INCASSI[id]) {
     const { data: pag } = await db.from('payments')
-      .select('booking_id,status,amount_eur,stripe_payment_intent')
+      .select('booking_id,status,amount_eur,stripe_payment_intent,fee_eur')
       .eq('booking_id', id)
     const rango = { refunded: 3, paid: 2, pending: 1, failed: 0 }
     ;(pag || []).forEach(p => {
@@ -2062,6 +2080,9 @@ async function openBookingModal(id) {
       ${row('Pagamento', b.payment_method === 'arrival' ? 'Paga all\'arrivo' : 'Online (Stripe)')}
       ${row('Importo', h.price ? HF_LOCK : ('€' + (b.amount_eur || '—')))}
       ${row('Incasso', descriviIncasso(b))}
+      ${incassoDi(b).commissione != null
+        ? row('Commissione Stripe', '\u20ac' + incassoDi(b).commissione.toFixed(2).replace('.', ',') + ' <span style="color:var(--warm-gray);font-size:12px">trattenuti da Stripe, non tornano col rimborso</span>')
+        : ''}
       ${row('Stato', statusBadge(b.status))}
       ${h.notes ? row('Note', HF_LOCK) : (hp.notes ? row('Note', esc(hp.notes)) : '')}
     </table>`
