@@ -150,6 +150,8 @@
       padding: 6px 12px; font: inherit; font-size: 12px; color: var(--charcoal); cursor: pointer;
     }
     .dettaglio-banner button:hover { border-color: var(--terra); color: var(--terra); }
+    .inp:disabled { background: #F4F1EB; color: var(--warm-gray); cursor: not-allowed; }
+    .in-modifica { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(139,94,60,.08); }
 
     /* ── Charts ── */
     .chart-card {
@@ -627,11 +629,11 @@
       </div>
 
       <div class="table-card" style="margin-bottom:28px">
-        <div class="table-card-header"><h3>Nuova prenotazione</h3></div>
+        <div class="table-card-header"><h3 id="nb-titolo">Nuova prenotazione</h3></div>
         <div style="padding:24px">
-          <p style="font-size:13px;color:var(--warm-gray);margin-bottom:20px;line-height:1.6">
-            Per le prenotazioni prese al telefono, via email o dalle piattaforme. Occupa i posti come una prenotazione dal sito;
-            come tutte le prenotazioni caricate a mano resta fuori dal fatturato online del cruscotto.
+          <p id="nb-descrizione" style="font-size:13px;color:var(--warm-gray);margin-bottom:20px;line-height:1.6">
+            Per le prenotazioni prese al telefono, via email o dalle piattaforme. Occupa i posti come una prenotazione dal sito
+            ed entra nel fatturato del cruscotto come tutte le nostre. Fuori dai conti resta solo il calendario di Francesca.
           </p>
           <div class="form-row-3">
             <div class="fg">
@@ -705,6 +707,7 @@
           <div class="form-actions">
             <button class="btn btn-primary" id="nb-save-btn">Crea prenotazione</button>
             <button class="btn btn-ghost" id="nb-reset-btn">Svuota</button>
+            <button class="btn btn-ghost" id="nb-annulla-btn" style="display:none">Annulla modifica</button>
             <span id="nb-hint" style="font-size:12px;color:var(--warm-gray)"></span>
           </div>
         </div>
@@ -1178,6 +1181,7 @@
     </div>
     <div id="modal-booking-content"></div>
     <div class="form-actions" style="margin-top:24px;flex-wrap:wrap;gap:8px;">
+      <button class="btn btn-primary btn-sm" id="modal-edit-btn">Modifica</button>
       <button class="btn btn-success btn-sm" id="modal-confirm-btn">Conferma</button>
       <button class="btn btn-danger btn-sm" id="modal-cancel-btn">Cancella senza rimborso</button>
       <button class="btn btn-danger btn-sm" id="modal-refund-cancel-btn" style="background:#7B2D00;">Rimborsa e cancella</button>
@@ -1907,7 +1911,7 @@ async function loadBookings() {
   // identiche, e non si capisce quale vada rimborsata.
   const [bookRes, payRes] = await Promise.all([
     db.from('bookings')
-      .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,stripe_session_id,slots(date,time)')
+      .select('id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,amount_paid,notes,created_at,created_by,stripe_session_id,slots(date,time)')
       .order('created_at', { ascending: false }),
     db.from('payments').select('booking_id,status,amount_eur,stripe_payment_intent'),
   ])
@@ -2005,7 +2009,7 @@ async function openBookingModal(id) {
   if (!b) {
     // Chiamata dalla sidebar: recupera il record completo dal DB
     const { data, error } = await db.from('bookings')
-      .select('id,name,email,phone,persons,type,status,payment_method,amount_eur,notes,created_at,created_by,stripe_session_id,slots(date,time)')
+      .select('id,slot_id,name,email,phone,persons,type,status,payment_method,amount_eur,amount_paid,notes,created_at,created_by,stripe_session_id,slots(date,time)')
       .eq('id', id)
       .single()
     if (error || !data) { toast('Prenotazione non trovata', 'error'); return }
@@ -2043,6 +2047,11 @@ async function openBookingModal(id) {
       ${row('Stato', statusBadge(b.status))}
       ${h.notes ? row('Note', HF_LOCK) : (hp.notes ? row('Note', esc(hp.notes)) : '')}
     </table>`
+
+  // Si modificano solo le prenotazioni che abbiamo caricato noi: quelle del
+  // sito le governa Stripe, quelle di Francesca sono sue.
+  document.getElementById('modal-edit-btn').style.display =
+    (origineDi(b) === 'gestionale' && b.status !== 'cancelled' && b.status !== 'refunded') ? 'inline-flex' : 'none'
 
   const confirmBtn = document.getElementById('modal-confirm-btn')
   const cancelBtn  = document.getElementById('modal-cancel-btn')
@@ -2540,7 +2549,174 @@ async function nbCercaId(name, date, slot) {
     .limit(1)
   return data && data[0] ? data[0].id : null
 }
-document.getElementById('nb-save-btn').addEventListener('click', () => nbCreate(false))
+// ── Modifica di una prenotazione gia' caricata ─────────────────
+// Si riusa lo stesso modulo della creazione: stessi campi, stessi
+// controlli, cosi' non ci sono due strade che possono divergere.
+// Data, fascia e tipo restano bloccati: i posti li gestisce il sistema
+// e spostarli vorrebbe dire liberarne e occuparne altri.
+let nbModificaId = null
+let nbModificaCoda = ''      // i flag di privacy in coda alle note, intoccati
+let nbModificaStato = null   // com'era il pagamento quando ho aperto
+let nbModificaOrig = null    // i valori veri, per non riscriverli a caso
+
+// Le note hanno in coda i flag di privacy del calendario. Da qui non si
+// toccano: si riattacca esattamente la coda che c'era.
+function nbCodaNote(b) {
+  const raw = String((b && b.notes) || '')
+  const i = raw.indexOf(HF_MARK)
+  return i === -1 ? '' : raw.slice(i)
+}
+
+function nbStatoDi(b) {
+  if (b.status === 'pending') return 'pending'
+  if (Number(b.amount_paid) > 0) return 'partial'
+  if (b.payment_method === 'arrival') return 'wait'
+  return 'ok'
+}
+
+function nbBloccaFissi(bloccati) {
+  ;['nb-date','nb-slot','nb-type'].forEach(id => { document.getElementById(id).disabled = bloccati })
+}
+
+async function nbApriModifica(id) {
+  const b = allBookings.find(x => x.id === id)
+  if (!b) { toast('Prenotazione non trovata', 'error'); return }
+  if (origineDi(b) !== 'gestionale') { toast('Si possono modificare solo le prenotazioni caricate da noi', 'error'); return }
+
+  closeModal('modal-booking')
+  nbModificaId = id
+  const hp = bkHidden(b)
+  nbModificaCoda = nbCodaNote(b)
+  nbModificaOrig = { status: b.status, payment_method: b.payment_method, amount_paid: b.amount_paid }
+
+  const set = (campo, valore) => { document.getElementById(campo).value = (valore === null || valore === undefined) ? '' : valore }
+  set('nb-date',   b.slots?.date?.slice(0,10) || '')
+  set('nb-slot',   b.slots?.time?.slice(0,5) || '')
+  set('nb-type',   b.type === 'private' ? 'private' : 'shared')
+  set('nb-guests', b.persons)
+  set('nb-price',  b.amount_eur)
+  set('nb-name',   b.name)
+  set('nb-email',  (b.email && b.email !== 'ospite@tenutacollebrunacchi.com') ? b.email : '')
+  set('nb-phone',  b.phone)
+  set('nb-notes',  hp.notes)
+  set('nb-paid',   Number(b.amount_paid) > 0 ? b.amount_paid : '')
+  const stato = nbStatoDi(b)
+  nbModificaStato = stato
+  set('nb-status', stato)
+  document.getElementById('nb-paid-row').style.display = stato === 'partial' ? '' : 'none'
+  // il prezzo e' gia' deciso: il listino non deve sovrascriverlo
+  document.getElementById('nb-price').dataset.touched = '1'
+
+  // Il costo vive in una tabella riservata, si legge solo adesso
+  set('nb-cost', '')
+  const { data: costi } = await db.from('booking_costs').select('cost_eur').eq('booking_id', id).limit(1)
+  if (costi && costi.length) set('nb-cost', costi[0].cost_eur)
+
+  nbBloccaFissi(true)
+  document.getElementById('nb-titolo').textContent = 'Modifica prenotazione'
+  document.getElementById('nb-descrizione').textContent =
+    'Stai modificando la prenotazione di ' + (b.name || '') + '. Data, fascia e tipo non si toccano: i posti li gestisce il sistema. Per spostarla su un altro giorno cancellala e rifalla.'
+  document.getElementById('nb-save-btn').textContent = 'Salva modifiche'
+  document.getElementById('nb-annulla-btn').style.display = 'inline-flex'
+  document.getElementById('nb-reset-btn').style.display = 'none'
+  const riquadro = document.getElementById('nb-titolo').closest('.table-card')
+  riquadro.classList.add('in-modifica')
+  riquadro.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function nbEsciModifica() {
+  nbModificaId = null
+  nbModificaCoda = ''
+  nbModificaStato = null
+  nbModificaOrig = null
+  nbBloccaFissi(false)
+  document.getElementById('nb-titolo').textContent = 'Nuova prenotazione'
+  document.getElementById('nb-descrizione').textContent =
+    'Per le prenotazioni prese al telefono, via email o dalle piattaforme. Occupa i posti come una prenotazione dal sito ed entra nel fatturato del cruscotto come tutte le nostre. Fuori dai conti resta solo il calendario di Francesca.'
+  document.getElementById('nb-save-btn').textContent = 'Crea prenotazione'
+  document.getElementById('nb-annulla-btn').style.display = 'none'
+  document.getElementById('nb-reset-btn').style.display = 'inline-flex'
+  document.getElementById('nb-titolo').closest('.table-card').classList.remove('in-modifica')
+  nbReset()
+}
+
+async function nbSalvaModifica() {
+  const id     = nbModificaId
+  const name   = nbVal('nb-name')
+  const guests = Number(nbVal('nb-guests')) || 0
+  const stato  = document.getElementById('nb-status').value
+  const price  = Number(nbVal('nb-price')) || 0
+  const paid   = Number(nbVal('nb-paid'))  || 0
+
+  if (name.length < 2)           { toast('Inserisci il nome dell\'ospite', 'error'); return }
+  if (guests < 1 || guests > 10) { toast('Da 1 a 10 persone per prenotazione', 'error'); return }
+  if (stato === 'partial') {
+    if (!(paid > 0))                { toast('Inserisci l\'acconto ricevuto', 'error'); return }
+    if (price > 0 && paid >= price) { toast('L\'acconto copre l\'intero importo: usa \u00abPagata\u00bb', 'error'); return }
+  }
+
+  // La funzione database sposta i posti ma non si rifiuta di andare sotto
+  // zero: se cresce il numero di persone, i posti liberi si guardano qui.
+  const prima = allBookings.find(x => x.id === id)
+  const inPiu = guests - (Number(prima && prima.persons) || 0)
+  if (inPiu > 0 && prima && prima.slot_id) {
+    const { data: fascia } = await db.from('slots').select('capacity_left').eq('id', prima.slot_id).single()
+    const liberi = fascia ? Number(fascia.capacity_left) : null
+    if (liberi != null && inPiu > liberi) {
+      const ok = confirm('In quella fascia ' + (liberi === 1 ? 'resta 1 posto libero' : 'restano ' + liberi + ' posti liberi')
+        + ', e ne stai aggiungendo ' + inPiu + '.\nSalvando, la fascia risultera\u0300 sovrapprenotata sul sito. Procedere lo stesso?')
+      if (!ok) return
+    }
+  }
+
+  const btn = document.getElementById('nb-save-btn')
+  const lbl = btn.textContent
+  btn.disabled = true; btn.textContent = 'Salvataggio\u2026'
+  const { error } = await db.rpc('update_manual_booking', {
+    p_id:          String(id),
+    p_name:        name,
+    p_email:       nbVal('nb-email') || null,
+    p_phone:       nbVal('nb-phone') || null,
+    p_persons:     guests,
+    p_amount:      price,
+    p_notes:       (nbVal('nb-notes') + nbModificaCoda) || null,
+    // Se il menu del pagamento non l'ho toccato, si riscrivono i valori
+    // che c'erano: le quattro voci non coprono ogni combinazione, e non
+    // deve capitare che salvando una modifica al nome cambi il pagamento.
+    p_status:      stato === nbModificaStato ? nbModificaOrig.status         : (stato === 'pending' ? 'pending' : 'confirmed'),
+    p_payment:     stato === nbModificaStato ? nbModificaOrig.payment_method : (stato === 'ok' ? 'online' : 'arrival'),
+    p_amount_paid: stato === 'partial' ? paid : null,
+  })
+  btn.disabled = false; btn.textContent = lbl
+
+  if (error) {
+    const m = error.message || ''
+    if (/NOT_OWNER/.test(m))      { toast('Questa prenotazione non l\'abbiamo caricata noi: non si puo\' modificare', 'error'); return }
+    if (/SOLD_OUT/.test(m))       { toast('Non ci sono abbastanza posti liberi in quella fascia per il nuovo numero di persone', 'error'); return }
+    if (/INVALID_PERSONS/.test(m)){ toast('Numero di persone non valido (da 1 a 10)', 'error'); return }
+    toast('Errore: ' + m, 'error'); return
+  }
+
+  // Il costo sta in una tabella a parte, e non passa dalla funzione
+  const costo = Number(nbVal('nb-cost'))
+  const { error: e2 } = costo > 0
+    ? await db.from('booking_costs').upsert({ booking_id: id, cost_eur: costo, updated_at: new Date().toISOString() }, { onConflict: 'booking_id' })
+    : await db.from('booking_costs').delete().eq('booking_id', id)
+  if (e2) toast('Prenotazione aggiornata, ma il costo non e\' stato salvato: ' + e2.message, 'error')
+  else    toast('Prenotazione aggiornata', 'success')
+
+  nbEsciModifica()
+  loadBookings()
+}
+
+document.getElementById('modal-edit-btn').addEventListener('click', () => {
+  if (selectedBookingId) nbApriModifica(selectedBookingId)
+})
+document.getElementById('nb-annulla-btn').addEventListener('click', nbEsciModifica)
+document.getElementById('nb-save-btn').addEventListener('click', () => {
+  if (nbModificaId) nbSalvaModifica()
+  else nbCreate(false)
+})
 
 // ── Voucher regalo ────────────────────────────────────────────
 let GV_ROWS  = []
