@@ -133,13 +133,14 @@
     .stat-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 8px; }
     .stat-value { font-family: var(--font-serif); font-size: 32px; font-weight: 500; color: var(--charcoal); }
     .stat-sub { font-size: 12px; color: var(--warm-gray); margin-top: 4px; }
-    .stat-card[data-dettaglio] { cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .stat-card[data-dettaglio] { cursor: pointer; touch-action: manipulation; transition: border-color .15s, box-shadow .15s, transform .15s; }
     .stat-card[data-dettaglio]:hover { border-color: var(--terra); box-shadow: 0 6px 18px rgba(28,28,26,.07); transform: translateY(-1px); }
     .stat-card[data-dettaglio]:focus-visible { outline: 2px solid var(--terra); outline-offset: 3px; }
     .stat-card[data-dettaglio].vuota { cursor: default; opacity: .75; }
     .stat-card[data-dettaglio].vuota:hover { border-color: var(--border); box-shadow: none; transform: none; }
     .dettaglio-banner {
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      scroll-margin-top: 16px;
       background: #F7F3EC; border: 1px solid var(--border); border-radius: 6px;
       padding: 12px 16px; margin-bottom: 16px; font-size: 13px;
     }
@@ -427,6 +428,8 @@
       .page-title { font-size: 23px; }
       .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .stat-card { padding: 18px 16px; }
+      /* la barra verde in alto e' fissa: senza margine copre la fascia */
+      .dettaglio-banner { scroll-margin-top: 76px; }
       .stat-value { font-size: 26px; }
       .chart-card, .table-card { border-radius: 6px; }
       .table-card-header { flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -1242,6 +1245,10 @@ function origineDi(b) {
 // puo' raccontare una storia diversa dal numero.
 const DETTAGLIO_DASHBOARD = {}
 let dettaglioAttivo = null
+// La fascia col dettaglio sta sotto il modulo "Nuova prenotazione": senza
+// portarla sotto gli occhi resta fuori schermo, e sul telefono - dove il
+// modulo e' in colonna e occupa tutto - sembra che il clic non faccia nulla.
+let dettaglioDaPortareInVista = false
 let dettaglioInApertura = false
 
 const ORIGINE_TARGHETTA = {
@@ -1908,6 +1915,10 @@ function mostraFasciaDettaglio(dett) {
   fascia.style.display = 'flex'
   document.getElementById('dettaglio-titolo').textContent = dett.titolo + ': ' + dett.valore
   document.getElementById('dettaglio-nota').textContent = '\u2014 ' + dett.nota
+  if (dettaglioDaPortareInVista) {
+    dettaglioDaPortareInVista = false
+    fascia.scrollIntoView({ block: 'start', behavior: 'auto' })
+  }
 }
 
 // Dalla casella all'elenco: si azzerano gli altri filtri, altrimenti il
@@ -1916,6 +1927,7 @@ function apriDettaglioDashboard(chiave) {
   const d = DETTAGLIO_DASHBOARD[chiave]
   if (!d || !d.ids.size) return
   dettaglioAttivo = chiave
+  dettaglioDaPortareInVista = true
   document.getElementById('book-search').value = ''
   document.getElementById('book-origin-filter').value = ''
   document.getElementById('book-status-filter').value = ''
