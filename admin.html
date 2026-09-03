@@ -685,10 +685,14 @@
               <input class="inp" id="nb-phone" type="text">
             </div>
           </div>
-          <div class="form-row">
+          <div class="form-row-3">
             <div class="fg">
-              <label class="lbl" for="nb-cost">Costo per noi (&euro;) <small style="text-transform:none;letter-spacing:0;font-weight:400">(riservato, vuoto = da listino costi)</small></label>
+              <label class="lbl" for="nb-cost">Costo di erogazione (&euro;) <small style="text-transform:none;letter-spacing:0;font-weight:400">(riservato, vuoto = da listino costi)</small></label>
               <input class="inp" id="nb-cost" type="number" min="0" step="1">
+            </div>
+            <div class="fg">
+              <label class="lbl" for="nb-commission">Commissione piattaforma (%) <small style="text-transform:none;letter-spacing:0;font-weight:400">(Viator, GetYourGuide&hellip;)</small></label>
+              <input class="inp" id="nb-commission" type="number" min="0" max="100" step="0.5" placeholder="es. 20">
             </div>
             <div class="fg" style="justify-content:flex-end">
               <span id="nb-margin" style="font-size:13px;color:var(--warm-gray);padding-bottom:11px"></span>
@@ -1399,7 +1403,7 @@ async function loadDashboard() {
     db.from('cost_settings').select('key,value_eur'),
     db.from('cost_rules').select('legacy_cutoff').eq('id', 1).maybeSingle(),
     db.from('price_periods').select('start_date,end_date').eq('active', true).eq('high_season', true),
-    db.from('booking_costs').select('booking_id,cost_eur'),
+    db.from('booking_costs').select('booking_id,cost_eur,commission_pct'),
   ])
 
   const bookings = bookRes.data
@@ -1411,7 +1415,12 @@ async function loadDashboard() {
   const cutoff    = ruleRes.data ? ruleRes.data.legacy_cutoff : null
   const altaStag  = periodRes.data || []
   const override  = {}
-  ;(bcostRes.data || []).forEach(r => { override[r.booking_id] = Number(r.cost_eur) })
+  const commPerc  = {}
+  ;(bcostRes.data || []).forEach(r => {
+    // un costo lasciato vuoto non e' un costo zero: la prenotazione resta sul listino
+    if (r.cost_eur != null)       override[r.booking_id] = Number(r.cost_eur)
+    if (r.commission_pct != null) commPerc[r.booking_id] = Number(r.commission_pct)
+  })
 
   const inAltaStagione = d => !!d && altaStag.some(p => d >= p.start_date && d <= p.end_date)
 
@@ -1429,6 +1438,15 @@ async function loadDashboard() {
     return unit != null ? unit * persone : 0
   }
 
+  // Quanto trattiene la piattaforma di provenienza: una percentuale
+  // sull'importo, quindi segue il prezzo se il prezzo cambia.
+  const commissionePrenotazione = b => {
+    const pct = commPerc[b.id]
+    return pct ? (Number(b.amount_eur) || 0) * pct / 100 : 0
+  }
+  // Tutto quello che esce per una prenotazione: erogazione + commissione
+  const uscitePrenotazione = b => costoPrenotazione(b) + commissionePrenotazione(b)
+
   // Chi ha inserito la prenotazione decide dove finisce.
   //  - nessun autore  -> arrivata dal sito
   //  - il nostro account -> l'abbiamo caricata noi dal gestionale: e' nostra a
@@ -1439,7 +1457,7 @@ async function loadDashboard() {
   const siteBookings = bookings.filter(nostra)
   const confirmed = siteBookings.filter(b => b.status === 'confirmed')
   const bookRev  = confirmed.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
-  const bookCost = confirmed.reduce((s,b) => s + costoPrenotazione(b), 0)
+  const bookCost = confirmed.reduce((s,b) => s + uscitePrenotazione(b), 0)
 
   // Voucher: incasso e costo contano dal giorno in cui il regalo viene venduto
   const vouchers    = (voucherRes.data || []).filter(v => v.status !== 'cancelled')
@@ -1467,7 +1485,7 @@ async function loadDashboard() {
   const cashedRev = svolte.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
                   + vRiscattati.reduce((s,v) => s + (Number(v.amount_eur)||0), 0)
   const cashedProfit = cashedRev
-                  - svolte.reduce((s,b) => s + costoPrenotazione(b), 0)
+                  - svolte.reduce((s,b) => s + uscitePrenotazione(b), 0)
                   - vRiscattati.reduce((s,v) => s + (Number(v.cost_eur)||0), 0)
 
   // Quanto del fatturato totale non e' ancora entrato: prenotazioni future
@@ -1487,7 +1505,7 @@ async function loadDashboard() {
   const thisMonthRev = thisMonth.reduce((s,b) => s + (Number(b.amount_eur)||0), 0)
                      + vMese.reduce((s,v) => s + (Number(v.amount_eur)||0), 0)
   const thisMonthProfit = thisMonthRev
-                     - thisMonth.reduce((s,b) => s + costoPrenotazione(b), 0)
+                     - thisMonth.reduce((s,b) => s + uscitePrenotazione(b), 0)
                      - vMese.reduce((s,v) => s + (Number(v.cost_eur)||0), 0)
 
   const eur = n => '€' + Math.round(n).toLocaleString('it-IT')
@@ -2424,7 +2442,7 @@ document.getElementById('pp-check-btn').addEventListener('click', checkPriceForD
 function nbVal(id) { return String(document.getElementById(id).value || '').trim() }
 
 function nbReset() {
-  ;['nb-date','nb-name','nb-email','nb-phone','nb-price','nb-cost','nb-paid','nb-notes'].forEach(id => {
+  ;['nb-date','nb-name','nb-email','nb-phone','nb-price','nb-cost','nb-commission','nb-paid','nb-notes'].forEach(id => {
     document.getElementById(id).value = ''
   })
   document.getElementById('nb-guests').value = '2'
@@ -2508,17 +2526,19 @@ async function nbCreate(force) {
     }
     toast('Errore: ' + error.message, 'error'); return
   }
-  // Costo riservato: sta in booking_costs, mai sulla riga della prenotazione
-  // che il cliente puo' leggere nella propria area.
-  const costo = Number(nbVal('nb-cost'))
-  if (costo > 0) {
+  // Costo ed eventuale commissione: stanno in booking_costs, mai sulla riga
+  // della prenotazione che il cliente puo' leggere nella propria area.
+  // Lasciati vuoti, il costo continua ad arrivare dal listino.
+  const costo   = nbVal('nb-cost')       ? Number(nbVal('nb-cost'))       : null
+  const commPct = nbVal('nb-commission') ? Number(nbVal('nb-commission')) : null
+  if (costo != null || commPct != null) {
     const id = nbEstraiId(esito) || await nbCercaId(name, date, slot)
     if (id) {
       const { error: e2 } = await db.from('booking_costs')
-        .upsert({ booking_id: id, cost_eur: costo, updated_at: new Date().toISOString() }, { onConflict: 'booking_id' })
-      if (e2) toast('Prenotazione creata, ma il costo non e stato salvato: ' + e2.message, 'error')
+        .upsert({ booking_id: id, cost_eur: costo, commission_pct: commPct, updated_at: new Date().toISOString() }, { onConflict: 'booking_id' })
+      if (e2) toast('Prenotazione creata, ma costo e commissione non sono stati salvati: ' + e2.message, 'error')
     } else {
-      toast('Prenotazione creata, ma non sono riuscito a collegarci il costo', 'error')
+      toast('Prenotazione creata, ma non sono riuscito a collegarci costo e commissione', 'error')
     }
   }
 
@@ -2607,10 +2627,15 @@ async function nbApriModifica(id) {
   // il prezzo e' gia' deciso: il listino non deve sovrascriverlo
   document.getElementById('nb-price').dataset.touched = '1'
 
-  // Il costo vive in una tabella riservata, si legge solo adesso
+  // Costo e commissione vivono in una tabella riservata, si leggono solo adesso
   set('nb-cost', '')
-  const { data: costi } = await db.from('booking_costs').select('cost_eur').eq('booking_id', id).limit(1)
-  if (costi && costi.length) set('nb-cost', costi[0].cost_eur)
+  set('nb-commission', '')
+  const { data: costi } = await db.from('booking_costs').select('cost_eur,commission_pct').eq('booking_id', id).limit(1)
+  if (costi && costi.length) {
+    if (costi[0].cost_eur != null)       set('nb-cost', costi[0].cost_eur)
+    if (costi[0].commission_pct != null) set('nb-commission', costi[0].commission_pct)
+  }
+  nbSuggestCost()
 
   nbBloccaFissi(true)
   document.getElementById('nb-titolo').textContent = 'Modifica prenotazione'
@@ -2697,12 +2722,14 @@ async function nbSalvaModifica() {
     toast('Errore: ' + m, 'error'); return
   }
 
-  // Il costo sta in una tabella a parte, e non passa dalla funzione
-  const costo = Number(nbVal('nb-cost'))
-  const { error: e2 } = costo > 0
-    ? await db.from('booking_costs').upsert({ booking_id: id, cost_eur: costo, updated_at: new Date().toISOString() }, { onConflict: 'booking_id' })
+  // Costo e commissione stanno in una tabella a parte, non passano dalla funzione.
+  // Svuotarli entrambi rimette la prenotazione sul listino costi.
+  const costo   = nbVal('nb-cost')       ? Number(nbVal('nb-cost'))       : null
+  const commPct = nbVal('nb-commission') ? Number(nbVal('nb-commission')) : null
+  const { error: e2 } = (costo != null || commPct != null)
+    ? await db.from('booking_costs').upsert({ booking_id: id, cost_eur: costo, commission_pct: commPct, updated_at: new Date().toISOString() }, { onConflict: 'booking_id' })
     : await db.from('booking_costs').delete().eq('booking_id', id)
-  if (e2) toast('Prenotazione aggiornata, ma il costo non e\' stato salvato: ' + e2.message, 'error')
+  if (e2) toast('Prenotazione aggiornata, ma costo e commissione non sono stati salvati: ' + e2.message, 'error')
   else    toast('Prenotazione aggiornata', 'success')
 
   nbEsciModifica()
@@ -3109,12 +3136,17 @@ async function nbSuggestCost() {
   const campo = document.getElementById('nb-cost')
   const costo = campo.value.trim() ? Number(campo.value) : costoListino
   const prezzo = Number(nbVal('nb-price')) || 0
+  const pct    = Number(nbVal('nb-commission')) || 0
+  const commissione = prezzo * pct / 100
   campo.placeholder = 'Da listino: ' + Math.round(costoListino)
   box.textContent = prezzo > 0
-    ? 'Margine: €' + Math.round(prezzo - costo) + (alta ? ' · costo alta stagione' : ' · costo bassa stagione')
+    ? 'Margine: €' + Math.round(prezzo - costo - commissione)
+      + (commissione > 0 ? ' · commissione €' + Math.round(commissione) : '')
+      + ' · costo €' + Math.round(costo)
+      + (alta ? ' (alta stagione)' : ' (bassa stagione)')
     : (alta ? 'Costo alta stagione: €' + Math.round(costoListino) : 'Costo bassa stagione: €' + Math.round(costoListino))
 }
-;['nb-date','nb-type','nb-guests','nb-price','nb-cost'].forEach(id =>
+;['nb-date','nb-type','nb-guests','nb-price','nb-cost','nb-commission'].forEach(id =>
   document.getElementById(id).addEventListener('input', nbSuggestCost))
 
 
